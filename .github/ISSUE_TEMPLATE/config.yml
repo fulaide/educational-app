@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://docs.educational-app.com
+    about: Check our documentation for common questions and guides
+  - name: 💬 Discussions
+    url: https://github.com/educational-app/educational-app/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🔒 Security Issues
+    url: mailto:security@educational-app.com
+    about: Please report security vulnerabilities privately via email

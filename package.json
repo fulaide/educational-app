@@ -1,0 +1,58 @@
+{
+  "name": "educational-app",
+  "version": "0.1.0",
+  "description": "Comprehensive educational app platform for primary school students learning reading and writing",
+  "private": true,
+  "author": "Educational App Team",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "npm@10.8.2",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:student": "turbo run dev --filter=student-app",
+    "dev:teacher": "turbo run dev --filter=teacher-portal",
+    "dev:parent": "turbo run dev --filter=parent-portal",
+    "dev:admin": "turbo run dev --filter=admin-dashboard",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:e2e": "turbo run test:e2e",
+    "db:migrate": "turbo run db:migrate --filter=database",
+    "db:seed": "turbo run db:seed --filter=database",
+    "db:studio": "turbo run db:studio --filter=database",
+    "db:generate": "turbo run db:generate --filter=database",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{js,ts,svelte,json,md}\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
+    "prettier-plugin-svelte": "^3.2.8",
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "lint-staged": "^15.2.10",
+    "eslint": "^9.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "eslint-plugin-svelte": "^2.46.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vitest": "^0.5.4",
+    "eslint-plugin-storybook": "^0.11.1",
+    "svelte-eslint-parser": "^0.41.1",
+    "@vitest/ui": "^2.1.5",
+    "vitest": "^2.1.5",
+    "@playwright/test": "^1.49.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

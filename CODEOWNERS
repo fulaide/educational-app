@@ -1,0 +1,33 @@
+# Global Owners
+* @educational-app/core-team
+
+# Apps
+/apps/student-app/ @educational-app/mobile-team
+/apps/teacher-portal/ @educational-app/frontend-team  
+/apps/parent-portal/ @educational-app/frontend-team
+/apps/admin-dashboard/ @educational-app/admin-team
+
+# Shared Packages
+/packages/ui/ @educational-app/design-system-team
+/packages/database/ @educational-app/backend-team
+/packages/api/ @educational-app/backend-team
+/packages/sync-engine/ @educational-app/mobile-team @educational-app/backend-team
+/packages/auth/ @educational-app/security-team
+/packages/types/ @educational-app/core-team
+/packages/platform/ @educational-app/mobile-team
+
+# Infrastructure
+/infrastructure/ @educational-app/devops-team
+/.github/ @educational-app/devops-team
+
+# Configuration Files
+package.json @educational-app/core-team
+turbo.json @educational-app/core-team
+tsconfig.json @educational-app/core-team
+tailwind.config.js @educational-app/design-system-team
+prisma/ @educational-app/backend-team
+
+# Documentation
+/docs/ @educational-app/core-team
+README.md @educational-app/core-team
+CLAUDE.md @educational-app/core-team

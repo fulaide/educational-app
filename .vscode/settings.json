@@ -1,0 +1,95 @@
+{
+	// Editor settings
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit",
+		"source.organizeImports": "explicit"
+	},
+	"editor.tabSize": 2,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	
+	// TypeScript settings
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"typescript.suggest.autoImports": true,
+	"typescript.updateImportsOnFileMove.enabled": "always",
+	"typescript.inlayHints.parameterNames.enabled": "all",
+	"typescript.inlayHints.variableTypes.enabled": true,
+	"typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+	
+	// Svelte settings
+	"svelte.enable-ts-plugin": true,
+	"svelte.plugin.css.diagnostics.enable": true,
+	"svelte.plugin.css.completions.enable": true,
+	"svelte.plugin.html.completions.enable": true,
+	"svelte.plugin.svelte.completions.enable": true,
+	"svelte.plugin.svelte.diagnostics.enable": true,
+	"svelte.plugin.svelte.hover.enable": true,
+	
+	// File associations
+	"files.associations": {
+		"*.svelte": "svelte"
+	},
+	
+	// Emmet
+	"emmet.includeLanguages": {
+		"svelte": "html"
+	},
+	
+	// Prettier settings
+	"prettier.documentSelectors": ["**/*.svelte"],
+	"prettier.useEditorConfig": false,
+	"prettier.configPath": ".prettierrc.js",
+	
+	// ESLint settings
+	"eslint.validate": [
+		"javascript",
+		"typescript",
+		"svelte"
+	],
+	"eslint.format.enable": true,
+	
+	// File explorer
+	"files.exclude": {
+		"**/.svelte-kit": true,
+		"**/build": true,
+		"**/dist": true,
+		"**/node_modules": true,
+		"**/.turbo": true,
+		"**/coverage": true
+	},
+	
+	// Search exclude
+	"search.exclude": {
+		"**/.svelte-kit": true,
+		"**/build": true,
+		"**/dist": true,
+		"**/node_modules": true,
+		"**/.turbo": true,
+		"**/coverage": true,
+		"**/package-lock.json": true
+	},
+	
+	// Tailwind CSS
+	"tailwindCSS.includeLanguages": {
+		"svelte": "html"
+	},
+	"tailwindCSS.experimental.classRegex": [
+		["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+		["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+	],
+	
+	// Git
+	"git.ignoreLimitWarning": true,
+	
+	// Terminal
+	"terminal.integrated.defaultProfile.osx": "zsh",
+	
+	// Educational app specific settings
+	"files.watcherExclude": {
+		"**/ios/**": true,
+		"**/android/**": true,
+		"**/node_modules/**": true,
+		"**/.svelte-kit/**": true
+	}
+}

@@ -1,0 +1,84 @@
+{
+	"compilerOptions": {
+		// Language and Module
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		
+		// Emit
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"outDir": "./dist",
+		"removeComments": false,
+		"importHelpers": true,
+		
+		// Type Checking
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"useUnknownInCatchVariables": true,
+		
+		// Modules
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"allowImportingTsExtensions": false,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		
+		// JavaScript Support
+		"allowJs": true,
+		"checkJs": false,
+		
+		// Interop Constraints
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		
+		// Completeness
+		"skipDefaultLibCheck": true,
+		
+		// Paths for monorepo
+		"baseUrl": ".",
+		"paths": {
+			"@educational-app/types": ["./packages/types/src"],
+			"@educational-app/types/*": ["./packages/types/src/*"],
+			"@educational-app/ui": ["./packages/ui/src/lib"],
+			"@educational-app/ui/*": ["./packages/ui/src/lib/*"],
+			"@educational-app/database": ["./packages/database/src"],
+			"@educational-app/database/*": ["./packages/database/src/*"],
+			"@educational-app/api": ["./packages/api/src"],
+			"@educational-app/api/*": ["./packages/api/src/*"],
+			"@educational-app/auth": ["./packages/auth/src"],
+			"@educational-app/auth/*": ["./packages/auth/src/*"],
+			"@educational-app/sync-engine": ["./packages/sync-engine/src"],
+			"@educational-app/sync-engine/*": ["./packages/sync-engine/src/*"],
+			"@educational-app/platform": ["./packages/platform/src"],
+			"@educational-app/platform/*": ["./packages/platform/src/*"]
+		}
+	},
+	
+	"include": [
+		"apps/**/*",
+		"packages/**/*",
+		"**/*.js",
+		"**/*.ts",
+		"**/*.svelte"
+	],
+	
+	"exclude": [
+		"**/node_modules/**",
+		"**/.svelte-kit/**",
+		"**/build/**",
+		"**/dist/**",
+		"**/coverage/**",
+		"**/storybook-static/**",
+		"**/ios/**",
+		"**/android/**"
+	]
+}

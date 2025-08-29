@@ -1,0 +1,37 @@
+# Build outputs
+**/.svelte-kit/
+**/build/
+**/dist/
+**/coverage/
+**/storybook-static/
+
+# Dependencies
+**/node_modules/
+
+# Mobile platforms
+**/ios/
+**/android/
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Generated files
+**/*.d.ts
+.turbo/
+
+# Logs
+*.log
+
+# Environment files
+.env*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

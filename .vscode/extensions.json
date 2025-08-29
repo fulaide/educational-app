@@ -1,0 +1,45 @@
+{
+	"recommendations": [
+		// Svelte
+		"svelte.svelte-vscode",
+		
+		// TypeScript and JavaScript
+		"ms-vscode.vscode-typescript-next",
+		
+		// Linting and Formatting
+		"esbenp.prettier-vscode",
+		"dbaeumer.vscode-eslint",
+		
+		// Tailwind CSS
+		"bradlc.vscode-tailwindcss",
+		
+		// Git
+		"eamodio.gitlens",
+		"github.vscode-pull-request-github",
+		
+		// Testing
+		"vitest.explorer",
+		"ms-playwright.playwright",
+		
+		// Database
+		"prisma.prisma",
+		
+		// Utilities
+		"christian-kohler.path-intellisense",
+		"bradlc.vscode-tailwindcss",
+		"usernamehw.errorlens",
+		"ms-vscode.vscode-json",
+		"redhat.vscode-yaml",
+		
+		// Educational app development
+		"ms-vscode.live-server",
+		"formulahendry.auto-rename-tag",
+		"christian-kohler.npm-intellisense"
+	],
+	
+	"unwantedRecommendations": [
+		"ms-vscode.vscode-typescript",
+		"hookyqr.beautify",
+		"ms-vscode.sublime-keybindings"
+	]
+}

@@ -1,0 +1,46 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Student App",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/apps/student-app",
+			"cwd": "${workspaceFolder}/apps/student-app",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "dev"],
+			"port": 5173,
+			"console": "integratedTerminal"
+		},
+		{
+			"name": "Debug Teacher Portal", 
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/apps/teacher-portal",
+			"cwd": "${workspaceFolder}/apps/teacher-portal",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "dev"],
+			"port": 5174,
+			"console": "integratedTerminal"
+		},
+		{
+			"name": "Run Tests",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}",
+			"cwd": "${workspaceFolder}",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "test"],
+			"console": "integratedTerminal"
+		},
+		{
+			"name": "Debug Vitest",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+			"args": ["--inspect-brk", "--no-coverage"],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal"
+		}
+	]
+}

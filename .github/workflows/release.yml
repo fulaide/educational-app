@@ -1,0 +1,324 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Validate release
+  validate-release:
+    name: ✅ Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Extract version info
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            IS_PRERELEASE=$([[ $VERSION =~ -[a-zA-Z] ]] && echo true || echo false)
+          else
+            VERSION="${{ inputs.version }}"
+            IS_PRERELEASE="${{ inputs.prerelease }}"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is-prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+          echo "Pre-release: $IS_PRERELEASE"
+
+      - name: 🧪 Run comprehensive tests
+        run: |
+          npm run lint
+          npm run type-check  
+          npm run test -- --run
+          npm run build
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          echo "Generating changelog for version ${{ steps.version.outputs.version }}"
+          
+          # Get the latest tag before this one
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Comparing with previous tag: $PREVIOUS_TAG"
+            CHANGELOG=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..HEAD | grep -E "^- (feat|fix|perf|chore\(content\)|ui|mobile):" | head -20)
+          else
+            echo "No previous tag found, using recent commits"
+            CHANGELOG=$(git log --pretty=format:"- %s" --max-count=20 | grep -E "^- (feat|fix|perf|chore\(content\)|ui|mobile):")
+          fi
+          
+          # Write changelog to file
+          echo "## 📋 What's Changed" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          if [ -n "$CHANGELOG" ]; then
+            echo "$CHANGELOG" >> CHANGELOG.md
+          else
+            echo "- Initial release" >> CHANGELOG.md
+          fi
+          echo "" >> CHANGELOG.md
+          echo "**Full Changelog**: [$PREVIOUS_TAG...v${{ steps.version.outputs.version }}](${{ github.server_url }}/${{ github.repository }}/compare/$PREVIOUS_TAG...v${{ steps.version.outputs.version }})" >> CHANGELOG.md
+          
+          # Output for next steps
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  # Build release assets
+  build-release:
+    name: 🏗 Build Release Assets
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+    strategy:
+      matrix:
+        app: [student-app, teacher-portal, parent-portal, admin-dashboard]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build ${{ matrix.app }}
+        run: npm run build --filter=${{ matrix.app }}
+        env:
+          VITE_VERSION: ${{ needs.validate-release.outputs.version }}
+          VITE_ENVIRONMENT: production
+
+      - name: 📦 Create release archive
+        run: |
+          cd apps/${{ matrix.app }}
+          tar -czf ../../${{ matrix.app }}-v${{ needs.validate-release.outputs.version }}.tar.gz build/
+          cd ../..
+          zip -r ${{ matrix.app }}-v${{ needs.validate-release.outputs.version }}.zip apps/${{ matrix.app }}/build/
+
+      - name: 📤 Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-release
+          path: |
+            ${{ matrix.app }}-v${{ needs.validate-release.outputs.version }}.tar.gz
+            ${{ matrix.app }}-v${{ needs.validate-release.outputs.version }}.zip
+
+  # Mobile app builds (for student app)
+  build-mobile:
+    name: 📱 Build Mobile Apps
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build student app for mobile
+        run: npm run build --filter=student-app
+        env:
+          VITE_VERSION: ${{ needs.validate-release.outputs.version }}
+          VITE_ENVIRONMENT: production
+
+      - name: ⚙️ Setup Capacitor
+        run: |
+          cd apps/student-app
+          npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/ios
+          npx cap sync
+
+      - name: 🤖 Build Android (Debug)
+        run: |
+          cd apps/student-app
+          # Note: In production, you'd build release APKs with proper signing
+          echo "Android build configuration ready"
+          echo "Production builds require Android SDK and signing keys"
+
+      - name: 🍎 Prepare iOS build
+        run: |
+          cd apps/student-app
+          # Note: iOS builds require Xcode and proper provisioning profiles
+          echo "iOS build configuration ready"
+          echo "Production builds require Xcode and Apple Developer certificates"
+
+  # Create GitHub release
+  create-release:
+    name: 📋 Create Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release, build-mobile]
+    
+    steps:
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: 📋 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.validate-release.outputs.version }}
+          name: Release v${{ needs.validate-release.outputs.version }}
+          body: ${{ needs.validate-release.outputs.changelog }}
+          prerelease: ${{ needs.validate-release.outputs.is-prerelease }}
+          files: |
+            release-assets/**/*.tar.gz
+            release-assets/**/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Deploy release to production
+  deploy-release:
+    name: 🚀 Deploy Release
+    needs: [validate-release, create-release]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      apps: all
+    secrets: inherit
+
+  # Post-release tasks
+  post-release:
+    name: 📊 Post-Release Tasks
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-release, deploy-release]
+
+    steps:
+      - name: 📊 Update monitoring
+        run: |
+          echo "📊 Updating monitoring dashboards..."
+          echo "Version: ${{ needs.validate-release.outputs.version }}"
+          # TODO: Update Sentry release, DataDog tags, etc.
+
+      - name: 📱 Notify mobile app stores (production only)
+        if: needs.validate-release.outputs.is-prerelease == 'false'
+        run: |
+          echo "📱 Mobile app store notifications:"
+          echo "- iOS App Store: Manual review required"
+          echo "- Google Play: Automated rollout can begin"
+          # TODO: Integrate with app store APIs
+
+      - name: 📢 Announce release
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "🎉 New release deployed!",
+              "attachments": [
+                {
+                  "color": "good",
+                  "title": "Release v${{ needs.validate-release.outputs.version }}",
+                  "text": "Educational App Platform has been updated with new features and improvements.",
+                  "fields": [
+                    {
+                      "title": "Version",
+                      "value": "v${{ needs.validate-release.outputs.version }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Environment",
+                      "value": "Production",
+                      "short": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "button",
+                      "text": "View Release",
+                      "url": "${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}"
+                    },
+                    {
+                      "type": "button", 
+                      "text": "Student App",
+                      "url": "https://student.educational-app.com"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: 🔄 Update documentation
+        run: |
+          echo "📚 Documentation updates needed:"
+          echo "- API documentation"
+          echo "- User guides"
+          echo "- Teacher onboarding"
+          # TODO: Trigger documentation updates
+
+  # Release summary
+  release-summary:
+    name: 📋 Release Summary
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-release, deploy-release, post-release]
+    if: always()
+
+    steps:
+      - name: 📋 Generate release summary
+        run: |
+          echo "## 🚀 Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ needs.validate-release.outputs.is-prerelease == 'true' && 'Pre-release' || 'Production Release' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Deployment Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitHub Release:** ${{ needs.create-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Production Deploy:** ${{ needs.deploy-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Post-Release Tasks:** ${{ needs.post-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Release Notes](${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Student App](https://student.educational-app.com)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Teacher Portal](https://teacher.educational-app.com)" >> $GITHUB_STEP_SUMMARY

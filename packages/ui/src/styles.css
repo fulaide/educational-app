@@ -1,0 +1,256 @@
+@import 'tailwindcss';
+
+/* Global styles for the educational app */
+@layer base {
+  html {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Lexend, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Focus styles */
+  *:focus {
+    outline: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  }
+}
+
+@layer components {
+  /* Text truncation utility */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Educational app specific animations */
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s infinite;
+  }
+
+  .animate-wiggle {
+    animation: wiggle 1s ease-in-out infinite;
+  }
+
+  .animate-star-twinkle {
+    animation: star-twinkle 2s ease-in-out infinite;
+  }
+
+  .animate-confetti {
+    animation: confetti 3s ease-out forwards;
+  }
+
+  /* Educational color utilities */
+  .text-grade-1 { @apply text-red-600; }
+  .text-grade-2 { @apply text-orange-600; }
+  .text-grade-3 { @apply text-yellow-600; }
+  .text-grade-4 { @apply text-green-600; }
+  .text-grade-5 { @apply text-blue-600; }
+  .text-grade-6 { @apply text-indigo-600; }
+
+  .bg-grade-1 { @apply bg-red-100; }
+  .bg-grade-2 { @apply bg-orange-100; }
+  .bg-grade-3 { @apply bg-yellow-100; }
+  .bg-grade-4 { @apply bg-green-100; }
+  .bg-grade-5 { @apply bg-blue-100; }
+  .bg-grade-6 { @apply bg-indigo-100; }
+
+  /* Achievement glow effects */
+  .glow-achievement {
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
+  }
+
+  .glow-success {
+    filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+  }
+
+  .glow-danger {
+    filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+  }
+
+  /* Glassmorphism effects */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Educational interaction states */
+  .educational-card {
+    @apply bg-white rounded-xl border-2 border-gray-200 p-4 transition-all duration-200;
+  }
+
+  .educational-card:hover {
+    @apply border-primary-300 shadow-lg transform scale-105;
+  }
+
+  .educational-card.active {
+    @apply border-primary-500 bg-primary-50;
+  }
+
+  .educational-card.completed {
+    @apply border-success-500 bg-success-50;
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 w-full;
+  }
+
+  .skeleton-circle {
+    @apply skeleton rounded-full;
+  }
+
+  /* Mobile-friendly tap targets */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Safe area insets for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Educational app specific utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Force hardware acceleration */
+  .gpu {
+    transform: translateZ(0);
+  }
+
+  /* Hide scrollbar but keep scrolling */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom selection colors */
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+}
+
+/* Development helpers */
+@layer utilities {
+  .debug-grid {
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .debug-outline * {
+    outline: 1px solid red !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .educational-card {
+    @apply border-4 border-black;
+  }
+
+  .educational-card:hover {
+    @apply bg-yellow-100;
+  }
+}
+
+/* Dark mode support (future-proofing) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}

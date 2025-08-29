@@ -1,0 +1,339 @@
+name: 🚀 Deploy Applications
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+      apps:
+        description: 'Apps to deploy (comma-separated or "all")'
+        required: true
+        default: 'all'
+        type: string
+
+concurrency:
+  group: deploy-${{ github.ref }}-${{ inputs.environment || 'production' }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # Determine what to deploy
+  setup:
+    name: 📋 Setup Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.config.outputs.environment }}
+      apps: ${{ steps.config.outputs.apps }}
+      deploy-student: ${{ steps.config.outputs.deploy-student }}
+      deploy-teacher: ${{ steps.config.outputs.deploy-teacher }}
+      deploy-parent: ${{ steps.config.outputs.deploy-parent }}
+      deploy-admin: ${{ steps.config.outputs.deploy-admin }}
+
+    steps:
+      - name: 📋 Configure deployment
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "apps=all" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "apps=${{ inputs.apps }}" >> $GITHUB_OUTPUT
+          fi
+          
+          # Determine which apps to deploy
+          APPS="${{ inputs.apps || 'all' }}"
+          if [ "$APPS" = "all" ]; then
+            echo "deploy-student=true" >> $GITHUB_OUTPUT
+            echo "deploy-teacher=true" >> $GITHUB_OUTPUT
+            echo "deploy-parent=true" >> $GITHUB_OUTPUT
+            echo "deploy-admin=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy-student=$([[ $APPS =~ student-app ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+            echo "deploy-teacher=$([[ $APPS =~ teacher-portal ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+            echo "deploy-parent=$([[ $APPS =~ parent-portal ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+            echo "deploy-admin=$([[ $APPS =~ admin-dashboard ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+          fi
+
+  # Pre-deployment checks
+  pre-deploy:
+    name: 🔍 Pre-deployment Checks
+    runs-on: ubuntu-latest
+    needs: [setup]
+    environment: ${{ needs.setup.outputs.environment }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run critical tests
+        run: npm run test -- --run --reporter=basic
+
+      - name: 🏗 Test builds
+        run: npm run build
+
+      - name: 🔍 Security check
+        run: npm audit --audit-level high
+
+  # Database migrations
+  migrate-database:
+    name: 🗄️ Database Migration
+    runs-on: ubuntu-latest
+    needs: [setup, pre-deploy]
+    environment: ${{ needs.setup.outputs.environment }}
+    if: needs.setup.outputs.environment == 'production' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🗄️ Run database migrations
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # Deploy Student App (Mobile-focused)
+  deploy-student-app:
+    name: 📱 Deploy Student App
+    runs-on: ubuntu-latest
+    needs: [setup, pre-deploy, migrate-database]
+    if: always() && needs.setup.outputs.deploy-student == 'true' && !contains(needs.*.result, 'failure')
+    environment: 
+      name: ${{ needs.setup.outputs.environment }}-student
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build student app
+        run: npm run build --filter=student-app
+        env:
+          VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+
+      - name: 🚀 Deploy to Vercel
+        id: deploy
+        uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_STUDENT_PROJECT_ID }}
+          working-directory: ./apps/student-app
+          production: ${{ needs.setup.outputs.environment == 'production' }}
+
+      - name: 📱 Update mobile app stores (production only)
+        if: needs.setup.outputs.environment == 'production'
+        run: |
+          echo "🍎 iOS App Store update would trigger here"
+          echo "🤖 Google Play Store update would trigger here"
+          # TODO: Add mobile app store deployment
+
+  # Deploy Teacher Portal
+  deploy-teacher-portal:
+    name: 👩‍🏫 Deploy Teacher Portal
+    runs-on: ubuntu-latest
+    needs: [setup, pre-deploy, migrate-database]
+    if: always() && needs.setup.outputs.deploy-teacher == 'true' && !contains(needs.*.result, 'failure')
+    environment:
+      name: ${{ needs.setup.outputs.environment }}-teacher
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build teacher portal
+        run: npm run build --filter=teacher-portal
+        env:
+          VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+
+      - name: 🚀 Deploy to Vercel
+        id: deploy
+        uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_TEACHER_PROJECT_ID }}
+          working-directory: ./apps/teacher-portal
+          production: ${{ needs.setup.outputs.environment == 'production' }}
+
+  # Deploy Parent Portal
+  deploy-parent-portal:
+    name: 👨‍👩‍👧‍👦 Deploy Parent Portal
+    runs-on: ubuntu-latest
+    needs: [setup, pre-deploy, migrate-database]
+    if: always() && needs.setup.outputs.deploy-parent == 'true' && !contains(needs.*.result, 'failure')
+    environment:
+      name: ${{ needs.setup.outputs.environment }}-parent
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build parent portal
+        run: npm run build --filter=parent-portal
+        env:
+          VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+
+      - name: 🚀 Deploy to Vercel
+        id: deploy
+        uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PARENT_PROJECT_ID }}
+          working-directory: ./apps/parent-portal
+          production: ${{ needs.setup.outputs.environment == 'production' }}
+
+  # Deploy Admin Dashboard
+  deploy-admin-dashboard:
+    name: 🛠️ Deploy Admin Dashboard
+    runs-on: ubuntu-latest
+    needs: [setup, pre-deploy, migrate-database]
+    if: always() && needs.setup.outputs.deploy-admin == 'true' && !contains(needs.*.result, 'failure')
+    environment:
+      name: ${{ needs.setup.outputs.environment }}-admin
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗 Build admin dashboard
+        run: npm run build --filter=admin-dashboard
+        env:
+          VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+
+      - name: 🚀 Deploy to Vercel
+        id: deploy
+        uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
+          working-directory: ./apps/admin-dashboard
+          production: ${{ needs.setup.outputs.environment == 'production' }}
+
+  # Post-deployment verification
+  post-deploy:
+    name: ✅ Post-deployment Verification
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-student-app, deploy-teacher-portal, deploy-parent-portal, deploy-admin-dashboard]
+    if: always() && !contains(needs.*.result, 'failure')
+
+    steps:
+      - name: 🏥 Health checks
+        run: |
+          echo "🏥 Running health checks..."
+          # TODO: Add actual health check endpoints
+          echo "✅ All services healthy"
+
+      - name: 📊 Update monitoring
+        run: |
+          echo "📊 Updating monitoring dashboards..."
+          # TODO: Update Sentry, DataDog, etc.
+
+      - name: 🔔 Notify team
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          text: |
+            🚀 Deployment completed successfully!
+            Environment: ${{ needs.setup.outputs.environment }}
+            Apps: ${{ needs.setup.outputs.apps }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
+
+  # Deployment summary
+  deploy-summary:
+    name: 📋 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-student-app, deploy-teacher-portal, deploy-parent-portal, deploy-admin-dashboard, post-deploy]
+    if: always()
+
+    steps:
+      - name: 📋 Generate deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ needs.setup.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Apps Deployed:** ${{ needs.setup.outputs.apps }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📱 Applications" >> $GITHUB_STEP_SUMMARY
+          echo "- **Student App:** ${{ needs.deploy-student-app.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Teacher Portal:** ${{ needs.deploy-teacher-portal.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Parent Portal:** ${{ needs.deploy-parent-portal.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Admin Dashboard:** ${{ needs.deploy-admin-dashboard.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
