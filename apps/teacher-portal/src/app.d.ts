@@ -3,11 +3,56 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			user?: {
+				id: string
+				email?: string
+				name?: string
+				role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'
+				organizationId?: string
+				uuid?: string
+				grade?: number
+			}
+			auth(): Promise<{
+				user?: {
+					id: string
+					email?: string
+					name?: string
+					role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'
+					organizationId?: string
+					uuid?: string
+					grade?: number
+				}
+			} | null>
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
 	}
 }
 
-export {};
+export {}
+
+declare module '@auth/sveltekit' {
+	interface Session {
+		user: {
+			id: string
+			email?: string
+			name?: string
+			role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'
+			organizationId?: string
+			uuid?: string
+			grade?: number
+		}
+	}
+
+	interface User {
+		id: string
+		email?: string
+		name?: string
+		role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'
+		organizationId?: string
+		uuid?: string
+		grade?: number
+	}
+}

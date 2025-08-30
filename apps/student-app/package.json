@@ -23,17 +23,14 @@
 	"dependencies": {
 		"@capacitor/core": "^6.1.2",
 		"@capacitor/camera": "^6.0.2",
-		"@capacitor/storage": "^1.2.5",
+		"@capacitor/preferences": "^6.0.2",
 		"@capacitor/network": "^6.0.2",
 		"@capacitor/push-notifications": "^6.0.2",
 		"@capacitor-community/sqlite": "^6.1.0",
 		"@capacitor-community/barcode-scanner": "^7.0.1",
 		"@trpc/client": "^11.0.0",
 		"@auth/sveltekit": "^1.7.0",
-		"zod": "^3.23.8",
-		"@educational-app/ui": "workspace:*",
-		"@educational-app/types": "workspace:*",
-		"@educational-app/platform": "workspace:*"
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@capacitor/cli": "^6.1.2",
