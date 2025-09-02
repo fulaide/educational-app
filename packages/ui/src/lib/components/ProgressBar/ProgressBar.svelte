@@ -42,21 +42,21 @@
 	// Size variants
 	const sizes = {
 		sm: 'h-2',
-		md: 'h-3',
+		md: 'h-3', 
 		lg: 'h-4'
 	};
 
-	// Color variants
+	// Color variants - using theme-aware colors
 	const colors = {
-		primary: 'bg-primary-500',
-		success: 'bg-success-500',
-		warning: 'bg-warning-500',
-		danger: 'bg-danger-500'
+		primary: 'bg-primary',
+		success: 'bg-success',
+		warning: 'bg-warning',
+		danger: 'bg-error'
 	};
 
 	const progressClasses = $derived(
 		cn(
-			'relative overflow-hidden rounded-full bg-gray-200',
+			'relative overflow-hidden rounded-full bg-surface-hover',
 			sizes[size],
 			className
 		)
@@ -79,15 +79,15 @@
 <div class="space-y-2">
 	{#if showLabel}
 		<div class="flex justify-between items-center text-sm">
-			<span class="font-medium text-gray-700">
+			<span class="font-medium text-primary font-primary">
 				Progress
 			</span>
 			{#if showPercentage}
 				<span class={cn(
-					'font-medium',
+					'font-medium font-primary',
 					{
-						'text-success-600': isComplete,
-						'text-gray-600': !isComplete
+						'text-success': isComplete,
+						'text-secondary': !isComplete
 					}
 				)}>
 					{percentage}%
@@ -117,10 +117,10 @@
 	{#if !showLabel && showPercentage}
 		<div class="text-center">
 			<span class={cn(
-				'text-xs font-medium',
+				'text-xs font-medium font-primary',
 				{
-					'text-success-600': isComplete,
-					'text-gray-600': !isComplete
+					'text-success': isComplete,
+					'text-secondary': !isComplete
 				}
 			)}>
 				{current} / {total}

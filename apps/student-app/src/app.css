@@ -1,0 +1,4 @@
+/* Student Learning App Styles */
+@import '@educational-app/ui/themes/student';
+@import 'tailwindcss';
+

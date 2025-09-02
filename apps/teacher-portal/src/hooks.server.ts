@@ -3,9 +3,27 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import Credentials from '@auth/sveltekit/providers/credentials'
 import type { Handle } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
-import { prisma } from '@educational-app/database'
+import { PrismaClient } from '@educational-app/database'
 import bcryptjs from 'bcryptjs'
-import { UserRole } from '@educational-app/types'
+
+// Create prisma instance
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  log: ['query'],
+});
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Define UserRole enum locally for now
+const UserRole = {
+  STUDENT: 'STUDENT',
+  TEACHER: 'TEACHER', 
+  PARENT: 'PARENT',
+  ADMIN: 'ADMIN'
+} as const;
 
 export const { handle: authHandle, signIn, signOut } = SvelteKitAuth({
 	adapter: PrismaAdapter(prisma),

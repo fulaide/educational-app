@@ -7,8 +7,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     }
   },
   "scripts": {
@@ -22,7 +22,7 @@
     "db:seed-auth": "tsx src/seed-auth-users.ts",
     "db:backup": "tsx src/db-utils.ts backup",
     "db:restore": "tsx src/db-utils.ts restore",
-    "db:reset": "tsx src/db-utils.ts reset",
+    "db:reset-custom": "tsx src/db-utils.ts reset",
     "db:validate": "tsx src/db-utils.ts validate",
     "db:stats": "tsx src/db-utils.ts stats",
     "migrate:create": "tsx src/migration-utils.ts create",

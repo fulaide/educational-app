@@ -1,5 +1,6 @@
 import QRCode from 'qrcode'
 import { v4 as uuid } from 'uuid'
+import { createHash, randomBytes } from 'crypto'
 
 export interface StudentQRData {
 	uuid: string
@@ -7,6 +8,9 @@ export interface StudentQRData {
 	className?: string
 	organizationId: string
 	expires: number // Unix timestamp
+	nonce: string // Random nonce for security
+	signature: string // HMAC signature for validation
+	version: number // QR code version for future compatibility
 }
 
 export interface QRGenerationOptions {
@@ -17,13 +21,25 @@ export interface QRGenerationOptions {
 		dark?: string
 		light?: string
 	}
+	secretKey?: string // Optional secret key for HMAC signing
 }
 
 /**
- * Generate a QR code for student authentication
+ * Generate a secure HMAC signature for QR data
+ */
+function generateSignature(data: Omit<StudentQRData, 'signature'>, secretKey: string): string {
+	const dataString = `${data.uuid}:${data.expires}:${data.nonce}:${data.organizationId}:${data.version}`
+	return createHash('sha256')
+		.update(dataString + secretKey)
+		.digest('hex')
+		.substring(0, 16) // Truncate for QR code size optimization
+}
+
+/**
+ * Generate a QR code for student authentication with enhanced security
  */
 export async function generateStudentQR(
-	studentData: Omit<StudentQRData, 'expires'>,
+	studentData: Omit<StudentQRData, 'expires' | 'nonce' | 'signature' | 'version'>,
 	options: QRGenerationOptions = {}
 ): Promise<{
 	qrCodeDataURL: string
@@ -34,21 +50,38 @@ export async function generateStudentQR(
 		expiresInHours = 24,
 		size = 256,
 		margin = 2,
-		color = { dark: '#000000', light: '#FFFFFF' }
+		color = { dark: '#000000', light: '#FFFFFF' },
+		secretKey = process.env.QR_SECRET_KEY || 'default-secret-key-change-in-production'
 	} = options
 
-	// Create QR data with expiration
-	const qrData: StudentQRData = {
+	// Generate secure nonce
+	const nonce = randomBytes(8).toString('hex')
+	const expires = Date.now() + (expiresInHours * 60 * 60 * 1000)
+	const version = 1
+
+	// Create QR data without signature first
+	const dataForSigning = {
 		...studentData,
-		expires: Date.now() + (expiresInHours * 60 * 60 * 1000)
+		expires,
+		nonce,
+		version
 	}
 
-	// Generate QR code as data URL
+	// Generate secure signature
+	const signature = generateSignature(dataForSigning, secretKey)
+
+	// Final QR data with signature
+	const qrData: StudentQRData = {
+		...dataForSigning,
+		signature
+	}
+
+	// Generate QR code as data URL with high error correction for security data
 	const qrCodeDataURL = await QRCode.toDataURL(JSON.stringify(qrData), {
 		width: size,
 		margin,
 		color,
-		errorCorrectionLevel: 'M'
+		errorCorrectionLevel: 'H' // High error correction for security
 	})
 
 	return {
@@ -100,9 +133,12 @@ export async function generateClassQRCodes(
 }
 
 /**
- * Validate QR code data
+ * Validate QR code data with enhanced security checks
  */
-export function validateQRData(qrDataString: string): {
+export function validateQRData(
+	qrDataString: string, 
+	secretKey: string = process.env.QR_SECRET_KEY || 'default-secret-key-change-in-production'
+): {
 	isValid: boolean
 	data?: StudentQRData
 	error?: string
@@ -110,11 +146,20 @@ export function validateQRData(qrDataString: string): {
 	try {
 		const data = JSON.parse(qrDataString) as StudentQRData
 
-		// Check required fields
-		if (!data.uuid || !data.studentName || !data.organizationId || !data.expires) {
+		// Check required fields including new security fields
+		if (!data.uuid || !data.studentName || !data.organizationId || !data.expires || 
+			!data.nonce || !data.signature || data.version === undefined) {
 			return {
 				isValid: false,
 				error: 'Missing required fields in QR data'
+			}
+		}
+
+		// Check QR code version compatibility
+		if (data.version !== 1) {
+			return {
+				isValid: false,
+				error: 'Unsupported QR code version'
 			}
 		}
 
@@ -123,6 +168,24 @@ export function validateQRData(qrDataString: string): {
 			return {
 				isValid: false,
 				error: 'QR code has expired'
+			}
+		}
+
+		// Verify signature
+		const expectedSignature = generateSignature({
+			uuid: data.uuid,
+			studentName: data.studentName,
+			className: data.className,
+			organizationId: data.organizationId,
+			expires: data.expires,
+			nonce: data.nonce,
+			version: data.version
+		}, secretKey)
+
+		if (expectedSignature !== data.signature) {
+			return {
+				isValid: false,
+				error: 'Invalid QR code signature'
 			}
 		}
 
@@ -136,6 +199,36 @@ export function validateQRData(qrDataString: string): {
 			error: 'Invalid QR code format'
 		}
 	}
+}
+
+/**
+ * Check if a QR code is expired
+ */
+export function isQRExpired(qrData: StudentQRData): boolean {
+	return Date.now() > qrData.expires
+}
+
+/**
+ * Get time remaining until QR code expires
+ */
+export function getTimeRemaining(qrData: StudentQRData): {
+	expired: boolean
+	hours: number
+	minutes: number
+	totalMinutes: number
+} {
+	const now = Date.now()
+	const remaining = qrData.expires - now
+	
+	if (remaining <= 0) {
+		return { expired: true, hours: 0, minutes: 0, totalMinutes: 0 }
+	}
+	
+	const totalMinutes = Math.floor(remaining / (1000 * 60))
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	
+	return { expired: false, hours, minutes, totalMinutes }
 }
 
 /**

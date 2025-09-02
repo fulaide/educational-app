@@ -4,96 +4,124 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				// Educational app color palette
+				// Theme-aware colors using CSS Custom Properties
 				primary: {
-					50: '#f0f9ff',
-					100: '#e0f2fe',
-					200: '#bae6fd',
-					300: '#7dd3fc',
-					400: '#38bdf8',
-					500: '#0ea5e9',
-					600: '#0284c7',
-					700: '#0369a1',
-					800: '#075985',
-					900: '#0c4a6e',
-					950: '#082f49'
+					DEFAULT: 'var(--color-primary)',
+					dark: 'var(--color-primary-dark)', 
+					light: 'var(--color-primary-light)',
+					50: 'var(--color-primary-light)',
+					500: 'var(--color-primary)',
+					600: 'var(--color-primary)',
+					700: 'var(--color-primary-dark)'
 				},
 				secondary: {
-					50: '#fefce8',
-					100: '#fef9c3',
-					200: '#fef08a',
-					300: '#fde047',
-					400: '#facc15',
-					500: '#eab308',
-					600: '#ca8a04',
-					700: '#a16207',
-					800: '#854d0e',
-					900: '#713f12',
-					950: '#422006'
+					DEFAULT: 'var(--color-secondary)',
+					dark: 'var(--color-secondary-dark)',
+					light: 'var(--color-secondary-light)',
+					50: 'var(--color-secondary-light)',
+					500: 'var(--color-secondary)',
+					600: 'var(--color-secondary)',
+					700: 'var(--color-secondary-dark)'
+				},
+				accent: {
+					DEFAULT: 'var(--color-accent)',
+					light: 'var(--color-accent-light)',
+					50: 'var(--color-accent-light)',
+					500: 'var(--color-accent)'
 				},
 				success: {
-					50: '#f0fdf4',
-					100: '#dcfce7',
-					200: '#bbf7d0',
-					300: '#86efac',
-					400: '#4ade80',
-					500: '#22c55e',
-					600: '#16a34a',
-					700: '#15803d',
-					800: '#166534',
-					900: '#14532d',
-					950: '#052e16'
-				},
-				danger: {
-					50: '#fef2f2',
-					100: '#fee2e2',
-					200: '#fecaca',
-					300: '#fca5a5',
-					400: '#f87171',
-					500: '#ef4444',
-					600: '#dc2626',
-					700: '#b91c1c',
-					800: '#991b1b',
-					900: '#7f1d1d',
-					950: '#450a0a'
+					DEFAULT: 'var(--color-success)',
+					50: 'rgba(var(--color-success-rgb), 0.1)',
+					500: 'var(--color-success)',
+					600: 'var(--color-success)',
+					700: 'var(--color-success)'
 				},
 				warning: {
-					50: '#fffbeb',
-					100: '#fef3c7',
-					200: '#fde68a',
-					300: '#fcd34d',
-					400: '#fbbf24',
-					500: '#f59e0b',
-					600: '#d97706',
-					700: '#b45309',
-					800: '#92400e',
-					900: '#78350f',
-					950: '#451a03'
+					DEFAULT: 'var(--color-warning)',
+					50: 'rgba(var(--color-warning-rgb), 0.1)',
+					500: 'var(--color-warning)',
+					600: 'var(--color-warning)',
+					700: 'var(--color-warning)'
+				},
+				error: {
+					DEFAULT: 'var(--color-error)',
+					50: 'rgba(var(--color-error-rgb), 0.1)',
+					500: 'var(--color-error)',
+					600: 'var(--color-error)',
+					700: 'var(--color-error)'
+				},
+				danger: {
+					DEFAULT: 'var(--color-error)',
+					50: 'rgba(var(--color-error-rgb), 0.1)',
+					500: 'var(--color-error)',
+					600: 'var(--color-error)',
+					700: 'var(--color-error)'
+				},
+				info: {
+					DEFAULT: 'var(--color-info)',
+					500: 'var(--color-info)',
+					600: 'var(--color-info)'
+				},
+				// Surface colors  
+				background: 'var(--color-background)',
+				surface: {
+					DEFAULT: 'var(--color-surface)',
+					hover: 'var(--color-surface-hover)',
+					selected: 'var(--color-surface-selected)',
+					elevated: 'var(--color-surface-elevated)'
+				},
+				// Text colors
+				text: {
+					primary: 'var(--color-text-primary)',
+					secondary: 'var(--color-text-secondary)',
+					disabled: 'var(--color-text-disabled)',
+					muted: 'var(--color-text-muted)'
+				},
+				// Border colors
+				border: {
+					DEFAULT: 'var(--border-color)',
+					focus: 'var(--border-color-focus)'
 				}
 			},
 			fontFamily: {
-				sans: [
-					'Inter',
-					'ui-sans-serif',
-					'system-ui',
-					'-apple-system',
-					'BlinkMacSystemFont',
-					'Segoe UI',
-					'Roboto',
-					'Arial',
-					'sans-serif'
-				],
-				display: [
-					'Lexend',
-					'ui-sans-serif',
-					'system-ui',
-					'-apple-system',
-					'BlinkMacSystemFont',
-					'Segoe UI',
-					'Roboto',
-					'Arial',
-					'sans-serif'
-				]
+				// Theme-aware font families using CSS custom properties
+				sans: 'var(--font-family-primary)',
+				primary: 'var(--font-family-primary)',
+				secondary: 'var(--font-family-secondary)',
+				display: 'var(--font-family-secondary)',
+				
+				// Fallbacks
+				'inter': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'mono': ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
+			},
+			fontSize: {
+				// Theme-aware font sizes using CSS custom properties  
+				'xs': 'var(--font-size-xs)',
+				'sm': 'var(--font-size-sm)',
+				'base': 'var(--font-size-base)',
+				'lg': 'var(--font-size-lg)',
+				'xl': 'var(--font-size-xl)',
+				'2xl': 'var(--font-size-2xl)',
+				'3xl': 'var(--font-size-3xl)'
+			},
+			spacing: {
+				// Theme-aware spacing using CSS custom properties
+				'xs': 'var(--spacing-xs)',
+				'sm': 'var(--spacing-sm)',
+				'md': 'var(--spacing-md)',
+				'lg': 'var(--spacing-lg)',
+				'xl': 'var(--spacing-xl)',
+				'2xl': 'var(--spacing-2xl)',
+				'3xl': 'var(--spacing-3xl)'
+			},
+			borderRadius: {
+				// Theme-aware border radius
+				'sm': 'var(--border-radius-sm)',
+				'DEFAULT': 'var(--border-radius-md)',
+				'md': 'var(--border-radius-md)',
+				'lg': 'var(--border-radius-lg)',
+				'xl': 'var(--border-radius-xl)',
+				'full': 'var(--border-radius-full)'
 			},
 			animation: {
 				'bounce-subtle': 'bounce-subtle 2s infinite',

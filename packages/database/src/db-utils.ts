@@ -411,8 +411,8 @@ export async function showStats() {
 	}
 }
 
-// If running directly from command line
-if (require.main === module) {
+// If running directly from command line (ESM compatible check)
+if (import.meta.url === `file://${process.argv[1]}`) {
 	const command = process.argv[2]
 	const arg = process.argv[3]
 

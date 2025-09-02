@@ -25,27 +25,27 @@
 		children
 	}: Props = $props();
 
-	// Variant styles
+	// Variant styles - using theme-aware classes
 	const variants = {
-		default: 'bg-white border border-gray-200',
-		elevated: 'bg-white shadow-soft',
-		outlined: 'bg-white border-2 border-gray-200',
-		soft: 'bg-gray-50 border border-gray-100'
+		default: 'bg-surface border border',
+		elevated: 'bg-surface shadow-lg',
+		outlined: 'bg-surface border-2 border',
+		soft: 'bg-surface-hover border border'
 	};
 
-	// Padding styles
+	// Padding styles - using theme-aware spacing
 	const paddings = {
 		none: '',
-		sm: 'p-3',
-		md: 'p-4',
-		lg: 'p-6',
-		xl: 'p-8'
+		sm: 'p-sm',
+		md: 'p-md',
+		lg: 'p-lg',
+		xl: 'p-xl'
 	};
 
 	const cardClasses = $derived(
 		cn(
-			// Base styles
-			'rounded-xl transition-all duration-200',
+			// Base styles - using theme-aware classes
+			'rounded-lg transition-all duration-200 font-primary',
 			
 			// Variant styles
 			variants[variant],
@@ -55,9 +55,9 @@
 			
 			// Interactive styles
 			{
-				'hover:shadow-md hover:-translate-y-0.5': hoverable,
-				'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2': clickable,
-				'hover:border-primary-200': clickable && variant !== 'elevated'
+				'hover:shadow-lg hover:-translate-y-0.5': hoverable,
+				'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2': clickable,
+				'hover:border-primary': clickable && variant !== 'elevated'
 			},
 			
 			// Custom classes

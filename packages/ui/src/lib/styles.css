@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+
+@import './themes/student.css';
+@import './themes/parent.css';
+@import './themes/admin.css';
+
+
 /* Global styles for the educational app */
 @layer base {
   html {

@@ -61,27 +61,27 @@
 	const actualType = $derived(type === 'password' && showPassword ? 'text' : type);
 	const showPasswordToggle = $derived(type === 'password');
 
-	// Size variants
+	// Size variants - using theme-aware spacing and fonts
 	const sizes = {
-		sm: 'px-3 py-2 text-sm',
-		md: 'px-4 py-2.5 text-sm',
-		lg: 'px-4 py-3 text-base'
+		sm: 'px-sm py-xs text-sm',
+		md: 'px-md py-sm text-base',
+		lg: 'px-lg py-md text-lg'
 	};
 
 	const inputClasses = $derived(
 		cn(
-			// Base styles
-			'w-full rounded-lg border bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
+			// Base styles - using theme-aware classes
+			'w-full rounded-md border bg-surface font-primary transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
 			
 			// Size styles
 			sizes[size],
 			
 			// State styles
 			{
-				'border-gray-300 focus:border-primary-500 focus:ring-primary-500': !hasError && !disabled,
-				'border-danger-300 focus:border-danger-500 focus:ring-danger-500': hasError,
-				'bg-gray-50 border-gray-200 cursor-not-allowed': disabled,
-				'bg-gray-50': readonly,
+				'border focus:border-primary focus:ring-primary': !hasError && !disabled,
+				'border-error focus:border-error focus:ring-error': hasError,
+				'bg-surface-hover border cursor-not-allowed': disabled,
+				'bg-surface-hover': readonly,
 				'pr-10': showPasswordToggle
 			},
 			
@@ -110,12 +110,12 @@
 <div class="space-y-2">
 	{#if label}
 		<label for={id} class={cn(
-			'block text-sm font-medium text-gray-700',
-			{ 'text-danger-700': hasError }
+			'block text-sm font-medium text-primary font-primary',
+			{ 'text-error': hasError }
 		)}>
 			{label}
 			{#if required}
-				<span class="text-danger-500 ml-1">*</span>
+				<span class="text-error ml-1">*</span>
 			{/if}
 		</label>
 	{/if}
@@ -160,12 +160,12 @@
 	</div>
 
 	{#if error}
-		<div id="{id}-error" class="flex items-center gap-1 text-sm text-danger-600">
+		<div id="{id}-error" class="flex items-center gap-xs text-sm text-error font-primary">
 			<AlertCircle class="h-4 w-4" />
 			{error}
 		</div>
 	{:else if hint}
-		<div id="{id}-hint" class="text-sm text-gray-500">
+		<div id="{id}-hint" class="text-sm text-secondary font-primary">
 			{hint}
 		</div>
 	{/if}

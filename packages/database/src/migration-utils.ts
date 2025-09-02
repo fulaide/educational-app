@@ -297,8 +297,8 @@ export async function validateMigrations() {
 	}
 }
 
-// CLI handler
-if (require.main === module) {
+// CLI handler (ESM compatible check)
+if (import.meta.url === `file://${process.argv[1]}`) {
 	const command = process.argv[2]
 	const arg = process.argv[3]
 

@@ -1,5 +1,7 @@
 // Main auth package exports
 export * from './qr-generator'
+export * from './qr-analytics'
+export * from './qr-offline'
 
 // Types
 export interface AuthUser {

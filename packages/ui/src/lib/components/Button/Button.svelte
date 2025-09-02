@@ -37,49 +37,49 @@
 	// Reactive state using Svelte 5 runes
 	const isDisabled = $derived(disabled || loading);
 
-	// Style variants
+	// Style variants - using consistent classes that adapt to theme
 	const variants = {
 		solid: {
-			primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm',
-			secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white shadow-sm',
-			success: 'bg-success-600 hover:bg-success-700 text-white shadow-sm',
-			danger: 'bg-danger-600 hover:bg-danger-700 text-white shadow-sm',
-			warning: 'bg-warning-600 hover:bg-warning-700 text-white shadow-sm'
+			primary: 'bg-primary hover:bg-primary-dark text-white shadow-sm',
+			secondary: 'bg-secondary hover:bg-secondary-dark text-white shadow-sm',
+			success: 'bg-success hover:bg-success text-white shadow-sm',
+			danger: 'bg-error hover:bg-error text-white shadow-sm',
+			warning: 'bg-warning hover:bg-warning text-white shadow-sm'
 		},
 		outline: {
-			primary: 'border border-primary-300 text-primary-700 hover:bg-primary-50',
-			secondary: 'border border-secondary-300 text-secondary-700 hover:bg-secondary-50',
-			success: 'border border-success-300 text-success-700 hover:bg-success-50',
-			danger: 'border border-danger-300 text-danger-700 hover:bg-danger-50',
-			warning: 'border border-warning-300 text-warning-700 hover:bg-warning-50'
+			primary: 'border border-primary text-primary hover:bg-primary hover:text-white',
+			secondary: 'border border-secondary text-secondary hover:bg-secondary hover:text-white',
+			success: 'border border-success text-success hover:bg-success hover:text-white',
+			danger: 'border border-error text-error hover:bg-error hover:text-white',
+			warning: 'border border-warning text-warning hover:bg-warning hover:text-white'
 		},
 		ghost: {
-			primary: 'text-primary-700 hover:bg-primary-50',
-			secondary: 'text-secondary-700 hover:bg-secondary-50',
-			success: 'text-success-700 hover:bg-success-50',
-			danger: 'text-danger-700 hover:bg-danger-50',
-			warning: 'text-warning-700 hover:bg-warning-50'
+			primary: 'text-primary hover:bg-surface-hover',
+			secondary: 'text-secondary hover:bg-surface-hover',
+			success: 'text-success hover:bg-surface-hover',
+			danger: 'text-error hover:bg-surface-hover',
+			warning: 'text-warning hover:bg-surface-hover'
 		},
 		soft: {
-			primary: 'bg-primary-100 text-primary-700 hover:bg-primary-200',
-			secondary: 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200',
-			success: 'bg-success-100 text-success-700 hover:bg-success-200',
-			danger: 'bg-danger-100 text-danger-700 hover:bg-danger-200',
-			warning: 'bg-warning-100 text-warning-700 hover:bg-warning-200'
+			primary: 'bg-surface-hover text-primary hover:bg-surface-selected',
+			secondary: 'bg-surface-hover text-secondary hover:bg-surface-selected',
+			success: 'bg-surface-hover text-success hover:bg-surface-selected',
+			danger: 'bg-surface-hover text-error hover:bg-surface-selected',
+			warning: 'bg-surface-hover text-warning hover:bg-surface-selected'
 		}
 	};
 
 	const sizes = {
-		sm: 'px-3 py-1.5 text-sm font-medium',
-		md: 'px-4 py-2 text-sm font-medium',
-		lg: 'px-6 py-3 text-base font-medium',
-		xl: 'px-8 py-4 text-lg font-semibold'
+		sm: 'px-sm py-xs text-sm font-medium',
+		md: 'px-md py-sm text-base font-medium',
+		lg: 'px-lg py-md text-lg font-medium',
+		xl: 'px-xl py-lg text-xl font-semibold'
 	};
 
 	const buttonClasses = $derived(
 		cn(
-			// Base styles
-			'inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
+			// Base styles - using theme-aware classes
+			'inline-flex items-center justify-center gap-sm font-primary transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
 			
 			// Size styles
 			sizes[size],
@@ -94,11 +94,11 @@
 				'rounded-lg': !rounded,
 				'opacity-50 cursor-not-allowed': isDisabled,
 				'hover:scale-[1.02] active:scale-[0.98]': !isDisabled,
-				'focus:ring-primary-500': color === 'primary',
-				'focus:ring-secondary-500': color === 'secondary',
-				'focus:ring-success-500': color === 'success',
-				'focus:ring-danger-500': color === 'danger',
-				'focus:ring-warning-500': color === 'warning'
+				'focus:ring-primary': color === 'primary',
+				'focus:ring-secondary': color === 'secondary', 
+				'focus:ring-success': color === 'success',
+				'focus:ring-error': color === 'danger',
+				'focus:ring-warning': color === 'warning'
 			},
 			
 			// Custom classes
