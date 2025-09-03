@@ -50,44 +50,34 @@ enum AchievementType {
   SPECIAL
 }
 
-// Auth.js required models
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
+// Custom authentication models
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      String
+  tokenId     String   @unique // JWT jti claim
+  deviceInfo  String?
+  ipAddress   String?
+  userAgent   String?
+  lastActive  DateTime @default(now())
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("password_resets")
 }
 
 enum RewardType {
@@ -163,8 +153,8 @@ model User {
   createdModules     LearningModule[]     @relation("CreatedBy")
   createdRewards     Reward[]             @relation("CreatedBy")
   syncOperations     SyncOperation[]
-  sessions           Session[]
-  accounts           Account[]
+  userSessions       UserSession[]
+  passwordResets     PasswordReset[]
   authenticators     Authenticator[]
   rewardRedemptions  RewardRedemption[]
   deviceInfo         DeviceInfo[]
