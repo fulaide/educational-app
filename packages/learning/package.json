@@ -1,0 +1,21 @@
+{
+	"name": "@educational-app/learning",
+	"version": "0.1.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./components": "./src/components/index.ts",
+		"./exercises": "./src/exercises/index.ts",
+		"./services": "./src/services/index.ts"
+	},
+	"dependencies": {
+		"svelte": "^5.0.0"
+	},
+	"peerDependencies": {
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.0",
+		"typescript": "^5.7.0"
+	}
+}

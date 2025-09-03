@@ -1,0 +1,14 @@
+import type { Meta, StoryObj } from '@storybook/svelte';
+import Button from './Button.svelte';
+declare const meta: Meta<Button>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export declare const Default: Story;
+export declare const Primary: Story;
+export declare const Outline: Story;
+export declare const Ghost: Story;
+export declare const Loading: Story;
+export declare const Disabled: Story;
+export declare const Sizes: Story;
+export declare const Colors: Story;
+export declare const Variants: Story;

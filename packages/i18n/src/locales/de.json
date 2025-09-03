@@ -1,0 +1,153 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "close": "Schließen",
+    "yes": "Ja",
+    "no": "Nein",
+    "welcome": "Willkommen",
+    "student": "Schüler",
+    "try_again": "Erneut versuchen"
+  },
+
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "student_login": "Schüler-Anmeldung",
+    "teacher_login": "Lehrer-Anmeldung", 
+    "parent_login": "Eltern-Anmeldung",
+    "scan_qr_prompt": "Scanne deinen QR-Code zum Anmelden",
+    "enter_code_manually": "Code manuell eingeben",
+    "student_code": "Schülercode",
+    "password": "Passwort",
+    "email": "E-Mail",
+    "login_failed": "Anmeldung fehlgeschlagen",
+    "invalid_credentials": "Ungültige Anmeldedaten",
+    "camera_access_denied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff zum Scannen von QR-Codes.",
+    "qr_expired": "QR-Code ist abgelaufen. Bitte frage deinen Lehrer nach einem neuen.",
+    "invalid_qr": "Ungültiger QR-Code",
+    "processing_qr": "QR-Code wird verarbeitet...",
+    "login_successful": "Anmeldung erfolgreich!",
+    "redirecting": "Weiterleitung zum Dashboard..."
+  },
+
+  "qr": {
+    "management": "QR-Code-Verwaltung",
+    "generate": "QR-Code generieren",
+    "generated": "QR-Code generiert",
+    "expires_in": "Läuft ab in {hours}h {minutes}m",
+    "expired": "Abgelaufen",
+    "active": "Aktiv",
+    "refresh": "Aktualisieren",
+    "print": "Drucken",
+    "copy": "Kopieren",
+    "batch_generate": "Alle QR-Codes generieren",
+    "print_sheet": "Druckvorlage",
+    "analytics": "Analytik",
+    "total_generated": "Gesamt generiert",
+    "total_scanned": "Gesamt gescannt",
+    "active_codes": "Aktive Codes",
+    "success_rate": "Erfolgsrate",
+    "show_analytics": "Analytik anzeigen",
+    "hide_analytics": "Analytik ausblenden",
+    "expires_label": "Läuft ab:",
+    "class_selection": "Klasse auswählen",
+    "no_qr_generated": "Kein QR-Code generiert",
+    "help_title": "Verwendung von QR-Codes",
+    "help_step_1": "QR-Codes für einzelne Schüler oder ganze Klassen generieren",
+    "help_step_2": "QR-Codes ausdrucken oder auf dem Bildschirm anzeigen",
+    "help_step_3": "Schüler scannen QR-Codes mit ihrer mobilen App",
+    "help_step_4": "QR-Codes laufen automatisch ab (Standard: 24 Stunden)"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome_student": "Willkommen, {name}!",
+    "welcome_teacher": "Willkommen zurück, {name}!",
+    "my_classes": "Meine Klassen",
+    "my_progress": "Mein Fortschritt",
+    "recent_activities": "Letzte Aktivitäten",
+    "quick_actions": "Schnellaktionen"
+  },
+
+  "learning": {
+    "modules": "Lernmodule",
+    "vocabulary": "Vokabeln",
+    "exercises": "Übungen",
+    "progress": "Fortschritt",
+    "achievements": "Erfolge",
+    "rewards": "Belohnungen",
+    "completed": "Abgeschlossen",
+    "in_progress": "In Bearbeitung",
+    "not_started": "Nicht begonnen",
+    "difficulty": {
+      "beginner": "Anfänger",
+      "intermediate": "Fortgeschritten", 
+      "advanced": "Experte"
+    },
+    "categories": {
+      "animals": "Tiere",
+      "colors": "Farben",
+      "numbers": "Zahlen",
+      "family": "Familie",
+      "objects": "Gegenstände",
+      "food": "Essen"
+    }
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "learning": "Lernen",
+    "progress": "Fortschritt",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "help": "Hilfe",
+    "qr_codes": "QR-Codes",
+    "students": "Schüler",
+    "classes": "Klassen",
+    "reports": "Berichte"
+  },
+
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "notifications": "Benachrichtigungen",
+    "privacy": "Datenschutz",
+    "account": "Konto",
+    "appearance": "Darstellung",
+    "theme": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten",
+    "network": "Netzwerkfehler",
+    "offline": "Offline-Modus - Eingeschränkte Funktionalität verfügbar",
+    "permission_denied": "Zugriff verweigert",
+    "not_found": "Nicht gefunden",
+    "validation_failed": "Validierung fehlgeschlagen",
+    "try_again": "Erneut versuchen",
+    "contact_support": "Support kontaktieren"
+  },
+
+  "time": {
+    "now": "jetzt",
+    "minutes_ago": "vor {count} Minuten",
+    "hours_ago": "vor {count} Stunden",
+    "days_ago": "vor {count} Tagen",
+    "today": "heute",
+    "yesterday": "gestern",
+    "this_week": "diese Woche",
+    "last_week": "letzte Woche"
+  }
+}

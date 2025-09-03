@@ -1,55 +1,20 @@
 <script lang="ts">
-	import { signIn } from '@auth/sveltekit/client'
-	import { page } from '$app/stores'
+	import { enhance } from '$app/forms'
+	import type { PageData, ActionData } from './$types'
 
-	let activeTab: 'teacher' | 'parent' = 'teacher'
-	let email = ''
-	let password = ''
+	export let data: PageData
+	export let form: ActionData
+
+	let email = 'teacher@test.com' // Pre-fill for development
+	let password = 'password123' // Pre-fill for development
 	let loading = false
-	let error = ''
-
-	const callbackUrl = $page.url.searchParams.get('callbackUrl') || '/dashboard'
-
-	async function handleSubmit() {
-		if (!email || !password) {
-			error = 'Please fill in all fields'
-			return
-		}
-
-		loading = true
-		error = ''
-
-		try {
-			const result = await signIn(
-				activeTab === 'teacher' ? 'teacher-login' : 'parent-login',
-				{
-					email,
-					password,
-					redirectTo: callbackUrl
-				}
-			)
-
-			if (result?.error) {
-				error = 'Invalid credentials. Please try again.'
-			}
-		} catch (err) {
-			error = 'An error occurred. Please try again.'
-			console.error('Sign in error:', err)
-		} finally {
-			loading = false
-		}
-	}
-
-	function switchTab(tab: 'teacher' | 'parent') {
-		activeTab = tab
-		email = ''
-		password = ''
-		error = ''
-	}
+	
+	// Debug logging
+	console.log('Signin page loaded with callbackUrl:', data?.callbackUrl || 'no callback')
 </script>
 
 <svelte:head>
-	<title>Sign In - Educational App</title>
+	<title>Sign In - Educational App Test</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -61,37 +26,39 @@
 				</svg>
 			</div>
 			<h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-				Welcome to Educational App
+				Teacher Portal
 			</h2>
 			<p class="mt-2 text-center text-sm text-gray-600">
-				Sign in to access your {activeTab} portal
+				Sign in to access your teacher dashboard
 			</p>
 		</div>
 
-		<!-- Tab Switcher -->
-		<div class="flex rounded-lg bg-gray-200 p-1">
-			<button
-				type="button"
-				class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors duration-200 {activeTab === 'teacher' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}"
-				on:click={() => switchTab('teacher')}
-			>
-				Teacher
-			</button>
-			<button
-				type="button"
-				class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors duration-200 {activeTab === 'parent' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}"
-				on:click={() => switchTab('parent')}
-			>
-				Parent
-			</button>
-		</div>
-
-		<form class="mt-8 space-y-6" on:submit|preventDefault={handleSubmit}>
-			{#if error}
+		<form 
+			class="mt-8 space-y-6" 
+			method="POST"
+			use:enhance={() => {
+				loading = true
+				return async ({ result, update }) => {
+					loading = false
+					if (result.type === 'failure') {
+						// Update form to show validation errors
+						await update()
+					} else if (result.type === 'redirect') {
+						// Let SvelteKit handle the redirect
+						await update()
+					}
+				}
+			}}
+		>
+			{#if form?.error}
 				<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-					{error}
+					{form.error}
 				</div>
 			{/if}
+			
+			<!-- Include callback URL as hidden input -->
+			<input type="hidden" name="callbackUrl" value={data?.callbackUrl || '/dashboard'} />
+
 
 			<div class="space-y-4">
 				<div>
@@ -149,19 +116,13 @@
 					</svg>
 					Signing in...
 				{:else}
-					Sign in as {activeTab}
+					Sign in to Teacher Portal
 				{/if}
 			</button>
 
-			{#if activeTab === 'teacher'}
-				<p class="mt-4 text-center text-sm text-gray-600">
-					Need an account? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Contact your administrator</a>
-				</p>
-			{:else}
-				<p class="mt-4 text-center text-sm text-gray-600">
-					Need access? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Contact your child's teacher</a>
-				</p>
-			{/if}
+			<p class="mt-4 text-center text-sm text-gray-600">
+				Need an account? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Contact your administrator</a>
+			</p>
 		</form>
 	</div>
 </div>

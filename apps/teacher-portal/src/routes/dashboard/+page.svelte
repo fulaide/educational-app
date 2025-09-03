@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { signOut } from '@auth/sveltekit/client'
 	import type { PageData } from './$types'
 
 	export let data: PageData
 
 	async function handleSignOut() {
-		await signOut({ callbackUrl: '/auth/signin' })
+		// Navigate to logout route for proper server-side session clearing
+		window.location.href = '/auth/signout'
 	}
 </script>
 
@@ -26,14 +26,14 @@
 					<div class="flex items-center space-x-2">
 						<div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
 							<span class="text-sm font-medium text-white">
-								{data.user.name?.charAt(0) || data.user.email?.charAt(0) || '?'}
+								{data.user?.name?.charAt(0) || data.user?.email?.charAt(0) || '?'}
 							</span>
 						</div>
 						<span class="text-sm text-gray-700">
-							{data.user.name || data.user.email}
+							{data.user?.name || data.user?.email || 'Guest'}
 						</span>
 						<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-							{data.user.role}
+							{data.user?.role || 'GUEST'}
 						</span>
 					</div>
 					<button
@@ -51,7 +51,7 @@
 		<header>
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<h1 class="text-3xl font-bold leading-tight text-gray-900">
-					Welcome, {data.user.name || 'User'}!
+					Welcome, {data.user?.name || 'Guest'}!
 				</h1>
 			</div>
 		</header>
@@ -66,24 +66,24 @@
 									<div class="flex-shrink-0">
 										<div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center">
 											<span class="text-lg font-medium text-white">
-												{data.user.name?.charAt(0) || data.user.email?.charAt(0) || '?'}
+												{data.user?.name?.charAt(0) || data.user?.email?.charAt(0) || '?'}
 											</span>
 										</div>
 									</div>
 									<div class="ml-5 w-0 flex-1">
 										<dl>
 											<dt class="text-sm font-medium text-gray-500 truncate">User Profile</dt>
-											<dd class="text-lg font-medium text-gray-900">{data.user.name || 'Unknown'}</dd>
+											<dd class="text-lg font-medium text-gray-900">{data.user?.name || 'Unknown'}</dd>
 										</dl>
 									</div>
 								</div>
 								<div class="mt-4">
 									<div class="text-sm text-gray-500">
-										<p><strong>Email:</strong> {data.user.email || 'N/A'}</p>
-										<p><strong>Role:</strong> {data.user.role}</p>
-										<p><strong>User ID:</strong> {data.user.id}</p>
-										{#if data.user.organizationId}
-											<p><strong>Organization:</strong> {data.user.organizationId}</p>
+										<p><strong>Email:</strong> {data.user?.email || 'N/A'}</p>
+										<p><strong>Role:</strong> {data.user?.role || 'N/A'}</p>
+										<p><strong>User ID:</strong> {data.user?.id || 'N/A'}</p>
+										{#if data.user?.organizationId}
+											<p><strong>Organization:</strong> {data.user?.organizationId}</p>
 										{/if}
 									</div>
 								</div>
@@ -139,7 +139,7 @@
 								<div class="mt-4">
 									<div class="text-sm text-gray-500">
 										<p>Auth.js integration complete!</p>
-										<p>Ready to build {data.user.role.toLowerCase()} features.</p>
+										<p>Ready to build {data.user?.role?.toLowerCase() || 'user'} features.</p>
 									</div>
 								</div>
 							</div>

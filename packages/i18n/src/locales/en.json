@@ -1,0 +1,153 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "welcome": "Welcome",
+    "student": "Student",
+    "try_again": "Try again"
+  },
+
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "student_login": "Student Login",
+    "teacher_login": "Teacher Login", 
+    "parent_login": "Parent Login",
+    "scan_qr_prompt": "Scan your QR code to login",
+    "enter_code_manually": "Enter code manually",
+    "student_code": "Student Code",
+    "password": "Password",
+    "email": "Email",
+    "login_failed": "Login failed",
+    "invalid_credentials": "Invalid credentials",
+    "camera_access_denied": "Camera access denied. Please allow camera access to scan QR codes.",
+    "qr_expired": "QR code has expired. Please ask your teacher for a new one.",
+    "invalid_qr": "Invalid QR code",
+    "processing_qr": "Processing QR code...",
+    "login_successful": "Login successful!",
+    "redirecting": "Redirecting to dashboard..."
+  },
+
+  "qr": {
+    "management": "QR Code Management",
+    "generate": "Generate QR Code",
+    "generated": "QR Code Generated",
+    "expires_in": "Expires in {hours}h {minutes}m",
+    "expired": "Expired",
+    "active": "Active",
+    "refresh": "Refresh",
+    "print": "Print",
+    "copy": "Copy",
+    "batch_generate": "Generate All QR Codes",
+    "print_sheet": "Print Sheet",
+    "analytics": "Analytics",
+    "total_generated": "Total Generated",
+    "total_scanned": "Total Scanned",
+    "active_codes": "Active Codes",
+    "success_rate": "Success Rate",
+    "show_analytics": "Show Analytics",
+    "hide_analytics": "Hide Analytics",
+    "expires_label": "Expires:",
+    "class_selection": "Select Class",
+    "no_qr_generated": "No QR code generated",
+    "help_title": "How to Use QR Codes",
+    "help_step_1": "Generate QR codes for individual students or entire classes",
+    "help_step_2": "Print QR codes or display them on screen for students to scan",
+    "help_step_3": "Students scan QR codes with their mobile app to log in securely",
+    "help_step_4": "QR codes expire automatically for security (default: 24 hours)"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome_student": "Welcome, {name}!",
+    "welcome_teacher": "Welcome back, {name}!",
+    "my_classes": "My Classes",
+    "my_progress": "My Progress",
+    "recent_activities": "Recent Activities",
+    "quick_actions": "Quick Actions"
+  },
+
+  "learning": {
+    "modules": "Learning Modules",
+    "vocabulary": "Vocabulary",
+    "exercises": "Exercises",
+    "progress": "Progress",
+    "achievements": "Achievements",
+    "rewards": "Rewards",
+    "completed": "Completed",
+    "in_progress": "In Progress",
+    "not_started": "Not Started",
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate", 
+      "advanced": "Advanced"
+    },
+    "categories": {
+      "animals": "Animals",
+      "colors": "Colors",
+      "numbers": "Numbers",
+      "family": "Family",
+      "objects": "Objects",
+      "food": "Food"
+    }
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "learning": "Learning",
+    "progress": "Progress",
+    "profile": "Profile",
+    "settings": "Settings",
+    "help": "Help",
+    "qr_codes": "QR Codes",
+    "students": "Students",
+    "classes": "Classes",
+    "reports": "Reports"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "account": "Account",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Network error",
+    "offline": "Offline mode - Limited functionality available",
+    "permission_denied": "Access denied",
+    "not_found": "Not found",
+    "validation_failed": "Validation failed",
+    "try_again": "Try again",
+    "contact_support": "Contact support"
+  },
+
+  "time": {
+    "now": "now",
+    "minutes_ago": "{count} minutes ago",
+    "hours_ago": "{count} hours ago",
+    "days_ago": "{count} days ago",
+    "today": "today",
+    "yesterday": "yesterday",
+    "this_week": "this week",
+    "last_week": "last week"
+  }
+}

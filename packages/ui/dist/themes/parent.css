@@ -1,0 +1,166 @@
+/**
+ * Parent Theme - Warm, Family-Oriented, Informative
+ * Target: Parents monitoring children's progress
+ * Focus: Family connection, progress tracking, communication
+ */
+
+ 
+
+ @font-face {
+    font-family: 'Hello Headline';
+    src: url('/fonts/hello-headline.woff2') format('woff2');
+         /* url('/fonts/hello-headline.woff') format('woff'); */
+    font-weight: 500;
+    font-display: swap;
+  }
+
+/* Parent Theme - Tailwind v4 @theme configuration */
+@theme {
+
+	--color-black: #000;
+  --color-white: #fff;
+	
+  
+  --color-primary: #7C4DFF;
+  --color-primary-50: #E8F5E8;
+  --color-primary-100: #C8E6C9;
+  --color-primary-200: #A5D6A7;
+  --color-primary-300: #81C784;
+  --color-primary-400: #66BB6A;
+  --color-primary-500: #7C4DFF;
+  --color-primary-600: #43A047;
+  --color-primary-700: #388E3C;
+  --color-primary-800: #2E7D32;
+  --color-primary-900: #1B5E20;
+
+  /* Secondary colors - Playful Orange */
+  --color-secondary: #FF6B35;
+  --color-secondary-50: #FFF3E0;
+  --color-secondary-100: #FFE0B2;
+  --color-secondary-200: #FFCC80;
+  --color-secondary-300: #FFB74D;
+  --color-secondary-400: #FFA726;
+  --color-secondary-500: #FF6B35;
+  --color-secondary-600: #E55A2B;
+  --color-secondary-700: #D84315;
+  --color-secondary-800: #BF360C;
+  --color-secondary-900: #A62100;
+
+  /* Accent colors - Bright Blue */
+  --color-accent: #2196F3;
+  --color-accent-50: #E3F2FD;
+  --color-accent-100: #BBDEFB;
+  --color-accent-200: #90CAF9;
+  --color-accent-300: #64B5F6;
+  --color-accent-400: #42A5F5;
+  --color-accent-500: #2196F3;
+  --color-accent-600: #1E88E5;
+  --color-accent-700: #1976D2;
+  --color-accent-800: #1565C0;
+  --color-accent-900: #0D47A1;
+
+  /* Success, warning, error */
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-error: #F44336;
+  --color-info: #2196F3;
+
+  /* Background colors */
+  --color-background: #F8F9FA;
+  --color-surface: #FFFFFF;
+  --color-surface-50: #F5F5F5;
+  --color-surface-100: #F0F0F0;
+  --color-surface-200: #E0E0E0;
+
+  /* Text colors */
+  --color-text: #212121;
+  --color-text-50: #FAFAFA;
+  --color-text-100: #F5F5F5;
+  --color-text-200: #EEEEEE;
+  --color-text-300: #E0E0E0;
+  --color-text-400: #BDBDBD;
+  --color-text-500: #9E9E9E;
+  --color-text-600: #757575;
+  --color-text-700: #616161;
+  --color-text-800: #424242;
+  --color-text-900: #212121;
+
+  /* Fonts - Kid-friendly */
+  --font-family-sans: 'Hello Headline', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-family-serif: 'Comic Neue', ui-serif, serif;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+	--font-family-comic: 'Hello Headline', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+
+  /* Border radius - More rounded for friendliness */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+
+  --spacing: 0.25rem;
+
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+
+
+	--aspect-video: 16 / 9;
+	--aspect-square: 1 / 1;
+
+}
+
+/* === Fun Animation Keyframes === */
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0,-30px,0); }
+  70% { transform: translate3d(0,-15px,0); }
+  90% { transform: translate3d(0,-4px,0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes wiggle {
+  0%, 7% { transform: rotateZ(0); }
+  15% { transform: rotateZ(-15deg); }
+  20% { transform: rotateZ(10deg); }
+  25% { transform: rotateZ(-10deg); }
+  30% { transform: rotateZ(6deg); }
+  35% { transform: rotateZ(-4deg); }
+  40%, 100% { transform: rotateZ(0); }
+}
+
+/* === teacher Theme Specific Styles === */
+[data-theme="parent"] .achievement-celebration {
+  animation: var(--animation-bounce);
+}
+
+[data-theme="parent"] .streak-indicator {
+  animation: var(--animation-pulse);
+}
+
+[data-theme="parent"] .interactive-element:hover {
+  animation: var(--animation-wiggle);
+}
