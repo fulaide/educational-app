@@ -94,6 +94,23 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
+model StudentQRCode {
+  id          String   @id @default(cuid())
+  studentId   String
+  token       String   @unique  // QR code token
+  expiresAt   DateTime
+  used        Boolean  @default(false)
+  createdBy   String   // Teacher who generated it
+  classId     String?  // Optional: specific to a class
+  createdAt   DateTime @default(now())
+  
+  student     User     @relation("StudentQRCodes", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher     User     @relation("TeacherQRCodes", fields: [createdBy], references: [id], onDelete: Cascade)
+  class       Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
+  
+  @@map("student_qr_codes")
+}
+
 enum RewardType {
   VIRTUAL
   PHYSICAL
@@ -174,6 +191,8 @@ model User {
   rewardRedemptions  RewardRedemption[]
   deviceInfo         DeviceInfo[]
   notificationTokens NotificationToken[]
+  studentQRCodes     StudentQRCode[]     @relation("StudentQRCodes")
+  createdQRCodes     StudentQRCode[]     @relation("TeacherQRCodes")
 
   @@map("users")
 }
@@ -191,9 +210,10 @@ model Class {
   updatedAt      DateTime @updatedAt
 
   // Relations
-  organization Organization @relation(fields: [organizationId], references: [id])
-  teacher      User         @relation("TeacherClasses", fields: [teacherId], references: [id])
-  students     User[]       @relation("StudentClasses")
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  teacher      User            @relation("TeacherClasses", fields: [teacherId], references: [id])
+  students     User[]          @relation("StudentClasses")
+  qrCodes      StudentQRCode[]
 
   @@map("classes")
 }
