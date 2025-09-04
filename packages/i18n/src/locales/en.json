@@ -51,6 +51,38 @@
         "need_account": "Need an account?",
         "create_account": "Create teacher account"
       },
+      "forgot_password": {
+        "title": "Reset your password",
+        "subtitle": "Enter your email address and we'll send you a link to reset your password",
+        "email_label": "Email address",
+        "email_placeholder": "Enter your email address",
+        "submit": "Send password reset link",
+        "submitting": "Sending reset link...",
+        "back_to_signin": "← Back to sign in",
+        "success_title": "Check your email",
+        "success_message": "If an account with that email address exists, we've sent you a password reset link. Please check your email and follow the instructions to reset your password.",
+        "return_to_signin": "Return to sign in →"
+      },
+      "reset_password": {
+        "title": "Set new password",
+        "subtitle": "Enter your new password below",
+        "password_label": "New password",
+        "password_placeholder": "Enter new password",
+        "password_hint": "Must be at least 8 characters long",
+        "confirm_password_label": "Confirm new password",
+        "confirm_password_placeholder": "Confirm new password",
+        "passwords_match": "Passwords match",
+        "passwords_no_match": "Passwords do not match",
+        "submit": "Update password",
+        "submitting": "Updating password...",
+        "back_to_signin": "← Back to sign in",
+        "invalid_token_title": "Invalid or expired reset link",
+        "token_used": "This password reset link has already been used. You can only use each reset link once.",
+        "token_expired": "This password reset link has expired (created {createdAt}). Reset links are valid for 1 hour.",
+        "token_invalid": "This password reset link is invalid.",
+        "token_generic": "This password reset link is no longer valid. It may have expired or already been used.",
+        "request_new_link": "Request a new reset link →"
+      },
       "register": {
         "title": "Create Account",
         "name_label": "Full Name",
@@ -116,6 +148,18 @@
     "my_progress": "My Progress",
     "recent_activities": "Recent Activities",
     "quick_actions": "Quick Actions"
+  },
+
+  "teacher": {
+    "home": {
+      "title": "Teacher Portal",
+      "teacher_portal": "Teacher Portal"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "signin": "Sign In",
+      "qr_codes": "QR Codes"
+    }
   },
 
   "learning": {

@@ -3,6 +3,7 @@ export * from './components/Input/index.js';
 export * from './components/Card/index.js';
 export * from './components/Modal/index.js';
 export * from './components/LocaleSwitcher/index.js';
+export * from './components/Auth/index.js';
 export * from './components/ProgressBar/index.js';
 export * from './components/AchievementBadge/index.js';
 export * from './components/ChallengeCard/index.js';

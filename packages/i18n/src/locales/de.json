@@ -61,15 +61,35 @@
       },
       "forgot_password": {
         "title": "Passwort zurücksetzen",
-        "description": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
-        "email_label": "E-Mail-Adresse", 
-        "submit": "Reset-E-Mail senden"
+        "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts",
+        "email_label": "E-Mail-Adresse",
+        "email_placeholder": "Geben Sie Ihre E-Mail-Adresse ein",
+        "submit": "Passwort-Reset-Link senden",
+        "submitting": "Link wird gesendet...",
+        "back_to_signin": "← Zurück zur Anmeldung",
+        "success_title": "Überprüfen Sie Ihre E-Mails",
+        "success_message": "Falls ein Konto mit dieser E-Mail-Adresse existiert, haben wir Ihnen einen Passwort-Reset-Link gesendet. Bitte überprüfen Sie Ihre E-Mails und folgen Sie den Anweisungen zum Zurücksetzen Ihres Passworts.",
+        "return_to_signin": "Zur Anmeldung zurückkehren →"
       },
       "reset_password": {
         "title": "Neues Passwort festlegen",
+        "subtitle": "Geben Sie unten Ihr neues Passwort ein",
         "password_label": "Neues Passwort",
+        "password_placeholder": "Neues Passwort eingeben",
+        "password_hint": "Muss mindestens 8 Zeichen lang sein",
         "confirm_password_label": "Neues Passwort bestätigen",
-        "submit": "Passwort aktualisieren"
+        "confirm_password_placeholder": "Neues Passwort bestätigen",
+        "passwords_match": "Passwörter stimmen überein",
+        "passwords_no_match": "Passwörter stimmen nicht überein",
+        "submit": "Passwort aktualisieren",
+        "submitting": "Passwort wird aktualisiert...",
+        "back_to_signin": "← Zurück zur Anmeldung",
+        "invalid_token_title": "Ungültiger oder abgelaufener Reset-Link",
+        "token_used": "Dieser Passwort-Reset-Link wurde bereits verwendet. Jeder Reset-Link kann nur einmal verwendet werden.",
+        "token_expired": "Dieser Passwort-Reset-Link ist abgelaufen (erstellt {createdAt}). Reset-Links sind 1 Stunde gültig.",
+        "token_invalid": "Dieser Passwort-Reset-Link ist ungültig.",
+        "token_generic": "Dieser Passwort-Reset-Link ist nicht mehr gültig. Er könnte abgelaufen oder bereits verwendet worden sein.",
+        "request_new_link": "Neuen Reset-Link anfordern →"
       }
     },
     "messages": {
@@ -116,6 +136,18 @@
     "my_progress": "Mein Fortschritt",
     "recent_activities": "Letzte Aktivitäten",
     "quick_actions": "Schnellaktionen"
+  },
+
+  "teacher": {
+    "home": {
+      "title": "Lehrer-Portal",
+      "teacher_portal": "Lehrer Portal"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "signin": "Anmelden",
+      "qr_codes": "QR-Codes"
+    }
   },
 
   "learning": {
