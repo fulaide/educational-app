@@ -1,24 +1,58 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms'
+	import { t, localeManager } from '@educational-app/i18n'
 	import type { PageData, ActionData } from './$types'
 
-	export let data: PageData
-	export let form: ActionData
+	interface Props {
+		data: PageData;
+		form: ActionData;
+	}
 
-	let email = 'teacher@test.com' // Pre-fill for development
-	let password = 'password123' // Pre-fill for development
-	let loading = false
+	let { data, form }: Props = $props();
+
+	let email = $state('teacher@test.com') // Pre-fill for development
+	let password = $state('password123') // Pre-fill for development  
+	let loading = $state(false)
+	let currentLocale = $state('de')
+	let mounted = $state(false)
+
+	onMount(() => {
+		currentLocale = localeManager.getCurrentLocale()
+		mounted = true
+	})
+
+	function switchLocale() {
+		const newLocale = currentLocale === 'de' ? 'en' : 'de'
+		localeManager.setLocale(newLocale)
+		currentLocale = newLocale
+	}
 	
 	// Debug logging
 	console.log('Signin page loaded with callbackUrl:', data?.callbackUrl || 'no callback')
 </script>
 
 <svelte:head>
-	<title>Sign In - Educational App Test</title>
+	<title>{$t('auth.forms.signin.title')} - Educational App</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 	<div class="max-w-md w-full space-y-8">
+		{#if mounted}
+			<div class="text-right mb-4">
+				<button
+					type="button"
+					onclick={switchLocale}
+					class="inline-flex items-center gap-2 px-3 py-1 text-sm text-indigo-600 hover:text-indigo-500 font-medium bg-white rounded-md shadow-sm hover:shadow border border-indigo-200 hover:border-indigo-300"
+				>
+					<span class="w-5 h-3 rounded border border-gray-300 bg-gray-50 flex items-center justify-center text-xs font-medium">
+						{currentLocale.toUpperCase()}
+					</span>
+					{currentLocale === 'de' ? 'English' : 'Deutsch'}
+				</button>
+			</div>
+		{/if}
+		
 		<div>
 			<div class="mx-auto h-12 w-12 text-indigo-600">
 				<svg fill="currentColor" viewBox="0 0 24 24">
@@ -26,10 +60,10 @@
 				</svg>
 			</div>
 			<h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-				Teacher Portal
+				{$t('auth.forms.signin.title')}
 			</h2>
 			<p class="mt-2 text-center text-sm text-gray-600">
-				Sign in to access your teacher dashboard
+				{$t('auth.forms.signin.subtitle')}
 			</p>
 		</div>
 
@@ -43,10 +77,10 @@
 					</div>
 					<div class="ml-3">
 						<h3 class="text-sm font-medium text-green-800">
-							Password Reset Successful!
+							{$t('auth.messages.password_reset_success_title')}
 						</h3>
 						<div class="mt-2 text-sm text-green-700">
-							<p>Your password has been updated successfully. You can now sign in with your new password.</p>
+							<p>{$t('auth.messages.password_reset_success_text')}</p>
 						</div>
 					</div>
 				</div>
@@ -79,7 +113,7 @@
 								href="/auth/resend-verification?email={encodeURIComponent(form.email)}" 
 								class="font-medium text-red-700 hover:text-red-800 underline"
 							>
-								Resend verification email
+								{$t('auth.messages.resend_verification')}
 							</a>
 						</div>
 					{/if}
@@ -93,7 +127,7 @@
 			<div class="space-y-4">
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700">
-						Email address
+						{$t('auth.forms.signin.email_label')}
 					</label>
 					<input
 						id="email"
@@ -103,14 +137,14 @@
 						required
 						bind:value={email}
 						class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-						placeholder="Enter your email"
+						placeholder={$t('auth.forms.signin.email_placeholder')}
 						disabled={loading}
 					/>
 				</div>
 
 				<div>
 					<label for="password" class="block text-sm font-medium text-gray-700">
-						Password
+						{$t('auth.forms.signin.password_label')}
 					</label>
 					<input
 						id="password"
@@ -120,7 +154,7 @@
 						required
 						bind:value={password}
 						class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-						placeholder="Enter your password"
+						placeholder={$t('auth.forms.signin.password_placeholder')}
 						disabled={loading}
 					/>
 				</div>
@@ -129,7 +163,7 @@
 			<div class="flex items-center justify-between">
 				<div class="text-sm">
 					<a href="/auth/forgot-password" class="font-medium text-indigo-600 hover:text-indigo-500">
-						Forgot your password?
+						{$t('auth.forms.signin.forgot_password')}
 					</a>
 				</div>
 			</div>
@@ -144,14 +178,14 @@
 						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 					</svg>
-					Signing in...
+					{$t('auth.forms.signin.submitting')}
 				{:else}
-					Sign in to Teacher Portal
+					{$t('auth.forms.signin.submit')}
 				{/if}
 			</button>
 
 			<p class="mt-4 text-center text-sm text-gray-600">
-				Need an account? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Create teacher account</a>
+				{$t('auth.forms.signin.need_account')} <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">{$t('auth.forms.signin.create_account')}</a>
 			</p>
 		</form>
 	</div>

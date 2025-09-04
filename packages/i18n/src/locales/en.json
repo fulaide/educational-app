@@ -36,7 +36,47 @@
     "invalid_qr": "Invalid QR code",
     "processing_qr": "Processing QR code...",
     "login_successful": "Login successful!",
-    "redirecting": "Redirecting to dashboard..."
+    "redirecting": "Redirecting to dashboard...",
+    "forms": {
+      "signin": {
+        "title": "Teacher Portal",
+        "subtitle": "Sign in to access your teacher dashboard",
+        "email_label": "Email address",
+        "email_placeholder": "Enter your email",
+        "password_label": "Password", 
+        "password_placeholder": "Enter your password",
+        "submit": "Sign in to Teacher Portal",
+        "submitting": "Signing in...",
+        "forgot_password": "Forgot your password?",
+        "need_account": "Need an account?",
+        "create_account": "Create teacher account"
+      },
+      "register": {
+        "title": "Create Account",
+        "name_label": "Full Name",
+        "email_label": "Email Address",
+        "password_label": "Password",
+        "confirm_password_label": "Confirm Password",
+        "submit": "Create Account"
+      },
+      "forgot_password": {
+        "title": "Reset Your Password",
+        "description": "Enter your email address and we'll send you a link to reset your password",
+        "email_label": "Email Address", 
+        "submit": "Send Reset Email"
+      },
+      "reset_password": {
+        "title": "Set New Password",
+        "password_label": "New Password",
+        "confirm_password_label": "Confirm New Password",
+        "submit": "Update Password"
+      }
+    },
+    "messages": {
+      "password_reset_success_title": "Password Reset Successful!",
+      "password_reset_success_text": "Your password has been updated successfully. You can now sign in with your new password.",
+      "resend_verification": "Resend verification email"
+    }
   },
 
   "qr": {

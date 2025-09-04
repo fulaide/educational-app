@@ -36,7 +36,47 @@
     "invalid_qr": "Ungültiger QR-Code",
     "processing_qr": "QR-Code wird verarbeitet...",
     "login_successful": "Anmeldung erfolgreich!",
-    "redirecting": "Weiterleitung zum Dashboard..."
+    "redirecting": "Weiterleitung zum Dashboard...",
+    "forms": {
+      "signin": {
+        "title": "Lehrer-Portal",
+        "subtitle": "Melden Sie sich an, um auf Ihr Lehrer-Dashboard zuzugreifen",
+        "email_label": "E-Mail-Adresse",
+        "email_placeholder": "Ihre E-Mail eingeben",
+        "password_label": "Passwort", 
+        "password_placeholder": "Ihr Passwort eingeben",
+        "submit": "Im Lehrer-Portal anmelden",
+        "submitting": "Anmeldung läuft...",
+        "forgot_password": "Passwort vergessen?",
+        "need_account": "Benötigen Sie ein Konto?",
+        "create_account": "Lehrer-Konto erstellen"
+      },
+      "register": {
+        "title": "Konto erstellen",
+        "name_label": "Vollständiger Name",
+        "email_label": "E-Mail-Adresse",
+        "password_label": "Passwort",
+        "confirm_password_label": "Passwort bestätigen",
+        "submit": "Konto erstellen"
+      },
+      "forgot_password": {
+        "title": "Passwort zurücksetzen",
+        "description": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
+        "email_label": "E-Mail-Adresse", 
+        "submit": "Reset-E-Mail senden"
+      },
+      "reset_password": {
+        "title": "Neues Passwort festlegen",
+        "password_label": "Neues Passwort",
+        "confirm_password_label": "Neues Passwort bestätigen",
+        "submit": "Passwort aktualisieren"
+      }
+    },
+    "messages": {
+      "password_reset_success_title": "Passwort erfolgreich zurückgesetzt!",
+      "password_reset_success_text": "Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+      "resend_verification": "Bestätigungs-E-Mail erneut senden"
+    }
   },
 
   "qr": {
