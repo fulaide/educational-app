@@ -158,7 +158,39 @@
     "navigation": {
       "dashboard": "Dashboard",
       "signin": "Sign In",
-      "qr_codes": "QR Codes"
+      "qr_codes": "QR Codes",
+      "register_students": "Register Students"
+    }
+  },
+
+  "student": {
+    "register": {
+      "title": "Register Students",
+      "subtitle": "Create new student accounts for your class",
+      "name_label": "Student Name",
+      "name_placeholder": "Enter student name",
+      "grade_label": "Grade Level",
+      "count_label": "Number of Students",
+      "submit": "Create Students",
+      "submitting": "Creating Students...",
+      "back_to_dashboard": "Back to Dashboard",
+      "success_title": "Students Created Successfully!",
+      "success_message": "{count} students have been registered successfully.",
+      "generate_qr_codes": "Generate QR Codes",
+      "bulk_info": "{count} anonymous student accounts will be created."
+    },
+    "qr_codes": {
+      "title": "Student QR Codes",
+      "subtitle": "Generate and manage QR codes for student login",
+      "generate_all": "Generate All",
+      "print_all": "Print All",
+      "back_to_dashboard": "Back to Dashboard",
+      "expires_in": "Expires",
+      "generate_new": "Generate New QR Code",
+      "select_all": "Select All",
+      "selected": "selected",
+      "grade": "Grade",
+      "no_qr_code": "No QR code available"
     }
   },
 

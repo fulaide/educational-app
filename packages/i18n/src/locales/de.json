@@ -146,7 +146,39 @@
     "navigation": {
       "dashboard": "Dashboard",
       "signin": "Anmelden",
-      "qr_codes": "QR-Codes"
+      "qr_codes": "QR-Codes",
+      "register_students": "Schüler registrieren"
+    }
+  },
+
+  "student": {
+    "register": {
+      "title": "Schüler registrieren",
+      "subtitle": "Erstellen Sie neue Schülerkonten für Ihre Klasse",
+      "name_label": "Schülername",
+      "name_placeholder": "Name des Schülers eingeben",
+      "grade_label": "Klassenstufe",
+      "count_label": "Anzahl Schüler",
+      "submit": "Schüler erstellen",
+      "submitting": "Erstelle Schüler...",
+      "back_to_dashboard": "Zurück zum Dashboard",
+      "success_title": "Schüler erfolgreich erstellt!",
+      "success_message": "{count} Schüler wurden erfolgreich registriert.",
+      "generate_qr_codes": "QR-Codes generieren",
+      "bulk_info": "{count} anonyme Schülerkonten werden erstellt."
+    },
+    "qr_codes": {
+      "title": "Schüler QR-Codes",
+      "subtitle": "QR-Codes für Schüler-Anmeldung generieren und verwalten",
+      "generate_all": "Alle generieren",
+      "print_all": "Alle drucken",
+      "back_to_dashboard": "Zurück zum Dashboard",
+      "expires_in": "Läuft ab",
+      "generate_new": "Neuen QR-Code generieren",
+      "select_all": "Alle auswählen",
+      "selected": "ausgewählt",
+      "grade": "Klasse",
+      "no_qr_code": "Kein QR-Code vorhanden"
     }
   },
 

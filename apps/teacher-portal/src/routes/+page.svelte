@@ -8,6 +8,7 @@
 	const dashboardText = $derived($t('teacher.navigation.dashboard'))
 	const signInText = $derived($t('teacher.navigation.signin'))
 	const qrCodesText = $derived($t('teacher.navigation.qr_codes'))
+	const registerStudentsText = $derived($t('teacher.navigation.register_students'))
 	
 </script>
 
@@ -41,6 +42,7 @@
 
 			<a href="/dashboard" class="text-xl font-bold font-family-comic text-primary">{dashboardText}</a>
 			<a href="/auth/signin" class="text-xl font-bold font-family-comic text-primary">{signInText}</a>
+			<a href="/students/register" class="text-xl font-bold font-family-comic text-primary">{registerStudentsText}</a>
 			<a href="/qr-codes" class="text-xl font-bold font-family-comic text-primary">{qrCodesText}</a>
 		</div>
 	</Card>
