@@ -48,9 +48,17 @@
 							Invalid or expired reset link
 						</h3>
 						<div class="mt-2 text-sm text-red-700">
-							<p>
-								This password reset link is no longer valid. It may have expired or already been used.
-							</p>
+							{#if data.debugInfo}
+								{#if data.debugInfo.isUsed}
+									<p>This password reset link has already been used. You can only use each reset link once.</p>
+								{:else if data.debugInfo.isExpired}
+									<p>This password reset link has expired (created {new Date(data.debugInfo.createdAt).toLocaleString()}). Reset links are valid for 1 hour.</p>
+								{:else}
+									<p>This password reset link is invalid.</p>
+								{/if}
+							{:else}
+								<p>This password reset link is no longer valid. It may have expired or already been used.</p>
+							{/if}
 						</div>
 						<div class="mt-4">
 							<a 
@@ -81,35 +89,6 @@
 					</div>
 				{/if}
 
-				{#if form?.success}
-					<div class="bg-green-50 border border-green-200 rounded-md p-4">
-						<div class="flex">
-							<div class="flex-shrink-0">
-								<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-								</svg>
-							</div>
-							<div class="ml-3">
-								<h3 class="text-sm font-medium text-green-800">
-									Password updated successfully
-								</h3>
-								<div class="mt-2 text-sm text-green-700">
-									<p>
-										Your password has been reset. You can now sign in with your new password.
-									</p>
-								</div>
-								<div class="mt-4">
-									<a 
-										href="/auth/signin" 
-										class="text-sm font-medium text-green-800 hover:text-green-700"
-									>
-										Sign in to your account →
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				{:else}
 					<div class="space-y-4">
 						<div>
 							<label for="password" class="block text-sm font-medium text-gray-700">
@@ -189,7 +168,6 @@
 							{/if}
 						</button>
 					</div>
-				{/if}
 			</form>
 		{/if}
 

@@ -50,6 +50,8 @@ __export(index_exports, {
   validateMigrations: () => validateMigrations
 });
 module.exports = __toCommonJS(index_exports);
+var import_dotenv = __toESM(require("dotenv"));
+var import_path3 = __toESM(require("path"));
 var import_client3 = require("@prisma/client");
 __reExport(index_exports, require("@prisma/client"), module.exports);
 
@@ -1018,6 +1020,8 @@ var SAMPLE_DATA = {
 };
 
 // src/index.ts
+var envPath = import_path3.default.resolve(process.cwd(), ".env");
+import_dotenv.default.config({ path: envPath });
 var globalForPrisma = globalThis;
 var prisma3 = globalForPrisma.prisma ?? new import_client3.PrismaClient({
   log: ["query"]

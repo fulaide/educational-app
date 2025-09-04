@@ -2,6 +2,8 @@
 export * from './qr-generator'
 export * from './qr-analytics'
 export * from './qr-offline'
+export * from './email-service'
+export * from './url-utils'
 
 // Types
 export interface AuthUser {

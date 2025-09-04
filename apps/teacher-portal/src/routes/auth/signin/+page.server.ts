@@ -1,21 +1,11 @@
 import { redirect, fail } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 import jwt from 'jsonwebtoken'
-import { PrismaClient } from '@educational-app/database'
+import { prisma } from '@educational-app/database'
 import { randomBytes } from 'crypto'
+import bcrypt from 'bcryptjs'
 
 const JWT_SECRET = process.env.AUTH_SECRET || 'dev-secret-key'
-
-// Create prisma instance
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export const load: PageServerLoad = async (event) => {
 	// Check for existing session cookie
@@ -31,12 +21,13 @@ export const load: PageServerLoad = async (event) => {
 	}
 	
 	return {
-		callbackUrl: event.url.searchParams.get('callbackUrl') || '/dashboard'
+		callbackUrl: event.url.searchParams.get('callbackUrl') || '/dashboard',
+		passwordReset: event.url.searchParams.get('passwordReset') === 'success'
 	}
 }
 
 export const actions: Actions = {
-	default: async ({ request, cookies, getClientAddress }) => {
+	default: async ({ request, cookies }) => {
 		const data = await request.formData()
 		const email = data.get('email') as string
 		const password = data.get('password') as string
@@ -46,58 +37,92 @@ export const actions: Actions = {
 			return fail(400, { error: 'Please fill in all fields' })
 		}
 
-		// Mock authentication for development (same as in hooks.server.ts)
-		if (email === 'teacher@test.com' && password === 'password123') {
-			try {
-				// Generate unique token ID for JWT and database session tracking
-				const tokenId = randomBytes(32).toString('hex')
-				const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+		try {
+			// Find user in database
+			const user = await prisma.user.findUnique({
+				where: { email },
+				include: { organization: true }
+			})
 
-				// Create JWT session token with tokenId
-				const userData = {
-					id: 'mock-teacher-id',
-					email: 'teacher@test.com',
-					name: 'Test Teacher',
-					role: 'TEACHER',
-					organizationId: 'mock-org-id',
-					jti: tokenId // JWT ID claim for token tracking
-				}
-				
-				const token = jwt.sign(userData, JWT_SECRET, { 
-					expiresIn: '24h',
-					jwtid: tokenId
-				})
-				
-				// Create database session record
-				await prisma.userSession.create({
-					data: {
-						userId: userData.id,
-						tokenId: tokenId,
-						deviceInfo: request.headers.get('user-agent') || null,
-						ipAddress: getClientAddress(),
-						userAgent: request.headers.get('user-agent') || null,
-						expiresAt: expiresAt
-					}
-				})
-				
-				// Set session cookie
-				cookies.set('session', token, {
-					path: '/',
-					httpOnly: true,
-					secure: process.env.NODE_ENV === 'production',
-					sameSite: 'strict',
-					maxAge: 24 * 60 * 60 // 24 hours in seconds
-				})
-				
-				console.log('[SIGNIN] Session created for:', email, 'with token ID:', tokenId)
-				// Redirect to callback URL
-				throw redirect(302, callbackUrl)
-			} catch (error) {
-				console.error('[SIGNIN] Error creating session:', error)
-				return fail(500, { error: 'Failed to create session. Please try again.' })
+			if (!user) {
+				return fail(400, { error: 'Invalid email or password' })
 			}
-		} else {
-			return fail(401, { error: 'Invalid credentials. Please try again.' })
+
+			// Verify password
+			const isValidPassword = await bcrypt.compare(password, user.password || '')
+			if (!isValidPassword) {
+				return fail(400, { error: 'Invalid email or password' })
+			}
+
+			// Check if user is active
+			if (!user.isActive) {
+				return fail(400, { error: 'Account is deactivated. Please contact support.' })
+			}
+
+			// Check if email is verified
+			if (!user.isVerified) {
+				return fail(400, { 
+					error: 'Please verify your email address before signing in.', 
+					email: user.email,
+					needsVerification: true
+				})
+			}
+			// Generate unique token ID for JWT session tracking
+			const tokenId = randomBytes(32).toString('hex')
+
+			// Create JWT session token with user data
+			const userData = {
+				id: user.id,
+				email: user.email!,
+				name: user.name,
+				role: user.role,
+				organizationId: user.organizationId
+			}
+			
+			const token = jwt.sign(userData, JWT_SECRET, { 
+				expiresIn: '24h',
+				jwtid: tokenId
+			})
+			
+			// Create database session record
+			const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+			await prisma.userSession.create({
+				data: {
+					userId: userData.id,
+					tokenId: tokenId,
+					deviceInfo: request.headers.get('user-agent') || null,
+					ipAddress: '::1', // For local development
+					userAgent: request.headers.get('user-agent') || null,
+					expiresAt: expiresAt
+				}
+			})
+			
+			// Set session cookie
+			cookies.set('session', token, {
+				path: '/',
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				maxAge: 24 * 60 * 60 // 24 hours in seconds
+			})
+			
+			console.log('[SIGNIN] Session created for:', email, 'with token ID:', tokenId)
+			
+			// Update user last login time
+			await prisma.user.update({
+				where: { id: user.id },
+				data: { lastLoginAt: new Date() }
+			})
+			
+			// Redirect to callback URL
+			throw redirect(302, callbackUrl)
+		} catch (error: any) {
+			// Re-throw redirect errors (these are not actual errors)
+			if (error?.status === 302 || error?.constructor?.name === 'Redirect') {
+				throw error
+			}
+			console.error('[SIGNIN] Database error:', error)
+			return fail(500, { error: 'Something went wrong. Please try again.' })
 		}
 	}
 }

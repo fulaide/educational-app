@@ -1,4 +1,6 @@
 // src/index.ts
+import dotenv from "dotenv";
+import path3 from "path";
 import { PrismaClient as PrismaClient3 } from "@prisma/client";
 export * from "@prisma/client";
 
@@ -965,6 +967,8 @@ var SAMPLE_DATA = {
 };
 
 // src/index.ts
+var envPath = path3.resolve(process.cwd(), ".env");
+dotenv.config({ path: envPath });
 var globalForPrisma = globalThis;
 var prisma3 = globalForPrisma.prisma ?? new PrismaClient3({
   log: ["query"]

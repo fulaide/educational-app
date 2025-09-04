@@ -1,38 +1,46 @@
-import { error, fail } from '@sveltejs/kit'
+import { error, fail, redirect } from '@sveltejs/kit'
 import type { PageServerLoad, Actions } from './$types'
-import { PrismaClient } from '@educational-app/database'
+import { prisma } from '@educational-app/database'
 import bcrypt from 'bcryptjs'
-
-// Create prisma instance
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export const load: PageServerLoad = async ({ params }) => {
   const { token } = params
 
   try {
-    // Check if reset token is valid
-    const resetRecord = await prisma.passwordReset.findUnique({
-      where: { token },
-      include: { user: true }
-    })
-
-    const isValidToken = resetRecord && 
-                        !resetRecord.used && 
-                        resetRecord.expiresAt > new Date()
-
-    return {
-      validToken: !!isValidToken,
-      token: isValidToken ? token : null
-    }
-  } catch (err) {
+    // Check if reset token is valid in database
+    try {
+      const resetRecord = await prisma.passwordReset.findUnique({
+        where: { token },
+        include: { user: true }
+      })
+      
+      const isValidToken = resetRecord && 
+                          !resetRecord.used && 
+                          resetRecord.expiresAt > new Date()
+      
+      return {
+        validToken: !!isValidToken,
+        token: isValidToken ? token : null,
+        resetRecord: resetRecord || null,
+        debugInfo: resetRecord ? {
+          tokenFound: !!resetRecord,
+          isUsed: resetRecord.used,
+          isExpired: resetRecord.expiresAt < new Date(),
+          expiresAt: resetRecord.expiresAt.toISOString(),
+          createdAt: resetRecord.createdAt.toISOString()
+        } : null
+      }
+    } catch (dbError) {
+      console.log('[RESET-PASSWORD] Database error, using fallback validation:', dbError)
+      // Fallback to hex string validation if database fails
+      const isValidToken = token && token.length === 64 && /^[a-f0-9]+$/.test(token)
+      
+      return {
+        validToken: !!isValidToken,
+        token: isValidToken ? token : null,
+        resetRecord: null
+      }
+    }  } catch (err) {
     console.error('[RESET-PASSWORD] Error validating token:', err)
     return {
       validToken: false,
@@ -90,37 +98,44 @@ export const actions: Actions = {
         where: { token },
         include: { user: true }
       })
-
+      
       if (!resetRecord || resetRecord.used || resetRecord.expiresAt < new Date()) {
+        console.log('[RESET-PASSWORD] Invalid token:', { 
+          found: !!resetRecord, 
+          used: resetRecord?.used, 
+          expired: resetRecord ? resetRecord.expiresAt < new Date() : null 
+        })
         return fail(400, { error: 'Invalid or expired reset token' })
       }
 
-      // For development, we'll handle the mock user
-      // In production, this would update the actual user's password
-      if (resetRecord.userId === 'mock-teacher-id') {
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(password, 10)
-        
-        console.log(`[RESET-PASSWORD] Password updated for user: ${resetRecord.userId}`)
-        console.log(`[RESET-PASSWORD] New hashed password: ${hashedPassword}`)
-        
-        // In production, update the user's password:
-        // await prisma.user.update({
-        //   where: { id: resetRecord.userId },
-        //   data: { password: hashedPassword }
-        // })
-      }
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 10)
+      
+      // Update the user's password
+      await prisma.user.update({
+        where: { id: resetRecord.userId },
+        data: { password: hashedPassword }
+      })
 
       // Mark reset token as used
       await prisma.passwordReset.update({
         where: { token },
         data: { used: true }
       })
+      
+      console.log(`[RESET-PASSWORD] Password updated for user: ${resetRecord.user.email}`)
+      console.log(`[RESET-PASSWORD] Reset token marked as used: ${token}`)
 
       console.log(`[RESET-PASSWORD] Password reset completed for token: ${token}`)
 
-      return { success: true }
-    } catch (err) {
+      // Redirect to sign-in page with success message
+      throw redirect(302, '/auth/signin?passwordReset=success')
+    } catch (err: any) {
+      // Re-throw redirect errors (these are not actual errors)
+      if (err?.status === 302 || err?.constructor?.name === 'Redirect') {
+        throw err
+      }
+      
       console.error('[RESET-PASSWORD] Error resetting password:', err)
       return fail(500, { error: 'Something went wrong. Please try again.' })
     }

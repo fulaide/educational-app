@@ -1,18 +1,8 @@
 import { fail } from '@sveltejs/kit'
 import type { Actions } from './$types'
-import { PrismaClient } from '@educational-app/database'
+import { prisma } from '@educational-app/database'
+import { EmailService, getPasswordResetUrl } from '@educational-app/auth'
 import { randomBytes } from 'crypto'
-
-// Create prisma instance
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Rate limiting storage (in production, use Redis or database)
 const resetAttempts = new Map<string, { count: number, lastAttempt: number }>()
@@ -47,7 +37,7 @@ function checkRateLimit(email: string): boolean {
 }
 
 export const actions: Actions = {
-  default: async ({ request, getClientAddress }) => {
+  default: async ({ request, getClientAddress, url }) => {
     const data = await request.formData()
     const email = data.get('email') as string
 
@@ -70,32 +60,46 @@ export const actions: Actions = {
     }
 
     try {
-      // For development, we'll only handle the test teacher email
-      // In production, this would check against real user database
-      if (email === 'teacher@test.com') {
+      // Look for existing user in database
+      const user = await prisma.user.findUnique({
+        where: { email: email }
+      })
+
+      // If user exists, send reset email
+      if (user) {
         // Generate secure reset token
         const resetToken = randomBytes(32).toString('hex')
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour expiry
 
-        // Create password reset record
+        // Create password reset token record
         await prisma.passwordReset.create({
           data: {
-            userId: 'mock-teacher-id',
+            userId: user.id,
             token: resetToken,
             expiresAt: expiresAt
           }
         })
 
-        // Log the reset token for development (in production, send email)
-        console.log(`[FORGOT-PASSWORD] Reset token for ${email}: http://localhost:5174/auth/reset-password/${resetToken}`)
+        // Send password reset email with dynamic URL
+        const resetUrl = getPasswordResetUrl({ url }, resetToken)
+        const emailResult = await EmailService.sendPasswordReset(email, resetToken, resetUrl)
         
-        // TODO: Send actual email in production
-        // await sendPasswordResetEmail(email, resetToken)
+        if (emailResult.success) {
+          console.log(`[FORGOT-PASSWORD] Password reset email sent to: ${email} (MessageID: ${emailResult.messageId})`)
+        } else {
+          console.error(`[FORGOT-PASSWORD] Failed to send email to: ${email} - ${emailResult.error}`)
+          
+          // Fallback: Log reset link to console for development
+          console.log(`[FORGOT-PASSWORD] Email failed, reset link: ${resetUrl}`)
+        }
+      } else {
+        console.log(`[FORGOT-PASSWORD] Password reset requested for non-existent email: ${email}`)
+        // Don't reveal that user doesn't exist - still proceed as if successful for security
       }
 
       // Always return success to prevent user enumeration
       // (Same response whether email exists or not)
-      console.log(`[FORGOT-PASSWORD] Password reset requested for: ${email} from IP: ${getClientAddress()}`)
+      console.log(`[FORGOT-PASSWORD] Password reset process completed for: ${email} from IP: ${getClientAddress()}`)
       
       return { success: true }
     } catch (error) {

@@ -26,7 +26,7 @@
     "db:validate": "tsx src/db-utils.ts validate",
     "db:stats": "tsx src/db-utils.ts stats",
     "migrate:create": "tsx src/migration-utils.ts create",
-    "migrate:apply": "tsx src/migration-utils.ts apply", 
+    "migrate:apply": "tsx src/migration-utils.ts apply",
     "migrate:reset": "tsx src/migration-utils.ts reset",
     "migrate:status": "tsx src/migration-utils.ts status",
     "migrate:validate": "tsx src/migration-utils.ts validate",
@@ -38,15 +38,16 @@
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/uuid": "^10.0.0",
     "prisma": "^6.10.1",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.0",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/uuid": "^10.0.0"
+    "typescript": "^5.6.0"
   },
   "files": [
     "dist",

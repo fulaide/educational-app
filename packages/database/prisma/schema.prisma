@@ -80,6 +80,20 @@ model PasswordReset {
   @@map("password_resets")
 }
 
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  email     String   // Store the email being verified (in case user changes it)
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("email_verifications")
+}
+
 enum RewardType {
   VIRTUAL
   PHYSICAL
@@ -155,6 +169,7 @@ model User {
   syncOperations     SyncOperation[]
   userSessions       UserSession[]
   passwordResets     PasswordReset[]
+  emailVerifications EmailVerification[]
   authenticators     Authenticator[]
   rewardRedemptions  RewardRedemption[]
   deviceInfo         DeviceInfo[]

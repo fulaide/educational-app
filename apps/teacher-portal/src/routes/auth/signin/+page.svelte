@@ -33,6 +33,26 @@
 			</p>
 		</div>
 
+		{#if data.passwordReset}
+			<div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+				<div class="flex">
+					<div class="flex-shrink-0">
+						<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="ml-3">
+						<h3 class="text-sm font-medium text-green-800">
+							Password Reset Successful!
+						</h3>
+						<div class="mt-2 text-sm text-green-700">
+							<p>Your password has been updated successfully. You can now sign in with your new password.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		<form 
 			class="mt-8 space-y-6" 
 			method="POST"
@@ -53,6 +73,16 @@
 			{#if form?.error}
 				<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
 					{form.error}
+					{#if form?.needsVerification && form?.email}
+						<div class="mt-2">
+							<a 
+								href="/auth/resend-verification?email={encodeURIComponent(form.email)}" 
+								class="font-medium text-red-700 hover:text-red-800 underline"
+							>
+								Resend verification email
+							</a>
+						</div>
+					{/if}
 				</div>
 			{/if}
 			
@@ -121,7 +151,7 @@
 			</button>
 
 			<p class="mt-4 text-center text-sm text-gray-600">
-				Need an account? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Contact your administrator</a>
+				Need an account? <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Create teacher account</a>
 			</p>
 		</form>
 	</div>

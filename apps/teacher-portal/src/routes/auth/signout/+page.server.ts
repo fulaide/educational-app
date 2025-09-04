@@ -1,18 +1,7 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
-import { PrismaClient } from '@educational-app/database'
+import { prisma } from '@educational-app/database'
 import jwt from 'jsonwebtoken'
-
-// Create prisma instance
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const sessionToken = cookies.get('session')

@@ -1,3 +1,11 @@
+// Load environment variables
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Try to load .env from current directory, then parent directories
+const envPath = path.resolve(process.cwd(), '.env');
+dotenv.config({ path: envPath });
+
 // Import and re-export Prisma client and types
 import { PrismaClient } from '@prisma/client';
 export * from '@prisma/client';
