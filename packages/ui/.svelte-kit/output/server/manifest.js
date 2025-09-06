@@ -10,7 +10,7 @@ return {
 	assets: new Set(["fonts/hello-headline.woff2"]),
 	mimeTypes: {".woff2":"font/woff2"},
 	_: {
-		client: {start:"_app/immutable/entry/start.B-WoirmO.js",app:"_app/immutable/entry/app.Bhvh1oNu.js",imports:["_app/immutable/entry/start.B-WoirmO.js","_app/immutable/chunks/B-AhSswU.js","_app/immutable/chunks/CCKMOwuf.js","_app/immutable/chunks/C_lHB0qW.js","_app/immutable/entry/app.Bhvh1oNu.js","_app/immutable/chunks/C_lHB0qW.js","_app/immutable/chunks/CCKMOwuf.js","_app/immutable/chunks/DsnmJJEf.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.COYnd5yH.js",app:"_app/immutable/entry/app.n04NVVtp.js",imports:["_app/immutable/entry/start.COYnd5yH.js","_app/immutable/chunks/BgkI5tkJ.js","_app/immutable/chunks/CCKMOwuf.js","_app/immutable/chunks/C_lHB0qW.js","_app/immutable/entry/app.n04NVVtp.js","_app/immutable/chunks/C_lHB0qW.js","_app/immutable/chunks/CCKMOwuf.js","_app/immutable/chunks/DsnmJJEf.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js'))

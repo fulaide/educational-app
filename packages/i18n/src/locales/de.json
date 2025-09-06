@@ -15,7 +15,11 @@
     "no": "Nein",
     "welcome": "Willkommen",
     "student": "Schüler",
-    "try_again": "Erneut versuchen"
+    "try_again": "Erneut versuchen",
+    "name": "Name",
+    "task": "Aufgabe",
+    "date": "Datum",
+    "never": "Nie"
   },
 
   "auth": {
@@ -95,7 +99,8 @@
     "messages": {
       "password_reset_success_title": "Passwort erfolgreich zurückgesetzt!",
       "password_reset_success_text": "Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
-      "resend_verification": "Bestätigungs-E-Mail erneut senden"
+      "resend_verification": "Bestätigungs-E-Mail erneut senden",
+      "go_to_signin": "Zur Anmeldung"
     }
   },
 
@@ -179,6 +184,116 @@
       "selected": "ausgewählt",
       "grade": "Klasse",
       "no_qr_code": "Kein QR-Code vorhanden"
+    }
+  },
+
+  "parent": {
+    "portal": {
+      "title": "Elternportal",
+      "welcome_title": "Lexi Elternportal",
+      "welcome_subtitle": "Verfolgen Sie den Lernfortschritt und die Erfolge Ihres Kindes",
+      "signin": "Anmelden",
+      "register": "Konto erstellen",
+      "features_title": "Elternfunktionen",
+      "track_progress": "Fortschritt verfolgen",
+      "track_progress_desc": "Überwachen Sie die Lernreise und akademischen Erfolge Ihres Kindes",
+      "view_achievements": "Erfolge anzeigen",
+      "view_achievements_desc": "Feiern Sie die Meilensteine und abgeschlossenen Herausforderungen Ihres Kindes",
+      "link_children": "Kinder verknüpfen",
+      "link_children_desc": "Verbinden Sie mehrere Kinderkonten mit einem Eltern-Dashboard"
+    },
+    "auth": {
+      "signin": {
+        "title": "Elternportal",
+        "subtitle": "Melden Sie sich an, um den Fortschritt Ihres Kindes zu verfolgen",
+        "email_label": "E-Mail-Adresse",
+        "email_placeholder": "E-Mail eingeben",
+        "password_label": "Passwort", 
+        "password_placeholder": "Passwort eingeben",
+        "submit": "Im Elternportal anmelden",
+        "submitting": "Anmeldung...",
+        "forgot_password": "Passwort vergessen?",
+        "need_account": "Noch kein Konto?",
+        "create_account": "Elternkonto erstellen"
+      },
+      "register": {
+        "title": "Elternkonto erstellen",
+        "subtitle": "Treten Sie Lexi bei, um den Lernfortschritt Ihres Kindes zu verfolgen",
+        "name_label": "Vollständiger Name",
+        "name_placeholder": "Vollständigen Namen eingeben",
+        "email_label": "E-Mail-Adresse",
+        "email_placeholder": "E-Mail eingeben",
+        "password_label": "Passwort",
+        "password_placeholder": "Passwort erstellen",
+        "confirm_password_label": "Passwort bestätigen",
+        "confirm_password_placeholder": "Passwort bestätigen",
+        "submit": "Elternkonto erstellen",
+        "submitting": "Konto wird erstellt...",
+        "already_have_account": "Bereits ein Konto?",
+        "sign_in": "Hier anmelden",
+        "success_title": "Elternkonto erstellt!",
+        "success_message": "Bitte überprüfen Sie Ihre E-Mails, um Ihr Konto zu verifizieren, bevor Sie sich anmelden."
+      }
+    },
+    "dashboard": {
+      "title": "Eltern-Dashboard",
+      "welcome": "Willkommen, {name}!",
+      "children_title": "Ihre Kinder",
+      "no_children": "Noch keine Kinder verknüpft",
+      "no_children_description": "Verknüpfen Sie das Konto Ihres Kindes, um den Lernfortschritt und die Erfolge zu verfolgen.",
+      "link_child": "Kind verknüpfen",
+      "view_progress": "Fortschritt anzeigen",
+      "manage": "Verwalten",
+      "grade": "Klasse",
+      "status": "Status",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "sign_out": "Abmelden"
+    },
+    "link_child": {
+      "title": "Kinderkonto verknüpfen",
+      "subtitle": "Verbinden Sie das Schülerkonto Ihres Kindes mit Ihrem Elternkonto",
+      "student_uuid_label": "Schülercode",
+      "student_uuid_placeholder": "Geben Sie den 8-stelligen Schülercode Ihres Kindes ein",
+      "submit": "Kind verknüpfen",
+      "submitting": "Verknüpfe...",
+      "success_title": "Kinderkonto verknüpft!",
+      "success_message": "Das Konto Ihres Kindes wurde erfolgreich mit Ihrem Elternkonto verknüpft.",
+      "back_to_dashboard": "Zurück zum Dashboard",
+      "already_linked": "Dieser Schüler ist bereits mit Ihrem Konto verknüpft.",
+      "link_another": "Weiteres Kind verknüpfen",
+      "linked_child_info": "Verknüpfte Kindinformationen",
+      "how_to_find_code": "So finden Sie den Schülercode Ihres Kindes",
+      "code_instruction_1": "Fragen Sie die Lehrkraft Ihres Kindes nach dem 8-stelligen Schülercode",
+      "code_instruction_2": "Der Code ist auf den QR-Code-Bögen gedruckt, die von der Schule bereitgestellt werden",
+      "code_instruction_3": "Es sind die ersten 8 Zeichen der eindeutigen Schüler-ID Ihres Kindes"
+    },
+    "child": {
+      "manage_title": "Kind verwalten",
+      "student_info": "Schülerinformationen",
+      "linked_at": "Verknüpft am",
+      "last_login": "Letzter Login",
+      "organization": "Schule",
+      "actions": "Aktionen",
+      "unlink_child": "Kind entfernen",
+      "qr_code": "Schüler QR-Code",
+      "student_code": "Schülercode",
+      "scan_instructions": "So verwenden Sie diesen QR-Code",
+      "qr_expires": "QR-Code läuft ab"
+    },
+    "progress": {
+      "title": "Lernfortschritt",
+      "stats_title": "Übersicht",
+      "tasks_completed": "Aufgaben erledigt",
+      "completion_rate": "Erfolgsquote",
+      "average_score": "Durchschnittsnote",
+      "total_xp": "Gesamt XP",
+      "time_spent": "Zeit investiert",
+      "recent_tasks": "Aktuelle Aufgaben",
+      "achievements": "Erfolge",
+      "no_data": "Noch keine Daten verfügbar",
+      "module": "Modul",
+      "score": "Punkte"
     }
   },
 

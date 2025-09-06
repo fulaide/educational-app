@@ -184,6 +184,32 @@ export class LocaleManager {
 		if (typeof document !== 'undefined') {
 			document.documentElement.lang = newLocale
 		}
+		
+		// Sync to database if user is authenticated (browser only)
+		if (typeof window !== 'undefined') {
+			this.syncLocaleToDatabase(newLocale).catch(console.error)
+		}
+	}
+	
+	/**
+	 * Sync locale preference to user's database settings
+	 */
+	private async syncLocaleToDatabase(locale: SupportedLocale): Promise<void> {
+		try {
+			const response = await fetch('/api/user/locale', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ locale })
+			})
+			
+			if (!response.ok) {
+				console.warn('Failed to sync locale to database:', response.statusText)
+			}
+		} catch (error) {
+			console.warn('Failed to sync locale to database:', error)
+		}
 	}
 
 	/**

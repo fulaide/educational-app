@@ -13,7 +13,7 @@
 </script>
 
 <form 
-	class="mt-8 space-y-6 {className || ''}" 
+	class="auth-form {className || ''}" 
 	method="POST"
 	use:enhance={() => {
 		onSubmit?.(true);

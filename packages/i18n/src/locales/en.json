@@ -15,7 +15,11 @@
     "no": "No",
     "welcome": "Welcome",
     "student": "Student",
-    "try_again": "Try again"
+    "try_again": "Try again",
+    "name": "Name",
+    "task": "Task",
+    "date": "Date",
+    "never": "Never"
   },
 
   "auth": {
@@ -107,7 +111,8 @@
     "messages": {
       "password_reset_success_title": "Password Reset Successful!",
       "password_reset_success_text": "Your password has been updated successfully. You can now sign in with your new password.",
-      "resend_verification": "Resend verification email"
+      "resend_verification": "Resend verification email",
+      "go_to_signin": "Go to Sign In"
     }
   },
 
@@ -191,6 +196,116 @@
       "selected": "selected",
       "grade": "Grade",
       "no_qr_code": "No QR code available"
+    }
+  },
+
+  "parent": {
+    "portal": {
+      "title": "Parent Portal",
+      "welcome_title": "Lexi Parent Portal",
+      "welcome_subtitle": "Track your child's learning progress and achievements",
+      "signin": "Sign In",
+      "register": "Create Account",
+      "features_title": "Parent Features",
+      "track_progress": "Track Progress",
+      "track_progress_desc": "Monitor your child's learning journey and academic achievements",
+      "view_achievements": "View Achievements",
+      "view_achievements_desc": "Celebrate your child's milestones and completed challenges",
+      "link_children": "Link Children",
+      "link_children_desc": "Connect multiple children's accounts to one parent dashboard"
+    },
+    "auth": {
+      "signin": {
+        "title": "Parent Portal",
+        "subtitle": "Sign in to track your child's progress",
+        "email_label": "Email address",
+        "email_placeholder": "Enter your email",
+        "password_label": "Password", 
+        "password_placeholder": "Enter your password",
+        "submit": "Sign in to Parent Portal",
+        "submitting": "Signing in...",
+        "forgot_password": "Forgot your password?",
+        "need_account": "Don't have an account?",
+        "create_account": "Create parent account"
+      },
+      "register": {
+        "title": "Create Parent Account",
+        "subtitle": "Join Lexi to track your child's learning progress",
+        "name_label": "Full name",
+        "name_placeholder": "Enter your full name",
+        "email_label": "Email address",
+        "email_placeholder": "Enter your email",
+        "password_label": "Password",
+        "password_placeholder": "Create a password",
+        "confirm_password_label": "Confirm password",
+        "confirm_password_placeholder": "Confirm your password",
+        "submit": "Create Parent Account",
+        "submitting": "Creating account...",
+        "already_have_account": "Already have an account?",
+        "sign_in": "Sign in here",
+        "success_title": "Parent Account Created!",
+        "success_message": "Please check your email to verify your account before signing in."
+      }
+    },
+    "dashboard": {
+      "title": "Parent Dashboard",
+      "welcome": "Welcome, {name}!",
+      "children_title": "Your Children",
+      "no_children": "No children linked yet",
+      "no_children_description": "Link your child's account to track their learning progress and achievements.",
+      "link_child": "Link Child",
+      "view_progress": "View Progress",
+      "manage": "Manage",
+      "grade": "Grade",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "sign_out": "Sign Out"
+    },
+    "link_child": {
+      "title": "Link Child Account",
+      "subtitle": "Connect your child's student account to your parent account",
+      "student_uuid_label": "Student Code",
+      "student_uuid_placeholder": "Enter your child's 8-character student code",
+      "submit": "Link Child",
+      "submitting": "Linking...",
+      "success_title": "Child Account Linked!",
+      "success_message": "Your child's account has been successfully linked to your parent account.",
+      "back_to_dashboard": "Back to Dashboard",
+      "already_linked": "This student is already linked to your account.",
+      "link_another": "Link Another Child",
+      "linked_child_info": "Linked Child Information",
+      "how_to_find_code": "How to find your child's student code",
+      "code_instruction_1": "Ask your child's teacher for their 8-character student code",
+      "code_instruction_2": "The code is printed on QR code sheets provided by the school",
+      "code_instruction_3": "It's the first 8 characters of your child's unique student ID"
+    },
+    "child": {
+      "manage_title": "Manage Child",
+      "student_info": "Student Information",
+      "linked_at": "Linked on",
+      "last_login": "Last login",
+      "organization": "School",
+      "actions": "Actions",
+      "unlink_child": "Unlink Child",
+      "qr_code": "Student QR Code",
+      "student_code": "Student Code",
+      "scan_instructions": "How to use this QR code",
+      "qr_expires": "QR code expires"
+    },
+    "progress": {
+      "title": "Learning Progress",
+      "stats_title": "Overview",
+      "tasks_completed": "Tasks Completed",
+      "completion_rate": "Completion Rate",
+      "average_score": "Average Score",
+      "total_xp": "Total XP",
+      "time_spent": "Time Spent",
+      "recent_tasks": "Recent Tasks",
+      "achievements": "Achievements",
+      "no_data": "No data available yet",
+      "module": "Module",
+      "score": "Score"
     }
   },
 

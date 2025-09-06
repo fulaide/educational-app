@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,6 +5,328 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model UserSession {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenId    String   @unique
+  deviceInfo String?
+  ipAddress  String?
+  userAgent  String?
+  lastActive DateTime @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verifications")
+}
+
+model StudentQRCode {
+  id        String   @id @default(cuid())
+  studentId String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdBy String
+  classId   String?
+  createdAt DateTime @default(now())
+  class     Class?   @relation(fields: [classId], references: [id])
+  teacher   User     @relation("TeacherQRCodes", fields: [createdBy], references: [id], onDelete: Cascade)
+  student   User     @relation("StudentQRCodes", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("student_qr_codes")
+}
+
+model Organization {
+  id        String           @id @default(cuid())
+  name      String
+  type      OrganizationType
+  country   String           @db.Char(2)
+  timezone  String
+  settings  Json
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  classes   Class[]
+  rewards   Reward[]
+  users     User[]
+
+  @@map("organizations")
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  role               UserRole
+  email              String?              @unique
+  name               String?
+  uuid               String?              @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  grade              Int?
+  organizationId     String?
+  isActive           Boolean              @default(true)
+  isVerified         Boolean              @default(false)
+  lastLoginAt        DateTime?
+  settings           Json                 @default("{}")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  authenticators     Authenticator[]
+  teacherClasses     Class[]              @relation("TeacherClasses")
+  deviceInfo         DeviceInfo[]
+  emailVerifications EmailVerification[]
+  createdModules     LearningModule[]     @relation("CreatedBy")
+  notificationTokens NotificationToken[]
+  childParents       ParentChild[]        @relation("ChildRelation")
+  parentChildren     ParentChild[]        @relation("ParentRelation")
+  passwordResets     PasswordReset[]
+  rewardRedemptions  RewardRedemption[]
+  createdRewards     Reward[]             @relation("CreatedBy")
+  achievements       StudentAchievement[]
+  progress           StudentProgress[]
+  createdQRCodes     StudentQRCode[]      @relation("TeacherQRCodes")
+  studentQRCodes     StudentQRCode[]      @relation("StudentQRCodes")
+  syncOperations     SyncOperation[]
+  createdTasks       Task[]               @relation("CreatedBy")
+  userSessions       UserSession[]
+  organization       Organization?        @relation(fields: [organizationId], references: [id])
+  studentClasses     Class[]              @relation("StudentClasses")
+
+  @@map("users")
+}
+
+model Class {
+  id             String          @id @default(cuid())
+  name           String
+  grade          Int
+  maxStudents    Int             @default(30)
+  organizationId String
+  teacherId      String
+  isActive       Boolean         @default(true)
+  settings       Json            @default("{}")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  teacher        User            @relation("TeacherClasses", fields: [teacherId], references: [id])
+  qrCodes        StudentQRCode[]
+  students       User[]          @relation("StudentClasses")
+
+  @@map("classes")
+}
+
+model ParentChild {
+  id        String   @id @default(cuid())
+  parentId  String
+  childId   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  child     User     @relation("ChildRelation", fields: [childId], references: [id])
+  parent    User     @relation("ParentRelation", fields: [parentId], references: [id])
+
+  @@unique([parentId, childId])
+  @@map("parent_children")
+}
+
+model LearningModule {
+  id                String     @id @default(cuid())
+  title             String
+  description       String
+  difficulty        Difficulty
+  grade             Int
+  subject           String
+  estimatedDuration Int
+  prerequisites     String[]
+  isPublished       Boolean    @default(false)
+  createdById       String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  createdBy         User?      @relation("CreatedBy", fields: [createdById], references: [id])
+  tasks             Task[]
+
+  @@map("learning_modules")
+}
+
+model Task {
+  id            String            @id @default(cuid())
+  moduleId      String
+  type          TaskType
+  title         String
+  instructions  String
+  content       Json
+  correctAnswer String
+  hints         String[]          @default([])
+  maxAttempts   Int               @default(3)
+  timeLimit     Int?
+  xpReward      Int               @default(10)
+  isPublished   Boolean           @default(false)
+  createdById   String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  progress      StudentProgress[]
+  createdBy     User?             @relation("CreatedBy", fields: [createdById], references: [id])
+  module        LearningModule    @relation(fields: [moduleId], references: [id])
+
+  @@map("tasks")
+}
+
+model StudentProgress {
+  id          String         @id @default(cuid())
+  studentId   String
+  taskId      String
+  status      ProgressStatus @default(NOT_STARTED)
+  attempts    Int            @default(0)
+  score       Int?
+  timeSpent   Int            @default(0)
+  startedAt   DateTime       @default(now())
+  completedAt DateTime?
+  data        Json           @default("{}")
+  student     User           @relation(fields: [studentId], references: [id])
+  task        Task           @relation(fields: [taskId], references: [id])
+
+  @@unique([studentId, taskId])
+  @@map("student_progress")
+}
+
+model Achievement {
+  id                  String               @id @default(cuid())
+  name                String
+  description         String
+  type                AchievementType
+  icon                String
+  xpReward            Int                  @default(50)
+  conditions          Json
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  studentAchievements StudentAchievement[]
+
+  @@map("achievements")
+}
+
+model StudentAchievement {
+  id            String      @id @default(cuid())
+  studentId     String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  isNew         Boolean     @default(true)
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  student       User        @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, achievementId])
+  @@map("student_achievements")
+}
+
+model Reward {
+  id             String             @id @default(cuid())
+  name           String
+  description    String
+  type           RewardType
+  cost           Int
+  isAvailable    Boolean            @default(true)
+  createdById    String
+  organizationId String?
+  createdAt      DateTime           @default(now())
+  redemptions    RewardRedemption[]
+  createdBy      User               @relation("CreatedBy", fields: [createdById], references: [id])
+  organization   Organization?      @relation(fields: [organizationId], references: [id])
+
+  @@map("rewards")
+}
+
+model RewardRedemption {
+  id          String    @id @default(cuid())
+  studentId   String
+  rewardId    String
+  xpSpent     Int
+  redeemedAt  DateTime  @default(now())
+  fulfilledAt DateTime?
+  notes       String?
+  reward      Reward    @relation(fields: [rewardId], references: [id])
+  student     User      @relation(fields: [studentId], references: [id])
+
+  @@map("reward_redemptions")
+}
+
+model SyncOperation {
+  id        String              @id @default(cuid())
+  userId    String
+  type      SyncOperationType
+  table     String
+  data      Json
+  timestamp DateTime            @default(now())
+  deviceId  String
+  status    SyncOperationStatus @default(PENDING)
+  error     String?
+  user      User                @relation(fields: [userId], references: [id])
+
+  @@map("sync_operations")
+}
+
+model DeviceInfo {
+  id         String    @id @default(cuid())
+  userId     String
+  platform   Platform
+  version    String
+  deviceId   String    @unique
+  appVersion String
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@map("device_info")
+}
+
+model NotificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  Platform
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("notification_tokens")
+}
+
+model Authenticator {
+  credentialID         String  @unique @map("credential_id")
+  userId               String  @map("user_id")
+  providerAccountId    String  @map("provider_account_id")
+  credentialPublicKey  String  @map("credential_public_key")
+  counter              Int
+  credentialDeviceType String  @map("credential_device_type")
+  credentialBackedUp   Boolean @map("credential_backed_up")
+  transports           String?
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+  @@map("authenticators")
 }
 
 enum UserRole {
@@ -50,67 +369,6 @@ enum AchievementType {
   SPECIAL
 }
 
-// Custom authentication models
-model UserSession {
-  id          String   @id @default(cuid())
-  userId      String
-  tokenId     String   @unique // JWT jti claim
-  deviceInfo  String?
-  ipAddress   String?
-  userAgent   String?
-  lastActive  DateTime @default(now())
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("user_sessions")
-}
-
-model PasswordReset {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("password_resets")
-}
-
-model EmailVerification {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  email     String   // Store the email being verified (in case user changes it)
-  expiresAt DateTime
-  verified  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("email_verifications")
-}
-
-model StudentQRCode {
-  id          String   @id @default(cuid())
-  studentId   String
-  token       String   @unique  // QR code token
-  expiresAt   DateTime
-  used        Boolean  @default(false)
-  createdBy   String   // Teacher who generated it
-  classId     String?  // Optional: specific to a class
-  createdAt   DateTime @default(now())
-  
-  student     User     @relation("StudentQRCodes", fields: [studentId], references: [id], onDelete: Cascade)
-  teacher     User     @relation("TeacherQRCodes", fields: [createdBy], references: [id], onDelete: Cascade)
-  class       Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
-  
-  @@map("student_qr_codes")
-}
-
 enum RewardType {
   VIRTUAL
   PHYSICAL
@@ -134,300 +392,4 @@ enum Platform {
   IOS
   ANDROID
   DESKTOP
-}
-
-model Organization {
-  id        String           @id @default(cuid())
-  name      String
-  type      OrganizationType
-  country   String           @db.Char(2) // ISO country code
-  timezone  String
-  settings  Json
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  // Relations
-  users   User[]
-  classes Class[]
-  rewards Reward[]
-
-  @@map("organizations")
-}
-
-model User {
-  id             String    @id @default(cuid())
-  role           UserRole
-  email          String?   @unique
-  name           String?
-  uuid           String?   @unique // For students only
-  emailVerified  DateTime? // Auth.js field
-  image          String?   // Auth.js field
-  password       String?   // Hashed password for non-OAuth users
-  grade          Int?
-  organizationId String?
-  isActive       Boolean   @default(true)
-  isVerified     Boolean   @default(false)
-  lastLoginAt    DateTime?
-  settings       Json      @default("{}")
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Relations
-  organization       Organization?        @relation(fields: [organizationId], references: [id])
-  teacherClasses     Class[]              @relation("TeacherClasses")
-  studentClasses     Class[]              @relation("StudentClasses")
-  parentChildren     ParentChild[]        @relation("ParentRelation")
-  childParents       ParentChild[]        @relation("ChildRelation")
-  progress           StudentProgress[]
-  achievements       StudentAchievement[]
-  createdTasks       Task[]               @relation("CreatedBy")
-  createdModules     LearningModule[]     @relation("CreatedBy")
-  createdRewards     Reward[]             @relation("CreatedBy")
-  syncOperations     SyncOperation[]
-  userSessions       UserSession[]
-  passwordResets     PasswordReset[]
-  emailVerifications EmailVerification[]
-  authenticators     Authenticator[]
-  rewardRedemptions  RewardRedemption[]
-  deviceInfo         DeviceInfo[]
-  notificationTokens NotificationToken[]
-  studentQRCodes     StudentQRCode[]     @relation("StudentQRCodes")
-  createdQRCodes     StudentQRCode[]     @relation("TeacherQRCodes")
-
-  @@map("users")
-}
-
-model Class {
-  id             String @id @default(cuid())
-  name           String
-  grade          Int
-  maxStudents    Int    @default(30)
-  organizationId String
-  teacherId      String
-  isActive       Boolean @default(true)
-  settings       Json    @default("{}")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  organization Organization    @relation(fields: [organizationId], references: [id])
-  teacher      User            @relation("TeacherClasses", fields: [teacherId], references: [id])
-  students     User[]          @relation("StudentClasses")
-  qrCodes      StudentQRCode[]
-
-  @@map("classes")
-}
-
-model ParentChild {
-  id        String   @id @default(cuid())
-  parentId  String
-  childId   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-
-  // Relations
-  parent User @relation("ParentRelation", fields: [parentId], references: [id])
-  child  User @relation("ChildRelation", fields: [childId], references: [id])
-
-  @@unique([parentId, childId])
-  @@map("parent_children")
-}
-
-model LearningModule {
-  id                String    @id @default(cuid())
-  title             String
-  description       String
-  difficulty        Difficulty
-  grade             Int
-  subject           String
-  estimatedDuration Int // minutes
-  prerequisites     String[] // Array of module IDs
-  isPublished       Boolean  @default(false)
-  createdById       String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relations
-  createdBy User?  @relation("CreatedBy", fields: [createdById], references: [id])
-  tasks     Task[]
-
-  @@map("learning_modules")
-}
-
-model Task {
-  id            String   @id @default(cuid())
-  moduleId      String
-  type          TaskType
-  title         String
-  instructions  String
-  content       Json // Flexible content structure
-  correctAnswer String
-  hints         String[] @default([])
-  maxAttempts   Int      @default(3)
-  timeLimit     Int? // seconds
-  xpReward      Int      @default(10)
-  isPublished   Boolean  @default(false)
-  createdById   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  module    LearningModule    @relation(fields: [moduleId], references: [id])
-  createdBy User?             @relation("CreatedBy", fields: [createdById], references: [id])
-  progress  StudentProgress[]
-
-  @@map("tasks")
-}
-
-model StudentProgress {
-  id          String         @id @default(cuid())
-  studentId   String
-  taskId      String
-  status      ProgressStatus @default(NOT_STARTED)
-  attempts    Int            @default(0)
-  score       Int? // 0-100
-  timeSpent   Int            @default(0) // seconds
-  startedAt   DateTime       @default(now())
-  completedAt DateTime?
-  data        Json           @default("{}")
-
-  // Relations
-  student User @relation(fields: [studentId], references: [id])
-  task    Task @relation(fields: [taskId], references: [id])
-
-  @@unique([studentId, taskId])
-  @@map("student_progress")
-}
-
-model Achievement {
-  id          String          @id @default(cuid())
-  name        String
-  description String
-  type        AchievementType
-  icon        String
-  xpReward    Int             @default(50)
-  conditions  Json // Achievement conditions
-  isActive    Boolean         @default(true)
-  createdAt   DateTime        @default(now())
-
-  // Relations
-  studentAchievements StudentAchievement[]
-
-  @@map("achievements")
-}
-
-model StudentAchievement {
-  id            String   @id @default(cuid())
-  studentId     String
-  achievementId String
-  unlockedAt    DateTime @default(now())
-  isNew         Boolean  @default(true)
-
-  // Relations
-  student     User        @relation(fields: [studentId], references: [id])
-  achievement Achievement @relation(fields: [achievementId], references: [id])
-
-  @@unique([studentId, achievementId])
-  @@map("student_achievements")
-}
-
-model Reward {
-  id             String      @id @default(cuid())
-  name           String
-  description    String
-  type           RewardType
-  cost           Int // XP cost
-  isAvailable    Boolean     @default(true)
-  createdById    String
-  organizationId String?
-  createdAt      DateTime    @default(now())
-
-  // Relations
-  createdBy     User                @relation("CreatedBy", fields: [createdById], references: [id])
-  organization  Organization?       @relation(fields: [organizationId], references: [id])
-  redemptions   RewardRedemption[]
-
-  @@map("rewards")
-}
-
-model RewardRedemption {
-  id          String    @id @default(cuid())
-  studentId   String
-  rewardId    String
-  xpSpent     Int
-  redeemedAt  DateTime  @default(now())
-  fulfilledAt DateTime?
-  notes       String?
-
-  // Relations
-  student User   @relation(fields: [studentId], references: [id])
-  reward  Reward @relation(fields: [rewardId], references: [id])
-
-  @@map("reward_redemptions")
-}
-
-model SyncOperation {
-  id        String              @id @default(cuid())
-  userId    String
-  type      SyncOperationType
-  table     String
-  data      Json
-  timestamp DateTime            @default(now())
-  deviceId  String
-  status    SyncOperationStatus @default(PENDING)
-  error     String?
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("sync_operations")
-}
-
-model DeviceInfo {
-  id          String   @id @default(cuid())
-  userId      String
-  platform    Platform
-  version     String
-  deviceId    String   @unique
-  appVersion  String
-  lastSyncAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("device_info")
-}
-
-model NotificationToken {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  platform  Platform
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("notification_tokens")
-}
-
-
-model Authenticator {
-  credentialID         String  @unique @map("credential_id")
-  userId               String  @map("user_id")
-  providerAccountId    String  @map("provider_account_id")
-  credentialPublicKey  String  @map("credential_public_key")
-  counter              Int
-  credentialDeviceType String  @map("credential_device_type")
-  credentialBackedUp   Boolean @map("credential_backed_up")
-  transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, credentialID])
-  @@map("authenticators")
 }

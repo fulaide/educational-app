@@ -151,6 +151,32 @@ var ErrorResponse = z.object({
   })
 });
 
+// src/constants.ts
+var APP_CONFIG = {
+  name: "Lexi",
+  version: "1.0.0",
+  description: "Educational Learning Platform"
+};
+var PORTALS = {
+  student: {
+    name: "Lexi Student",
+    description: "Interactive learning for students"
+  },
+  teacher: {
+    name: "Lexi Teacher Portal",
+    description: "Manage classes and track student progress"
+  },
+  parent: {
+    name: "Lexi Parent Portal",
+    description: "Track your child's learning progress"
+  },
+  admin: {
+    name: "Lexi Admin Dashboard",
+    description: "System administration and analytics"
+  }
+};
+var APP_NAME = APP_CONFIG.name;
+
 // src/index.ts
 var UserRole = z.enum(["STUDENT", "TEACHER", "PARENT", "ADMIN"]);
 var BaseUser = z.object({
@@ -325,6 +351,6 @@ var DeviceInfo = z.object({
   lastSyncAt: z.date().nullable()
 });
 
-export { Achievement, AchievementType, AchievementUnlockedEvent, Admin, ApiResponse, BaseUser, CreateClassInput, CreateRewardInput, CreateTaskInput, DeviceInfo, Difficulty, ErrorResponse, LearningModule, LinkChildInput, LoginInput, Organization, PaginationInput, Parent, Platform, ProgressFilters, ProgressStatus, ProgressUpdateEvent, RegisterStudentInput, RegisterTeacherInput, Reward, RewardType, SocketEvent, Student, StudentAchievement, StudentFilters, StudentProgress, SyncOperation, SyncRequest, SyncResponse, Task, TaskType, Teacher, UpdateProgressInput, UserRole, ValidationError };
+export { APP_CONFIG, APP_NAME, Achievement, AchievementType, AchievementUnlockedEvent, Admin, ApiResponse, BaseUser, CreateClassInput, CreateRewardInput, CreateTaskInput, DeviceInfo, Difficulty, ErrorResponse, LearningModule, LinkChildInput, LoginInput, Organization, PORTALS, PaginationInput, Parent, Platform, ProgressFilters, ProgressStatus, ProgressUpdateEvent, RegisterStudentInput, RegisterTeacherInput, Reward, RewardType, SocketEvent, Student, StudentAchievement, StudentFilters, StudentProgress, SyncOperation, SyncRequest, SyncResponse, Task, TaskType, Teacher, UpdateProgressInput, UserRole, ValidationError };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

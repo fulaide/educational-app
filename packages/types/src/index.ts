@@ -207,6 +207,9 @@ export const DeviceInfo = z.object({
 // Export all schemas for runtime validation
 export * from './schemas';
 
+// Export constants
+export * from './constants';
+
 // Type exports
 export type Student = z.infer<typeof Student>;
 export type Teacher = z.infer<typeof Teacher>;

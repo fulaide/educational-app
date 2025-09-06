@@ -11,3 +11,6 @@ export * from './components/XPDisplay/index.js';
 export * from './components/QRCode/index.js';
 export * from './theme/index.js';
 export * from './utils/index.js';
+export * from './components/Toast/index.js';
+export * from './stores/notifications.svelte.js';
+export type * from './types/notifications.js';

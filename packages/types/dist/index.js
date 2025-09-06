@@ -153,6 +153,32 @@ var ErrorResponse = zod.z.object({
   })
 });
 
+// src/constants.ts
+var APP_CONFIG = {
+  name: "Lexi",
+  version: "1.0.0",
+  description: "Educational Learning Platform"
+};
+var PORTALS = {
+  student: {
+    name: "Lexi Student",
+    description: "Interactive learning for students"
+  },
+  teacher: {
+    name: "Lexi Teacher Portal",
+    description: "Manage classes and track student progress"
+  },
+  parent: {
+    name: "Lexi Parent Portal",
+    description: "Track your child's learning progress"
+  },
+  admin: {
+    name: "Lexi Admin Dashboard",
+    description: "System administration and analytics"
+  }
+};
+var APP_NAME = APP_CONFIG.name;
+
 // src/index.ts
 var UserRole = zod.z.enum(["STUDENT", "TEACHER", "PARENT", "ADMIN"]);
 var BaseUser = zod.z.object({
@@ -327,6 +353,8 @@ var DeviceInfo = zod.z.object({
   lastSyncAt: zod.z.date().nullable()
 });
 
+exports.APP_CONFIG = APP_CONFIG;
+exports.APP_NAME = APP_NAME;
 exports.Achievement = Achievement;
 exports.AchievementType = AchievementType;
 exports.AchievementUnlockedEvent = AchievementUnlockedEvent;
@@ -343,6 +371,7 @@ exports.LearningModule = LearningModule;
 exports.LinkChildInput = LinkChildInput;
 exports.LoginInput = LoginInput;
 exports.Organization = Organization;
+exports.PORTALS = PORTALS;
 exports.PaginationInput = PaginationInput;
 exports.Parent = Parent;
 exports.Platform = Platform;

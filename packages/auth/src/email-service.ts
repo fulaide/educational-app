@@ -6,7 +6,48 @@ import path from 'path'
 const envPath = path.resolve(process.cwd(), '.env')
 dotenv.config({ path: envPath })
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resend: Resend | null = null
+
+// Lazy initialization of Resend client
+function getResendClient(): Resend {
+	if (!resend) {
+		const apiKey = process.env.RESEND_API_KEY
+		
+		// Debug log for development
+		console.log('[EMAIL SERVICE] Initializing Resend client. API key present:', !!apiKey)
+		
+		if (!apiKey || apiKey === 'your-resend-api-key' || apiKey === 're_123') {
+			console.warn('[EMAIL SERVICE] RESEND_API_KEY not properly configured. Using mock client for development.')
+			// Return a mock client for development
+			return {
+				emails: {
+					send: async (options: any) => {
+						console.log('[EMAIL SERVICE] Mock email sent to:', options.to)
+						console.log('[EMAIL SERVICE] Mock email subject:', options.subject)
+						return { data: { id: 'mock-email-' + Date.now() }, error: null }
+					}
+				}
+			} as any
+		}
+		
+		try {
+			resend = new Resend(apiKey)
+			console.log('[EMAIL SERVICE] Resend client initialized successfully')
+		} catch (error) {
+			console.error('[EMAIL SERVICE] Failed to initialize Resend client:', error)
+			// Fall back to mock client
+			return {
+				emails: {
+					send: async (options: any) => {
+						console.log('[EMAIL SERVICE] Fallback mock email sent to:', options.to)
+						return { data: { id: 'fallback-mock-' + Date.now() }, error: null }
+					}
+				}
+			} as any
+		}
+	}
+	return resend
+}
 
 export interface EmailOptions {
 	to: string
@@ -32,7 +73,8 @@ export class EmailService {
 				return { success: true, messageId: 'dev-mode-' + Date.now() }
 			}
 
-			const response = await resend.emails.send({
+			const resendClient = getResendClient()
+			const response = await resendClient.emails.send({
 				from: options.from || this.defaultFrom,
 				to: options.to,
 				subject: options.subject,
@@ -69,6 +111,27 @@ export class EmailService {
 		return this.send({
 			to: email,
 			subject: 'Verify Your Email Address - Educational App',
+			html
+		})
+	}
+
+	// Parent-specific email methods
+	static async sendParentPasswordReset(email: string, resetToken: string, resetUrl: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+		const html = this.getParentPasswordResetTemplate(resetToken, resetUrl)
+		
+		return this.send({
+			to: email,
+			subject: 'Reset Your Parent Portal Password - Lexi',
+			html
+		})
+	}
+
+	static async sendParentEmailVerification(email: string, verificationToken: string, verificationUrl: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+		const html = this.getParentEmailVerificationTemplate(verificationToken, verificationUrl)
+		
+		return this.send({
+			to: email,
+			subject: 'Verify Your Parent Account - Lexi',
 			html
 		})
 	}
@@ -285,6 +348,257 @@ export class EmailService {
 				<div class="footer">
 					<p>Educational App Team<br>
 					This email was sent automatically. Please do not reply.</p>
+				</div>
+			</body>
+			</html>
+		`
+	}
+
+	static getParentPasswordResetTemplate(resetToken: string, resetUrl: string): string {
+		return `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				<title>Reset Your Parent Portal Password</title>
+				<style>
+					body {
+						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+						line-height: 1.6;
+						color: #333;
+						max-width: 600px;
+						margin: 0 auto;
+						padding: 20px;
+						background-color: #f9fafb;
+					}
+					.container {
+						background: white;
+						border-radius: 8px;
+						padding: 30px;
+						box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+					}
+					.header {
+						text-align: center;
+						margin-bottom: 30px;
+						padding-bottom: 20px;
+						border-bottom: 2px solid #22c55e;
+					}
+					.logo {
+						font-size: 32px;
+						font-weight: bold;
+						color: #22c55e;
+						margin-bottom: 10px;
+					}
+					.button {
+						display: inline-block;
+						background-color: #22c55e;
+						color: white;
+						padding: 12px 30px;
+						text-decoration: none;
+						border-radius: 6px;
+						font-weight: 600;
+						margin: 20px 0;
+					}
+					.token {
+						background: #f3f4f6;
+						padding: 10px;
+						border-radius: 4px;
+						font-family: monospace;
+						font-size: 14px;
+						margin: 15px 0;
+						text-align: center;
+						color: #374151;
+					}
+					.footer {
+						margin-top: 30px;
+						padding-top: 20px;
+						border-top: 1px solid #e5e7eb;
+						font-size: 14px;
+						color: #6b7280;
+					}
+					.warning {
+						background-color: #fef3c7;
+						border: 1px solid #f59e0b;
+						border-radius: 4px;
+						padding: 15px;
+						margin: 20px 0;
+						color: #92400e;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<div class="logo">🎓 Lexi Parent Portal</div>
+						<p>Reset Your Password</p>
+					</div>
+					
+					<p>Hello,</p>
+					
+					<p>We received a request to reset your password for your Lexi Parent Portal account. Click the button below to create a new password:</p>
+					
+					<div style="text-align: center;">
+						<a href="${resetUrl}" class="button">Reset My Password</a>
+					</div>
+					
+					<p><strong>This link will expire in 1 hour.</strong></p>
+					
+					<div class="warning">
+						<strong>⚠️ Important:</strong> If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
+					</div>
+					
+					<div class="token">Reset Code: ${resetToken}</div>
+					
+					<div class="footer">
+						<p>If the button above doesn't work, copy and paste this link into your browser:</p>
+						<p><a href="${resetUrl}">${resetUrl}</a></p>
+						
+						<p>This email was sent by Lexi - Your Child's Learning Companion</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`
+	}
+
+	static getParentEmailVerificationTemplate(verificationToken: string, verificationUrl: string): string {
+		return `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				<title>Verify Your Parent Account</title>
+				<style>
+					body {
+						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+						line-height: 1.6;
+						color: #333;
+						max-width: 600px;
+						margin: 0 auto;
+						padding: 20px;
+						background-color: #f0fdf4;
+					}
+					.container {
+						background: white;
+						border-radius: 8px;
+						padding: 30px;
+						box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+					}
+					.header {
+						text-align: center;
+						margin-bottom: 30px;
+						padding-bottom: 20px;
+						border-bottom: 2px solid #22c55e;
+					}
+					.logo {
+						font-size: 32px;
+						font-weight: bold;
+						color: #22c55e;
+						margin-bottom: 10px;
+					}
+					.welcome-box {
+						background: linear-gradient(135deg, #22c55e, #16a34a);
+						color: white;
+						padding: 20px;
+						border-radius: 8px;
+						text-align: center;
+						margin: 20px 0;
+					}
+					.button {
+						display: inline-block;
+						background-color: #22c55e;
+						color: white;
+						padding: 12px 30px;
+						text-decoration: none;
+						border-radius: 6px;
+						font-weight: 600;
+						margin: 20px 0;
+					}
+					.feature {
+						display: flex;
+						align-items: center;
+						margin: 15px 0;
+						padding: 10px;
+						background: #f0fdf4;
+						border-radius: 6px;
+					}
+					.feature-icon {
+						font-size: 24px;
+						margin-right: 15px;
+					}
+					.token {
+						background: #f3f4f6;
+						padding: 10px;
+						border-radius: 4px;
+						font-family: monospace;
+						font-size: 14px;
+						margin: 15px 0;
+						text-align: center;
+						color: #374151;
+					}
+					.footer {
+						margin-top: 30px;
+						padding-top: 20px;
+						border-top: 1px solid #e5e7eb;
+						font-size: 14px;
+						color: #6b7280;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<div class="logo">🎓 Lexi Parent Portal</div>
+						<p>Welcome to Your Child's Learning Journey!</p>
+					</div>
+					
+					<div class="welcome-box">
+						<h2>🎉 Welcome to Lexi!</h2>
+						<p>You're one step away from tracking your child's learning progress and celebrating their achievements.</p>
+					</div>
+					
+					<p>Hello and welcome to the Lexi Parent Portal!</p>
+					
+					<p>To complete your account setup and start tracking your child's learning progress, please verify your email address by clicking the button below:</p>
+					
+					<div style="text-align: center;">
+						<a href="${verificationUrl}" class="button">Verify My Email Address</a>
+					</div>
+					
+					<p><strong>What you can do once verified:</strong></p>
+					
+					<div class="feature">
+						<div class="feature-icon">📊</div>
+						<div>
+							<strong>Track Progress:</strong> Monitor your child's learning milestones and academic growth
+						</div>
+					</div>
+					
+					<div class="feature">
+						<div class="feature-icon">🎯</div>
+						<div>
+							<strong>View Achievements:</strong> Celebrate your child's successes and completed challenges
+						</div>
+					</div>
+					
+					<div class="feature">
+						<div class="feature-icon">👥</div>
+						<div>
+							<strong>Link Multiple Children:</strong> Manage all your children's accounts from one dashboard
+						</div>
+					</div>
+					
+					<div class="token">Verification Code: ${verificationToken}</div>
+					
+					<div class="footer">
+						<p>If the button above doesn't work, copy and paste this link into your browser:</p>
+						<p><a href="${verificationUrl}">${verificationUrl}</a></p>
+						
+						<p>This email was sent by Lexi - Your Child's Learning Companion</p>
+						<p>If you didn't create an account, please ignore this email.</p>
+					</div>
 				</div>
 			</body>
 			</html>

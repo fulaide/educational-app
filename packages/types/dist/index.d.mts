@@ -570,6 +570,31 @@ declare const ErrorResponse: z.ZodObject<{
 }>;
 type ErrorResponse = z.infer<typeof ErrorResponse>;
 
+declare const APP_CONFIG: {
+    readonly name: "Lexi";
+    readonly version: "1.0.0";
+    readonly description: "Educational Learning Platform";
+};
+declare const PORTALS: {
+    readonly student: {
+        readonly name: "Lexi Student";
+        readonly description: "Interactive learning for students";
+    };
+    readonly teacher: {
+        readonly name: "Lexi Teacher Portal";
+        readonly description: "Manage classes and track student progress";
+    };
+    readonly parent: {
+        readonly name: "Lexi Parent Portal";
+        readonly description: "Track your child's learning progress";
+    };
+    readonly admin: {
+        readonly name: "Lexi Admin Dashboard";
+        readonly description: "System administration and analytics";
+    };
+};
+declare const APP_NAME: "Lexi";
+
 declare const UserRole: z.ZodEnum<["STUDENT", "TEACHER", "PARENT", "ADMIN"]>;
 type UserRole = z.infer<typeof UserRole>;
 declare const BaseUser: z.ZodObject<{
@@ -1128,4 +1153,4 @@ declare const DeviceInfo: z.ZodObject<{
 }>;
 type DeviceInfo = z.infer<typeof DeviceInfo>;
 
-export { Achievement, AchievementType, AchievementUnlockedEvent, Admin, ApiResponse, BaseUser, CreateClassInput, CreateRewardInput, CreateTaskInput, DeviceInfo, Difficulty, ErrorResponse, LearningModule, LinkChildInput, LoginInput, Organization, PaginationInput, Parent, Platform, ProgressFilters, ProgressStatus, ProgressUpdateEvent, RegisterStudentInput, RegisterTeacherInput, Reward, RewardType, SocketEvent, Student, StudentAchievement, StudentFilters, StudentProgress, SyncOperation, SyncRequest, SyncResponse, Task, TaskType, Teacher, UpdateProgressInput, UserRole, ValidationError };
+export { APP_CONFIG, APP_NAME, Achievement, AchievementType, AchievementUnlockedEvent, Admin, ApiResponse, BaseUser, CreateClassInput, CreateRewardInput, CreateTaskInput, DeviceInfo, Difficulty, ErrorResponse, LearningModule, LinkChildInput, LoginInput, Organization, PORTALS, PaginationInput, Parent, Platform, ProgressFilters, ProgressStatus, ProgressUpdateEvent, RegisterStudentInput, RegisterTeacherInput, Reward, RewardType, SocketEvent, Student, StudentAchievement, StudentFilters, StudentProgress, SyncOperation, SyncRequest, SyncResponse, Task, TaskType, Teacher, UpdateProgressInput, UserRole, ValidationError };

@@ -25,11 +25,11 @@
 
 	const isDisabled = $derived(disabled || loading);
 
-	const baseClasses = 'group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
+	const baseClasses = 'group relative w-full flex justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
 	
 	const variantClasses = $derived({
-		primary: 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
-		secondary: 'text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500'
+		primary: 'btn-primary',
+		secondary: 'btn-secondary'
 	}[variant]);
 
 	const buttonClasses = $derived(`${baseClasses} ${variantClasses} ${className || ''}`);

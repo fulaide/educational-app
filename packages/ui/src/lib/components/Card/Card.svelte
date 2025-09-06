@@ -25,39 +25,36 @@
 		children
 	}: Props = $props();
 
-	// Variant styles - using theme-aware classes
+	// Variant styles - using design tokens
 	const variants = {
-		default: 'bg-surface border border',
-		elevated: 'bg-surface shadow-lg',
-		outlined: 'bg-surface border-2 border',
-		soft: 'bg-surface-hover border border'
+		default: 'card',
+		elevated: 'card',
+		outlined: 'card',
+		soft: 'card'
 	};
 
-	// Padding styles - using theme-aware spacing
+	// Padding overrides (card already has default padding)
 	const paddings = {
-		none: '',
-		sm: 'p-sm',
-		md: 'p-md',
-		lg: 'p-lg',
-		xl: 'p-xl'
+		none: '!p-0',
+		sm: '!p-2',
+		md: '', // Use default card padding
+		lg: '!p-6',
+		xl: '!p-8'
 	};
 
 	const cardClasses = $derived(
 		cn(
-			// Base styles - using theme-aware classes
-			'rounded-lg transition-all duration-200 font-primary',
-			
-			// Variant styles
+			// Base variant style
 			variants[variant],
 			
-			// Padding styles
+			// Padding overrides
 			paddings[padding],
 			
 			// Interactive styles
 			{
-				'hover:shadow-lg hover:-translate-y-0.5': hoverable,
-				'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2': clickable,
-				'hover:border-primary': clickable && variant !== 'elevated'
+				'card-clickable': clickable || hoverable,
+				'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2': clickable,
+				'focus:ring-blue-500': clickable
 			},
 			
 			// Custom classes

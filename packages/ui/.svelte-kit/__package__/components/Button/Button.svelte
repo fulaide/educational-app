@@ -37,49 +37,49 @@
 	// Reactive state using Svelte 5 runes
 	const isDisabled = $derived(disabled || loading);
 
-	// Style variants - using consistent classes that adapt to theme
+	// Style variants - using design tokens
 	const variants = {
 		solid: {
-			primary: 'bg-primary hover:bg-primary-dark text-white shadow-sm',
-			secondary: 'bg-secondary hover:bg-secondary-dark text-white shadow-sm',
-			success: 'bg-success hover:bg-success text-white shadow-sm',
-			danger: 'bg-error hover:bg-error text-white shadow-sm',
-			warning: 'bg-warning hover:bg-warning text-white shadow-sm'
+			primary: 'btn-primary',
+			secondary: 'btn-secondary',
+			success: 'bg-green-600 hover:bg-green-700 text-white',
+			danger: 'bg-red-600 hover:bg-red-700 text-white',
+			warning: 'bg-amber-600 hover:bg-amber-700 text-white'
 		},
 		outline: {
-			primary: 'border border-primary text-primary hover:bg-primary hover:text-white',
-			secondary: 'border border-secondary text-secondary hover:bg-secondary hover:text-white',
-			success: 'border border-success text-success hover:bg-success hover:text-white',
-			danger: 'border border-error text-error hover:bg-error hover:text-white',
-			warning: 'border border-warning text-warning hover:bg-warning hover:text-white'
+			primary: 'border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white',
+			secondary: 'border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white',
+			success: 'border border-green-600 text-green-600 hover:bg-green-600 hover:text-white',
+			danger: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white',
+			warning: 'border border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white'
 		},
 		ghost: {
-			primary: 'text-primary hover:bg-surface-hover',
-			secondary: 'text-secondary hover:bg-surface-hover',
-			success: 'text-success hover:bg-surface-hover',
-			danger: 'text-error hover:bg-surface-hover',
-			warning: 'text-warning hover:bg-surface-hover'
+			primary: 'text-brand hover:surface-secondary',
+			secondary: 'text-secondary hover:surface-secondary',
+			success: 'text-success hover:surface-secondary',
+			danger: 'text-error hover:surface-secondary',
+			warning: 'text-warning hover:surface-secondary'
 		},
 		soft: {
-			primary: 'bg-surface-hover text-primary hover:bg-surface-selected',
-			secondary: 'bg-surface-hover text-secondary hover:bg-surface-selected',
-			success: 'bg-surface-hover text-success hover:bg-surface-selected',
-			danger: 'bg-surface-hover text-error hover:bg-surface-selected',
-			warning: 'bg-surface-hover text-warning hover:bg-surface-selected'
+			primary: 'surface-secondary text-brand hover:surface-tertiary',
+			secondary: 'surface-secondary text-secondary hover:surface-tertiary',
+			success: 'surface-secondary text-success hover:surface-tertiary',
+			danger: 'surface-secondary text-error hover:surface-tertiary',
+			warning: 'surface-secondary text-warning hover:surface-tertiary'
 		}
 	};
 
 	const sizes = {
-		sm: 'px-sm py-xs text-sm font-medium',
-		md: 'px-md py-sm text-base font-medium',
-		lg: 'px-lg py-md text-lg font-medium',
-		xl: 'px-xl py-lg text-xl font-semibold'
+		sm: 'px-3 py-1.5 text-sm font-medium',
+		md: 'px-4 py-2.5 text-base font-medium',
+		lg: 'px-6 py-3 text-lg font-medium',
+		xl: 'px-8 py-4 text-xl font-semibold'
 	};
 
 	const buttonClasses = $derived(
 		cn(
-			// Base styles - using theme-aware classes
-			'inline-flex items-center justify-center gap-sm font-primary transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
+			// Base styles - using design tokens
+			'inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border-0 rounded-lg',
 			
 			// Size styles
 			sizes[size],

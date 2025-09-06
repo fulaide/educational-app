@@ -8,27 +8,21 @@ const prisma = new PrismaClient()
 const SAMPLE_ORGANIZATIONS = [
 	{
 		name: 'Sunshine Elementary School',
-		code: 'SUNSHINE_ELEM',
 		type: 'SCHOOL' as const,
-		address: '123 Education Street, Learning City, LC 12345',
-		phone: '+1-555-0123',
-		email: 'contact@sunshine-elementary.edu'
+		country: 'DE',
+		timezone: 'Europe/Berlin'
 	},
 	{
 		name: 'Riverside Learning Center', 
-		code: 'RIVERSIDE_LC',
 		type: 'PRIVATE' as const,
-		address: '456 River Road, Education Town, ET 67890',
-		phone: '+1-555-0456',
-		email: 'info@riverside-learning.edu'
+		country: 'DE',
+		timezone: 'Europe/Berlin'
 	},
 	{
 		name: 'Metropolitan School District',
-		code: 'METRO_DISTRICT',
 		type: 'DISTRICT' as const,
-		address: '789 District Avenue, Metro City, MC 11111',
-		phone: '+1-555-0789',
-		email: 'admin@metro-schools.edu'
+		country: 'DE',
+		timezone: 'Europe/Berlin'
 	}
 ]
 
@@ -129,7 +123,6 @@ async function main() {
 		const organization = await prisma.organization.create({
 			data: {
 				...orgData,
-				isActive: true,
 				settings: {
 					allowParentAccess: true,
 					enableNotifications: true,
@@ -146,7 +139,12 @@ async function main() {
 	for (const achData of SAMPLE_ACHIEVEMENTS) {
 		const achievement = await prisma.achievement.create({
 			data: {
-				...achData,
+				name: achData.name,
+				description: achData.description,
+				type: achData.type,
+				icon: 'icon-' + achData.name.toLowerCase().replace(/\s+/g, '-'),
+				xpReward: achData.reward.points || 50,
+				conditions: achData.criteria,
 				isActive: true
 			}
 		})
@@ -154,26 +152,6 @@ async function main() {
 		console.log(`  ✅ Created: ${achievement.name}`)
 	}
 
-	console.log('🎁 Creating sample rewards...')
-	const rewards = []
-	const sampleRewards = [
-		{ name: 'Golden Star', type: 'VIRTUAL' as const, cost: 100, description: 'A shiny golden star badge' },
-		{ name: 'Rainbow Badge', type: 'VIRTUAL' as const, cost: 150, description: 'Beautiful rainbow colored badge' },
-		{ name: 'Super Student Certificate', type: 'VIRTUAL' as const, cost: 200, description: 'Official certificate of achievement' },
-		{ name: 'Learning Crown', type: 'VIRTUAL' as const, cost: 300, description: 'Crown for exceptional learners' },
-		{ name: 'Bonus Time', type: 'DIGITAL' as const, cost: 50, description: '10 extra minutes of game time' }
-	]
-
-	for (const rewardData of sampleRewards) {
-		const reward = await prisma.reward.create({
-			data: {
-				...rewardData,
-				isActive: true
-			}
-		})
-		rewards.push(reward)
-		console.log(`  ✅ Created: ${reward.name}`)
-	}
 
 	console.log('👥 Creating sample users...')
 	const hashedPassword = await bcryptjs.hash('password123', 10)
@@ -184,7 +162,7 @@ async function main() {
 		const org = organizations[i]
 		const teacher = await prisma.user.create({
 			data: {
-				email: `teacher${i + 1}@${org.code.toLowerCase().replace('_', '-')}.edu`,
+				email: `teacher${i + 1}@${org.name.toLowerCase().replace(/\s+/g, '-')}.edu`,
 				name: `Teacher ${['Anna', 'Marcus', 'Julia'][i]}`,
 				role: 'TEACHER',
 				password: hashedPassword,
@@ -247,6 +225,31 @@ async function main() {
 	})
 	console.log(`  ✅ Created admin: ${admin.name}`)
 
+	console.log('🎁 Creating sample rewards...')
+	const rewards = []
+	const sampleRewards = [
+		{ name: 'Golden Star', type: 'VIRTUAL' as const, cost: 100, description: 'A shiny golden star badge' },
+		{ name: 'Rainbow Badge', type: 'VIRTUAL' as const, cost: 150, description: 'Beautiful rainbow colored badge' },
+		{ name: 'Super Student Certificate', type: 'VIRTUAL' as const, cost: 200, description: 'Official certificate of achievement' },
+		{ name: 'Learning Crown', type: 'VIRTUAL' as const, cost: 300, description: 'Crown for exceptional learners' },
+		{ name: 'Bonus Time', type: 'VIRTUAL' as const, cost: 50, description: '10 extra minutes of game time' }
+	]
+
+	for (const rewardData of sampleRewards) {
+		const reward = await prisma.reward.create({
+			data: {
+				name: rewardData.name,
+				description: rewardData.description,
+				type: rewardData.type,
+				cost: rewardData.cost,
+				isAvailable: true,
+				createdById: teachers[0].id
+			}
+		})
+		rewards.push(reward)
+		console.log(`  ✅ Created: ${reward.name}`)
+	}
+
 	console.log('🏫 Creating sample classes...')
 	const classes = []
 	for (let i = 0; i < SAMPLE_CLASSES.length; i++) {
@@ -257,9 +260,9 @@ async function main() {
 		const classObj = await prisma.class.create({
 			data: {
 				name: classData.name,
-				code: classData.code,
 				grade: classData.grade,
 				organizationId: org.id,
+				teacherId: teacher.id,
 				settings: {
 					maxStudents: 25,
 					allowParentView: true,
@@ -308,7 +311,6 @@ async function main() {
 			data: {
 				parentId: parent.id,
 				childId: student.id,
-				relationship: 'PARENT',
 				isActive: true
 			}
 		})
@@ -316,122 +318,7 @@ async function main() {
 		console.log(`  ✅ Created student: ${student.name} (UUID: ${studentUuid.substring(0, 8)}...)`)
 	}
 
-	console.log('📚 Creating sample learning modules and content...')
-	const modules = []
-	const moduleData = [
-		{
-			title: 'German Animals',
-			description: 'Learn the names of common animals in German',
-			difficulty: 'BEGINNER' as const,
-			estimatedDuration: 15,
-			vocabulary: GERMAN_VOCABULARY_WORDS.filter(w => w.category === 'animals')
-		},
-		{
-			title: 'Colors and Numbers',
-			description: 'Learn basic colors and numbers in German',
-			difficulty: 'BEGINNER' as const,
-			estimatedDuration: 20,
-			vocabulary: GERMAN_VOCABULARY_WORDS.filter(w => ['colors', 'numbers'].includes(w.category))
-		},
-		{
-			title: 'Family and Friends',
-			description: 'Learn about family members and social relationships',
-			difficulty: 'INTERMEDIATE' as const,
-			estimatedDuration: 25,
-			vocabulary: GERMAN_VOCABULARY_WORDS.filter(w => ['family', 'people'].includes(w.category))
-		},
-		{
-			title: 'Home and School',
-			description: 'Learn words related to home and school environment',
-			difficulty: 'INTERMEDIATE' as const,
-			estimatedDuration: 30,
-			vocabulary: GERMAN_VOCABULARY_WORDS.filter(w => ['objects', 'places'].includes(w.category))
-		}
-	]
-
-	for (let i = 0; i < moduleData.length; i++) {
-		const moduleInfo = moduleData[i]
-		const module = await prisma.learningModule.create({
-			data: {
-				title: moduleInfo.title,
-				description: moduleInfo.description,
-				difficulty: moduleInfo.difficulty,
-				estimatedDuration: moduleInfo.estimatedDuration,
-				isActive: true,
-				language: 'de',
-				content: {
-					vocabulary: moduleInfo.vocabulary,
-					exercises: [`${moduleInfo.title.toLowerCase().replace(' ', '-')}-matching`, `${moduleInfo.title.toLowerCase().replace(' ', '-')}-spelling`],
-					objectives: [`Learn ${moduleInfo.vocabulary.length} new words`, 'Complete all exercises', 'Pass final quiz']
-				},
-				createdById: teachers[i % teachers.length].id
-			}
-		})
-		modules.push(module)
-		console.log(`  ✅ Created module: ${module.title}`)
-
-		// Create tasks for each module
-		for (let j = 0; j < 3; j++) {
-			const taskTypes = ['VOCABULARY', 'READING', 'WRITING'] as const
-			const task = await prisma.task.create({
-				data: {
-					title: `${moduleInfo.title} - ${taskTypes[j]} Exercise`,
-					description: `Practice ${taskTypes[j].toLowerCase()} skills with ${moduleInfo.title.toLowerCase()}`,
-					type: taskTypes[j],
-					difficulty: moduleInfo.difficulty,
-					instructions: `Complete the ${taskTypes[j].toLowerCase()} exercise using the vocabulary from ${moduleInfo.title}`,
-					content: {
-						words: moduleInfo.vocabulary.slice(0, 5 + j * 2),
-						exerciseType: taskTypes[j].toLowerCase(),
-						timeLimit: 300 + j * 120
-					},
-					points: 50 + j * 25,
-					estimatedDuration: 10 + j * 5,
-					learningModuleId: module.id,
-					createdById: teachers[i % teachers.length].id,
-					isActive: true
-				}
-			})
-			console.log(`    ✅ Created task: ${task.title}`)
-		}
-	}
-
-	console.log('📊 Creating sample progress data...')
-	// Create some sample progress for students
-	for (let i = 0; i < Math.min(students.length, 10); i++) {
-		const student = students[i]
-		const module = modules[i % modules.length]
-		
-		const progress = await prisma.studentProgress.create({
-			data: {
-				studentId: student.id,
-				learningModuleId: module.id,
-				status: i < 3 ? 'COMPLETED' : i < 7 ? 'IN_PROGRESS' : 'NOT_STARTED',
-				score: i < 3 ? 85 + Math.floor(Math.random() * 15) : i < 7 ? 45 + Math.floor(Math.random() * 40) : 0,
-				timeSpent: i < 3 ? 15 + Math.floor(Math.random() * 10) : i < 7 ? 5 + Math.floor(Math.random() * 10) : 0,
-				completedAt: i < 3 ? new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)) : undefined,
-				data: {
-					exercisesCompleted: i < 3 ? 3 : i < 7 ? 1 + Math.floor(Math.random() * 2) : 0,
-					vocabularyLearned: i < 3 ? 8 + Math.floor(Math.random() * 5) : i < 7 ? 2 + Math.floor(Math.random() * 4) : 0,
-					mistakes: Math.floor(Math.random() * 3)
-				}
-			}
-		})
-		
-		// Award some achievements
-		if (i < 3) {
-			await prisma.studentAchievement.create({
-				data: {
-					studentId: student.id,
-					achievementId: achievements[0].id, // First Steps
-					earnedAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)),
-					progress: 100
-				}
-			})
-		}
-		
-		console.log(`  ✅ Created progress for: ${student.name}`)
-	}
+	console.log('✅ Skipping learning modules and progress for now...')
 
 	console.log('✅ Database seeding completed successfully!')
 	console.log('\n📊 Summary:')
@@ -440,7 +327,6 @@ async function main() {
 	console.log(`👨‍🏫 Teachers: ${teachers.length}`)
 	console.log(`👨‍👩‍👧‍👦 Parents: ${parents.length}`)
 	console.log(`🎓 Students: ${students.length}`)
-	console.log(`📚 Learning Modules: ${modules.length}`)
 	console.log(`🏆 Achievements: ${achievements.length}`)
 	console.log(`🎁 Rewards: ${rewards.length}`)
 
