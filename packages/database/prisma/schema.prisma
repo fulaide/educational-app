@@ -128,6 +128,8 @@ model Class {
   organizationId String
   teacherId      String
   isActive       Boolean         @default(true)
+  avatarUrl      String?
+  avatarType     AvatarType      @default(PRESET)
   settings       Json            @default("{}")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -392,4 +394,9 @@ enum Platform {
   IOS
   ANDROID
   DESKTOP
+}
+
+enum AvatarType {
+  PRESET
+  CUSTOM
 }

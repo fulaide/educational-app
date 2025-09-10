@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { initI18n, localeManager } from '@educational-app/i18n';
+	import { createNotificationContext, ToastContainer } from '@educational-app/ui';
 	import favicon from '$lib/assets/favicon.svg';
 	import '../app.css';
 
 	let { children } = $props();
+
+	// Initialize toast notifications
+	const notifications = createNotificationContext();
 
 	// Initialize i18n synchronously for SSR compatibility  
 	initI18n();
@@ -35,3 +39,6 @@
 </svelte:head>
 
 {@render children?.()}
+
+<!-- Toast notifications -->
+<ToastContainer position="top-right" />
