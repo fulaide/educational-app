@@ -17,7 +17,7 @@ export declare function isBreakpoint(target: Breakpoint, width?: number, breakpo
  */
 export declare function createMediaQuery(breakpoint: Breakpoint, breakpoints?: BreakpointConfig): string;
 /**
- * Reactive breakpoint store for Svelte (using traditional approach)
+ * Reactive breakpoint store for Svelte with runes support
  */
 export declare function createBreakpointStore(breakpoints?: BreakpointConfig): {
     readonly current: Breakpoint;
@@ -28,6 +28,7 @@ export declare function createBreakpointStore(breakpoints?: BreakpointConfig): {
     readonly isWide: boolean;
     isAtLeast(breakpoint: Breakpoint): boolean;
     subscribe(listener: () => void): () => boolean;
+    forceUpdate(): void;
     destroy(): void;
 };
 /**

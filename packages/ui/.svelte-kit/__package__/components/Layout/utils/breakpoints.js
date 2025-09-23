@@ -4,9 +4,9 @@
  */
 export const DEFAULT_BREAKPOINTS = {
     mobile: 0, // 0px and up
-    tablet: 768, // 768px and up  
-    desktop: 1024, // 1024px and up
-    wide: 1440, // 1440px and up
+    tablet: 768, // 768px and up (md: in Tailwind)
+    desktop: 1024, // 1024px and up (lg: in Tailwind)
+    wide: 1440, // 1440px and up (xl: in Tailwind)
 };
 /**
  * Get current breakpoint based on window width
@@ -47,7 +47,7 @@ export function createMediaQuery(breakpoint, breakpoints = DEFAULT_BREAKPOINTS) 
     return `(min-width: ${width}px)`;
 }
 /**
- * Reactive breakpoint store for Svelte (using traditional approach)
+ * Reactive breakpoint store for Svelte with runes support
  */
 export function createBreakpointStore(breakpoints = DEFAULT_BREAKPOINTS) {
     let currentBreakpoint = 'desktop';
@@ -69,13 +69,27 @@ export function createBreakpointStore(breakpoints = DEFAULT_BREAKPOINTS) {
             changed = true;
         }
         if (changed) {
-            listeners.forEach(listener => listener());
+            console.log('Breakpoint changed:', { width: currentWidth, breakpoint: currentBreakpoint, isMobile: currentBreakpoint === 'mobile' });
+            // Use setTimeout to ensure listeners are called after current execution
+            setTimeout(() => {
+                listeners.forEach(listener => {
+                    try {
+                        listener();
+                    }
+                    catch (error) {
+                        console.error('Error in breakpoint listener:', error);
+                    }
+                });
+            }, 0);
         }
     }
     // Initialize and set up event listener
     if (typeof window !== 'undefined') {
         updateBreakpoint();
-        window.addEventListener('resize', updateBreakpoint, { passive: true });
+        // Use setTimeout to ensure initial call happens after component initialization
+        setTimeout(() => {
+            window.addEventListener('resize', updateBreakpoint, { passive: true });
+        }, 0);
     }
     return {
         get current() {
@@ -110,6 +124,10 @@ export function createBreakpointStore(breakpoints = DEFAULT_BREAKPOINTS) {
         subscribe(listener) {
             listeners.add(listener);
             return () => listeners.delete(listener);
+        },
+        // Force update (useful for debugging)
+        forceUpdate() {
+            updateBreakpoint();
         },
         // Cleanup function for when component is destroyed
         destroy() {

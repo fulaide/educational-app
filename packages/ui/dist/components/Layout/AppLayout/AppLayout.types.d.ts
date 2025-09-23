@@ -28,6 +28,7 @@ export interface LayoutContextValue {
     isMobile: boolean;
     isTablet: boolean;
     isDesktop: boolean;
+    showSidebarOnMobile: boolean;
     sidebar: SidebarState & {
         toggle: () => void;
         open: () => void;

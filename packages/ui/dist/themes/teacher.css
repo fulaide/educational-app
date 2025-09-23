@@ -11,6 +11,17 @@
 /* Import component utility classes first */
 @import '../styles/components.css';
 
+/* Custom Fonts */
+@font-face {
+  font-family: 'Portada';
+  src: local('Portada Light'), local('Portada-Light'),
+      url('/fonts/PortadaLt.woff2') format('woff2'),
+      url('/fonts/PortadaLt.woff') format('woff'),
+      url('/fonts/PortadaLt.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
 @theme {
   /* ===== BASE/PRIMITIVE TOKENS ===== */
   
@@ -74,9 +85,10 @@
   --color-black: #000000;
 
   /* Typography - Base Values */
-  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; */
   --font-family-secondary: 'Hello Headline', 'Nunito', cursive;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+	--font-family-primary: 'Portada', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
   --font-size-xs: 0.75rem;    /* 12px */
   --font-size-sm: 0.875rem;   /* 14px */
@@ -254,4 +266,98 @@
   --card-shadow-hover: var(--shadow-md);
   --card-radius: var(--radius-xl);
   --card-padding: var(--spacing-component-lg);
+}
+
+/* ===== LAYOUT SYSTEM UTILITY CLASSES ===== */
+
+/* Background colors for layout components */
+.bg-background {
+  background-color: var(--color-surface-primary);
+}
+
+.bg-sidebar {
+  background-color: var(--color-neutral-100);
+  border-right: 1px solid var(--color-border-primary);
+}
+
+.bg-sidebar-header {
+  background-color: var(--color-neutral-50);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.bg-sidebar-footer {
+  background-color: var(--color-neutral-50);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.bg-sidebar-header-hover {
+  background-color: var(--color-surface-tertiary);
+}
+
+.bg-sidebar-item-hover {
+  background-color: var(--color-surface-primary);
+}
+
+.bg-sidebar-hover {
+  background-color: var(--color-surface-primary);
+}
+
+.bg-sidebar-active {
+  background-color: var(--color-interactive-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-interactive-primary);
+}
+
+.text-sidebar-active-text {
+  color: var(--color-text-inverse);
+}
+
+.text-sidebar-foreground {
+  color: var(--color-text-primary);
+}
+
+.text-sidebar-muted {
+  color: var(--color-text-secondary);
+}
+
+/* Text colors for layout components */
+.text-foreground {
+  color: var(--color-text-primary);
+}
+
+.text-sidebar-header-text {
+  color: var(--color-text-primary);
+}
+
+.text-sidebar-section-title {
+  color: var(--color-text-secondary);
+}
+
+.text-sidebar-footer-text {
+  color: var(--color-text-primary);
+}
+
+.text-sidebar-footer-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+/* Border colors for layout components */
+.border-sidebar-border {
+  border-color: var(--color-border-primary);
+}
+
+/* Interactive states */
+.hover\:bg-accent:hover {
+  background-color: var(--color-surface-tertiary);
+}
+
+.hover\:text-accent-foreground:hover {
+  color: var(--color-text-primary);
+}
+
+/* Focus ring */
+.focus-visible\:ring-primary:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-interactive-primary);
 }

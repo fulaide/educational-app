@@ -3,28 +3,14 @@
  * Svelte context for sharing layout state across components
  */
 import { getContext, setContext } from 'svelte';
-import { createBreakpointStore } from './breakpoints.js';
+import { createReactiveBreakpoint } from './reactiveBreakpoint.svelte.js';
 const LAYOUT_CONTEXT_KEY = Symbol('layout-context');
 /**
  * Create layout context with reactive state management
  */
 export function createLayoutContext(initialState) {
-    // Initialize breakpoint detection
-    const breakpointStore = createBreakpointStore();
-    // Reactive breakpoint state for use with $effect
-    const breakpointState = $state({
-        current: breakpointStore.current,
-        isMobile: breakpointStore.isMobile,
-        isTablet: breakpointStore.isTablet,
-        isDesktop: breakpointStore.isDesktop
-    });
-    // Update reactive state when breakpoint changes
-    const unsubscribeBreakpoint = breakpointStore.subscribe(() => {
-        breakpointState.current = breakpointStore.current;
-        breakpointState.isMobile = breakpointStore.isMobile;
-        breakpointState.isTablet = breakpointStore.isTablet;
-        breakpointState.isDesktop = breakpointStore.isDesktop;
-    });
+    // Initialize reactive breakpoint detection
+    const breakpoint = createReactiveBreakpoint();
     // Sidebar state management (using runes for reactivity within component context)
     const sidebarState = $state({
         isOpen: !initialState?.sidebarCollapsed,
@@ -49,23 +35,25 @@ export function createLayoutContext(initialState) {
     // Sidebar controls
     const sidebarControls = {
         toggle: () => {
-            if (breakpointState.isMobile) {
+            if (breakpoint.isMobile) {
+                // On mobile, toggle the open state (for overlay/drawer behavior)
                 sidebarState.isOpen = !sidebarState.isOpen;
             }
             else {
+                // On desktop, toggle collapsed state
                 sidebarState.isCollapsed = !sidebarState.isCollapsed;
             }
             persistSidebarState();
         },
         open: () => {
             sidebarState.isOpen = true;
-            if (!breakpointState.isMobile) {
+            if (!breakpoint.isMobile) {
                 sidebarState.isCollapsed = false;
             }
             persistSidebarState();
         },
         close: () => {
-            if (breakpointState.isMobile) {
+            if (breakpoint.isMobile) {
                 sidebarState.isOpen = false;
             }
             else {
@@ -74,7 +62,7 @@ export function createLayoutContext(initialState) {
             persistSidebarState();
         },
         collapse: () => {
-            if (!breakpointState.isMobile) {
+            if (!breakpoint.isMobile) {
                 sidebarState.isCollapsed = true;
                 persistSidebarState();
             }
@@ -141,13 +129,8 @@ export function createLayoutContext(initialState) {
     }
     // Auto-adjust sidebar based on breakpoint changes
     $effect(() => {
-        if (breakpointState.isMobile) {
-            // On mobile, sidebar should be closed by default
-            sidebarState.isOpen = false;
-            sidebarState.isCollapsed = false; // Collapsed state doesn't apply to mobile
-        }
-        else {
-            // On desktop/tablet, restore persisted state
+        // Only load persisted state on desktop, don't modify sidebar state based on mobile detection
+        if (!breakpoint.isMobile) {
             loadSidebarState();
         }
     });
@@ -155,16 +138,20 @@ export function createLayoutContext(initialState) {
     const contextValue = {
         // Breakpoint information
         get breakpoint() {
-            return breakpointState.current;
+            return breakpoint.current;
         },
         get isMobile() {
-            return breakpointState.isMobile;
+            return breakpoint.isMobile;
         },
         get isTablet() {
-            return breakpointState.isTablet;
+            return breakpoint.isTablet;
         },
         get isDesktop() {
-            return breakpointState.isDesktop;
+            return breakpoint.isDesktop;
+        },
+        // Mobile configuration
+        get showSidebarOnMobile() {
+            return initialState?.showSidebarOnMobile ?? false;
         },
         // Sidebar state and controls
         sidebar: {
@@ -208,8 +195,7 @@ export function createLayoutContext(initialState) {
     return {
         contextValue,
         cleanup: () => {
-            unsubscribeBreakpoint();
-            breakpointStore.destroy();
+            breakpoint.cleanup();
         }
     };
 }

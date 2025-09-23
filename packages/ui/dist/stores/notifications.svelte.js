@@ -1,6 +1,17 @@
 import { getContext, setContext } from 'svelte';
 export class NotificationManager {
-    notifications = $state([]);
+    _notifications = [];
+    listeners = new Set();
+    get notifications() {
+        return this._notifications;
+    }
+    notify() {
+        this.listeners.forEach(listener => listener());
+    }
+    subscribe(listener) {
+        this.listeners.add(listener);
+        return () => this.listeners.delete(listener);
+    }
     config = {
         defaultDuration: {
             success: 3000,
@@ -33,8 +44,8 @@ export class NotificationManager {
             icon: options.icon
         };
         // Remove oldest notifications if exceeding limit
-        while (this.notifications.length >= this.config.maxNotifications) {
-            const oldest = this.notifications.find(n => !n.persistent);
+        while (this._notifications.length >= this.config.maxNotifications) {
+            const oldest = this._notifications.find(n => !n.persistent);
             if (oldest) {
                 this.remove(oldest.id);
             }
@@ -42,7 +53,8 @@ export class NotificationManager {
                 break; // All notifications are persistent
             }
         }
-        this.notifications.push(notification);
+        this._notifications.push(notification);
+        this.notify();
         // Auto-dismiss non-persistent notifications
         if (!notification.persistent && notification.duration > 0) {
             setTimeout(() => this.remove(notification.id), notification.duration);
@@ -53,30 +65,34 @@ export class NotificationManager {
      * Remove a notification by ID
      */
     remove(id) {
-        const index = this.notifications.findIndex(n => n.id === id);
+        const index = this._notifications.findIndex(n => n.id === id);
         if (index > -1) {
-            this.notifications.splice(index, 1);
+            this._notifications.splice(index, 1);
+            this.notify();
         }
     }
     /**
      * Clear all notifications
      */
     clear() {
-        this.notifications.length = 0;
+        this._notifications.length = 0;
+        this.notify();
     }
     /**
      * Clear non-persistent notifications only
      */
     clearNonPersistent() {
-        this.notifications = this.notifications.filter(n => n.persistent);
+        this._notifications = this._notifications.filter(n => n.persistent);
+        this.notify();
     }
     /**
      * Update a notification
      */
     update(id, updates) {
-        const notification = this.notifications.find(n => n.id === id);
+        const notification = this._notifications.find(n => n.id === id);
         if (notification) {
             Object.assign(notification, updates);
+            this.notify();
             return true;
         }
         return false;
@@ -85,13 +101,13 @@ export class NotificationManager {
      * Check if a notification exists
      */
     exists(id) {
-        return this.notifications.some(n => n.id === id);
+        return this._notifications.some(n => n.id === id);
     }
     /**
      * Get notification count by type
      */
     getCountByType(type) {
-        return this.notifications.filter(n => n.type === type).length;
+        return this._notifications.filter(n => n.type === type).length;
     }
     // Convenience methods for different notification types
     success(message, options) {

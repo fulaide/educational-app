@@ -90,7 +90,7 @@
     
     // Spacing based on level and collapsed state
     if (isCollapsed && level === 0) {
-      classes.push('justify-center', 'p-3', 'mx-2', 'rounded-lg');
+      classes.push('justify-center flex-col', 'p-3', 'mx-2', 'rounded-lg');
     } else {
       classes.push('px-4', 'py-3');
       if (level > 0) classes.push(`pl-${4 + level * 4}`);

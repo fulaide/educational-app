@@ -12,7 +12,7 @@
 	const notifications = useNotifications()
 	
 	// Get the most recent notifications up to the limit
-	const visibleNotifications = $derived(() => {
+	const visibleNotifications = $derived.by(() => {
 		const allNotifications = notifications.notifications
 		
 		// For bottom positions, show oldest first (natural stacking)
@@ -34,14 +34,14 @@
 	}
 </script>
 
-{#if visibleNotifications().length > 0}
+{#if visibleNotifications.length > 0}
 	<div 
 		class="toast-container {positionClasses[position]}"
 		aria-live="polite" 
 		aria-label="Notifications"
 		role="region"
 	>
-		{#each visibleNotifications() as notification (notification.id)}
+		{#each visibleNotifications as notification (notification.id)}
 			<Toast {notification} />
 		{/each}
 		

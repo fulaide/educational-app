@@ -1,0 +1,37 @@
+@import './tokens.css';
+@import './components.css';
+@import './utilities.css';
+
+/* Teacher Theme Global Styles */
+.theme-teacher {
+  font-family: var(--font-family-sans);
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+  line-height: var(--line-height-normal);
+}
+
+.theme-teacher body {
+  font-family: var(--font-family-sans);
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+}
+
+/* Theme-specific customizations */
+.theme-teacher .navbar {
+  background-color: var(--color-primary-500);
+  color: white;
+  padding: var(--space-4) var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-teacher .sidebar {
+  background-color: white;
+  border-right: 1px solid var(--color-gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-teacher .main-content {
+  background-color: var(--color-gray-50);
+  min-height: 100vh;
+  padding: var(--space-6);
+}

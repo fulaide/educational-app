@@ -9,6 +9,7 @@ import type { LayoutContextValue } from '../AppLayout/AppLayout.types.js';
 export declare function createLayoutContext(initialState?: {
     sidebarCollapsed?: boolean;
     sidebarPersistent?: boolean;
+    showSidebarOnMobile?: boolean;
     theme?: {
         name: string;
         isDark: boolean;
