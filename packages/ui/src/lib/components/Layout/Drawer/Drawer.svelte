@@ -116,7 +116,7 @@
       'drawer-backdrop',
       'fixed',
       'inset-0',
-      'bg-black/10'
+      'bg-gray-100/70'
     ];
     
     if (blurBackdrop) {
@@ -158,11 +158,14 @@
       classes.push(
         'inset-y-4',
         'rounded-2xl',
-        'shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)]',
-        'bg-white',
-        'backdrop-blur-md',
+        // 'shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)]',
+				'shadow-xl',
+        'bg-white/90',
+        'backdrop-blur-xl',
         'text-gray-600',
-        'overflow-hidden'
+        'overflow-hidden',
+				'border',
+				'border-gray-500/20'
       );
       
       // Desktop positioning - use fixed positioning with CSS custom properties
@@ -427,10 +430,10 @@
   }
   
   /* Backdrop blur fallback */
-  .drawer-backdrop {
+  /* .drawer-backdrop {
     background-color: rgba(0, 0, 0, 0.5);
   }
-  
+   */
   @supports (backdrop-filter: blur(8px)) {
     .drawer-backdrop.backdrop-blur-sm {
       backdrop-filter: blur(8px);
