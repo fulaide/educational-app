@@ -1,204 +1,408 @@
 <script lang="ts">
+	import { AppLayout, Sidebar, MainContent, Drawer, Card, Button } from '@educational-app/ui';
+	import { t } from '@educational-app/i18n';
+	import { Home, Users, BookOpen, BarChart3, Settings, LogOut, Plus, Eye } from 'lucide-svelte';
 	import type { PageData } from './$types'
 
-	export let data: PageData
+	interface Props {
+		data: PageData;
+	}
 
-	async function handleSignOut() {
-		// Navigate to logout route for proper server-side session clearing
-		window.location.href = '/auth/signout'
+	let { data }: Props = $props();
+
+	// Navigation structure for teacher portal
+	const teacherNavigation = [
+		{
+			label: 'Dashboard',
+			href: '/dashboard',
+			icon: Home,
+			isActive: true
+		},
+		{
+			label: 'Classes',
+			href: '/classes',
+			icon: BookOpen,
+			badge: data.totalClasses
+		},
+		{
+			label: 'Students',
+			href: '/students',
+			icon: Users,
+			badge: data.totalStudents
+		},
+		{
+			label: 'QR Codes',
+			href: '/qr-codes',
+			icon: BarChart3
+		}
+	];
+
+	const accountNavigation = [
+		{
+			label: 'Settings',
+			href: '/settings',
+			icon: Settings
+		},
+		{
+			label: 'Sign Out',
+			href: '/auth/signout',
+			icon: LogOut
+		}
+	];
+
+	// Drawer state for creating/editing content
+	let showCreateClassDrawer = $state(false);
+	let showQuickActionsDrawer = $state(false);
+
+	function formatDate(dateString: string) {
+		return new Date(dateString).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		});
+	}
+
+	function getInitials(name: string | null) {
+		if (!name) return '?';
+		return name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
 	}
 </script>
 
 <svelte:head>
-	<title>Dashboard - Educational App</title>
+	<title>{$t('dashboard.title')} - {$t('teacher.home.teacher_portal')}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
-	<nav class="bg-white shadow">
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<div class="flex h-16 justify-between">
-				<div class="flex">
-					<div class="flex flex-shrink-0 items-center">
-						<h1 class="text-xl font-semibold text-gray-900">Educational App</h1>
+<AppLayout theme="teacher">
+	<!-- Sidebar with teacher navigation -->
+	<Sidebar 
+		navigation={teacherNavigation}
+		accountNavigation={accountNavigation}
+		userName={data.user?.name || data.user?.email || 'Teacher'}
+		userRole={data.user?.role || 'TEACHER'}
+		organizationName={data.teacherData?.organization?.name}
+	/>
+
+	<!-- Main Content -->
+	<MainContent>
+		<!-- Welcome Header -->
+		<div class="md:flex md:items-center md:justify-between mb-8">
+			<div class="flex-1 min-w-0">
+				<h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+					{$t('dashboard.welcome_teacher', { values: { name: data.user?.name || 'Lehrer' } })}
+				</h2>
+				<div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+					<div class="mt-2 flex items-center text-sm text-gray-500">
+						<svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+						</svg>
+						{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 					</div>
-				</div>
-				<div class="flex items-center space-x-4">
-					<div class="flex items-center space-x-2">
-						<div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
-							<span class="text-sm font-medium text-white">
-								{data.user?.name?.charAt(0) || data.user?.email?.charAt(0) || '?'}
-							</span>
+					{#if data.teacherData?.organization}
+						<div class="mt-2 flex items-center text-sm text-gray-500">
+							<svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm8 8v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2h8z" clip-rule="evenodd" />
+							</svg>
+							{data.teacherData.organization.name}
 						</div>
-						<span class="text-sm text-gray-700">
-							{data.user?.name || data.user?.email || 'Guest'}
-						</span>
-						<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-							{data.user?.role || 'GUEST'}
-						</span>
-					</div>
-					<button
-						on:click={handleSignOut}
-						class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-					>
-						Sign Out
-					</button>
+					{/if}
 				</div>
+			</div>
+			<div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+				<Button 
+					variant="solid" 
+					color="primary"
+					on:click={() => showCreateClassDrawer = true}
+				>
+					<Plus class="-ml-1 mr-2 h-4 w-4" />
+					Create Class
+				</Button>
+				<Button 
+					variant="outline" 
+					color="secondary"
+					on:click={() => showQuickActionsDrawer = true}
+				>
+					<BarChart3 class="-ml-1 mr-2 h-4 w-4" />
+					Quick Actions
+				</Button>
 			</div>
 		</div>
-	</nav>
 
-	<div class="py-10">
-		<!-- Email Verification Banner -->
-		{#if data.emailVerificationStatus && !data.emailVerificationStatus.isVerified}
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-6">
-				<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-					<div class="flex">
+		<!-- Stats Overview -->
+		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+			<!-- Total Classes -->
+			<Card>
+				<div class="p-6">
+					<div class="flex items-center">
 						<div class="flex-shrink-0">
-							<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-								<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-							</svg>
+							<BookOpen class="h-8 w-8 text-blue-500" />
 						</div>
-						<div class="ml-3 flex-1">
-							<h3 class="text-sm font-medium text-yellow-800">
-								Email Verification Required
-							</h3>
-							<div class="mt-2 text-sm text-yellow-700">
-								<p>Your email address hasn't been verified yet. Please check your inbox and click the verification link to access all features.</p>
-							</div>
-							<div class="mt-4 flex space-x-3">
-								<a
-									href="/auth/resend-verification?email={encodeURIComponent(data.user?.email || '')}"
-									class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-								>
-									Resend Verification Email
-								</a>
-								<span class="text-xs text-yellow-600 flex items-center">
-									Check your spam folder if you don't see the email
-								</span>
-							</div>
+						<div class="ml-5 w-0 flex-1">
+							<dl>
+								<dt class="text-sm font-medium text-gray-500 truncate">Total Classes</dt>
+								<dd class="text-2xl font-bold text-gray-900">{data.totalClasses || 0}</dd>
+							</dl>
 						</div>
 					</div>
+					<div class="mt-4">
+						<button 
+							on:click={() => window.location.href = '/classes'}
+							class="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center"
+						>
+							<Eye class="mr-1 h-4 w-4" />
+							View all classes
+						</button>
+					</div>
 				</div>
-			</div>
-		{/if}
+			</Card>
 
-		<header>
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<h1 class="text-3xl font-bold leading-tight text-gray-900">
-					Welcome, {data.user?.name || 'Guest'}!
-				</h1>
+			<!-- Total Students -->
+			<Card>
+				<div class="p-6">
+					<div class="flex items-center">
+						<div class="flex-shrink-0">
+							<Users class="h-8 w-8 text-green-500" />
+						</div>
+						<div class="ml-5 w-0 flex-1">
+							<dl>
+								<dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+								<dd class="text-2xl font-bold text-gray-900">{data.totalStudents || 0}</dd>
+							</dl>
+						</div>
+					</div>
+					<div class="mt-4">
+						<button 
+							on:click={() => window.location.href = '/students'}
+							class="text-sm font-medium text-green-600 hover:text-green-500 flex items-center"
+						>
+							<Eye class="mr-1 h-4 w-4" />
+							Manage students
+						</button>
+					</div>
+				</div>
+			</Card>
+
+			<!-- Quick Actions -->
+			<Card>
+				<div class="p-6">
+					<div class="flex items-center">
+						<div class="flex-shrink-0">
+							<BarChart3 class="h-8 w-8 text-purple-500" />
+						</div>
+						<div class="ml-5 w-0 flex-1">
+							<dl>
+								<dt class="text-sm font-medium text-gray-500 truncate">Quick Actions</dt>
+								<dd class="text-2xl font-bold text-gray-900">Ready</dd>
+							</dl>
+						</div>
+					</div>
+					<div class="mt-4">
+						<button 
+							on:click={() => showQuickActionsDrawer = true}
+							class="text-sm font-medium text-purple-600 hover:text-purple-500 flex items-center"
+						>
+							<Plus class="mr-1 h-4 w-4" />
+							Open actions
+						</button>
+					</div>
+				</div>
+			</Card>
 			</div>
-		</header>
-		<main>
-			<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-				<div class="px-4 py-8 sm:px-0">
-					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						<!-- User Info Card -->
-						<div class="overflow-hidden bg-white shadow rounded-lg">
-							<div class="p-6">
-								<div class="flex items-center">
-									<div class="flex-shrink-0">
-										<div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center">
-											<span class="text-lg font-medium text-white">
-												{data.user?.name?.charAt(0) || data.user?.email?.charAt(0) || '?'}
-											</span>
+
+			<!-- Recent Classes -->
+			<div class="bg-white shadow overflow-hidden sm:rounded-md mb-8">
+				<div class="px-4 py-5 sm:px-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<h3 class="text-lg leading-6 font-medium text-gray-900">Your Classes</h3>
+							<p class="mt-1 max-w-2xl text-sm text-gray-500">
+								{data.totalClasses > 0 ? `Your ${data.totalClasses} class${data.totalClasses !== 1 ? 'es' : ''}` : 'No classes yet'}
+							</p>
+						</div>
+						{#if data.totalClasses > 5}
+							<a href="/classes" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+								View all ({data.totalClasses})
+							</a>
+						{/if}
+					</div>
+				</div>
+				{#if data.recentClasses.length === 0}
+					<div class="text-center py-12">
+						<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2-2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+						</svg>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">No classes</h3>
+						<p class="mt-1 text-sm text-gray-500">Get started by creating your first class.</p>
+						<div class="mt-6">
+							<a
+								href="/classes"
+								class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+							>
+								<svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+								</svg>
+								Create your first class
+							</a>
+						</div>
+					</div>
+				{:else}
+					<ul class="divide-y divide-gray-200">
+						{#each data.recentClasses as classItem}
+							<li>
+								<a href="/classes/{classItem.id}" class="block hover:bg-gray-50 px-4 py-4 sm:px-6">
+									<div class="flex items-center justify-between">
+										<div class="flex items-center">
+											<div class="flex-shrink-0">
+												<div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+													<span class="text-sm font-medium text-blue-600">
+														{classItem.name.charAt(0)}
+													</span>
+												</div>
+											</div>
+											<div class="ml-4">
+												<div class="flex items-center">
+													<p class="text-sm font-medium text-blue-600 truncate">{classItem.name}</p>
+													{#if classItem.isActive}
+														<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+															Active
+														</span>
+													{/if}
+												</div>
+												<div class="mt-1 flex items-center text-sm text-gray-500">
+													<span>Grade {classItem.grade}</span>
+													<span class="mx-2">•</span>
+													<span>{classItem.students?.length || 0} student{(classItem.students?.length || 0) !== 1 ? 's' : ''}</span>
+													<span class="mx-2">•</span>
+													<span>Created {formatDate(classItem.createdAt)}</span>
+												</div>
+											</div>
 										</div>
-									</div>
-									<div class="ml-5 w-0 flex-1">
-										<dl>
-											<dt class="text-sm font-medium text-gray-500 truncate">User Profile</dt>
-											<dd class="text-lg font-medium text-gray-900">{data.user?.name || 'Unknown'}</dd>
-										</dl>
-									</div>
-								</div>
-								<div class="mt-4">
-									<div class="text-sm text-gray-500">
-										<p><strong>Email:</strong> {data.user?.email || 'N/A'}
-											{#if data.emailVerificationStatus}
-												{#if data.emailVerificationStatus.isVerified}
-													<span class="inline-flex items-center ml-2 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-														<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-															<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-														</svg>
-														Verified
-													</span>
-												{:else}
-													<span class="inline-flex items-center ml-2 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-														<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-															<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-														</svg>
-														Unverified
-													</span>
-												{/if}
+										<div class="flex items-center space-x-2">
+											{#if classItem.students && classItem.students.length > 0}
+												<div class="flex -space-x-1 overflow-hidden">
+													{#each classItem.students.slice(0, 3) as student}
+														<div class="inline-block h-6 w-6 rounded-full bg-gray-300 ring-2 ring-white">
+															<div class="h-full w-full rounded-full bg-blue-500 flex items-center justify-center">
+																<span class="text-xs font-medium text-white">
+																	{getInitials(student.name)}
+																</span>
+															</div>
+														</div>
+													{/each}
+													{#if classItem.students.length > 3}
+														<div class="inline-block h-6 w-6 rounded-full bg-gray-100 ring-2 ring-white flex items-center justify-center">
+															<span class="text-xs font-medium text-gray-500">
+																+{classItem.students.length - 3}
+															</span>
+														</div>
+													{/if}
+												</div>
+											{:else}
+												<span class="text-xs text-gray-400">No students</span>
 											{/if}
-										</p>
-										<p><strong>Role:</strong> {data.user?.role || 'N/A'}</p>
-										<p><strong>User ID:</strong> {data.user?.id || 'N/A'}</p>
-										{#if data.user?.organizationId}
-											<p><strong>Organization:</strong> {data.user?.organizationId}</p>
-										{/if}
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Authentication Status Card -->
-						<div class="overflow-hidden bg-white shadow rounded-lg">
-							<div class="p-6">
-								<div class="flex items-center">
-									<div class="flex-shrink-0">
-										<div class="h-10 w-10 rounded-full bg-green-600 flex items-center justify-center">
-											<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-												<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+											<svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+												<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
 											</svg>
 										</div>
 									</div>
-									<div class="ml-5 w-0 flex-1">
-										<dl>
-											<dt class="text-sm font-medium text-gray-500 truncate">Authentication</dt>
-											<dd class="text-lg font-medium text-gray-900">Authenticated</dd>
-										</dl>
-									</div>
-								</div>
-								<div class="mt-4">
-									<div class="text-sm text-gray-500">
-										<p>You are successfully signed in!</p>
-										<p>Multi-role authentication is working.</p>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Quick Actions Card -->
-						<div class="overflow-hidden bg-white shadow rounded-lg">
-							<div class="p-6">
-								<div class="flex items-center">
-									<div class="flex-shrink-0">
-										<div class="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center">
-											<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-												<path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-												<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-											</svg>
-										</div>
-									</div>
-									<div class="ml-5 w-0 flex-1">
-										<dl>
-											<dt class="text-sm font-medium text-gray-500 truncate">Quick Actions</dt>
-											<dd class="text-lg font-medium text-gray-900">Dashboard Ready</dd>
-										</dl>
-									</div>
-								</div>
-								<div class="mt-4">
-									<div class="text-sm text-gray-500">
-										<p>Auth.js integration complete!</p>
-										<p>Ready to build {data.user?.role?.toLowerCase() || 'user'} features.</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</div>
-		</main>
-	</div>
-</div>
+	</MainContent>
+
+	<!-- Create Class Drawer -->
+	<Drawer 
+		bind:open={showCreateClassDrawer} 
+		position="right" 
+		size="md"
+		title="Create New Class"
+	>
+		<div class="space-y-6">
+			<div>
+				<label for="className" class="block text-sm font-medium text-gray-700 mb-2">Class Name</label>
+				<input 
+					id="className" 
+					type="text" 
+					class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+					placeholder="e.g., Grade 3A"
+				/>
+			</div>
+			<div>
+				<label for="grade" class="block text-sm font-medium text-gray-700 mb-2">Grade Level</label>
+				<select 
+					id="grade" 
+					class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+				>
+					<option value="">Select grade...</option>
+					<option value="1">Grade 1</option>
+					<option value="2">Grade 2</option>
+					<option value="3">Grade 3</option>
+					<option value="4">Grade 4</option>
+					<option value="5">Grade 5</option>
+				</select>
+			</div>
+			<div>
+				<label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+				<textarea 
+					id="description" 
+					rows="3" 
+					class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+					placeholder="Brief description of this class..."
+				></textarea>
+			</div>
+			<div class="flex justify-end space-x-3 pt-4">
+				<Button variant="outline" on:click={() => showCreateClassDrawer = false}>
+					Cancel
+				</Button>
+				<Button variant="solid" color="primary">
+					Create Class
+				</Button>
+			</div>
+		</div>
+	</Drawer>
+
+	<!-- Quick Actions Drawer -->
+	<Drawer 
+		bind:open={showQuickActionsDrawer} 
+		position="right" 
+		size="sm"
+		title="Quick Actions"
+	>
+		<div class="space-y-4">
+			<button 
+				on:click={() => window.location.href = '/students/register'}
+				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			>
+				<Users class="h-6 w-6 text-green-500 mr-3" />
+				<div>
+					<h3 class="font-medium text-gray-900">Add Students</h3>
+					<p class="text-sm text-gray-500">Register new students to your classes</p>
+				</div>
+			</button>
+
+			<button 
+				on:click={() => window.location.href = '/qr-codes'}
+				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			>
+				<BarChart3 class="h-6 w-6 text-blue-500 mr-3" />
+				<div>
+					<h3 class="font-medium text-gray-900">Generate QR Codes</h3>
+					<p class="text-sm text-gray-500">Create QR codes for student login</p>
+				</div>
+			</button>
+
+			<button 
+				on:click={() => showCreateClassDrawer = true && (showQuickActionsDrawer = false)}
+				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			>
+				<BookOpen class="h-6 w-6 text-purple-500 mr-3" />
+				<div>
+					<h3 class="font-medium text-gray-900">Create Class</h3>
+					<p class="text-sm text-gray-500">Set up a new class for your students</p>
+				</div>
+			</button>
+		</div>
+	</Drawer>
+</AppLayout>
