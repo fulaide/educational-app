@@ -1,47 +1,43 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { createLayoutContext, setLayoutContext } from '../utils/layoutContext.svelte.js';
-  import type { AppLayoutProps } from './AppLayout.types.js';
 
-  interface Props extends AppLayoutProps {
+  interface Props {
     children?: import('svelte').Snippet;
+    theme?: string;
+    class?: string;
   }
 
-  let {
-    theme = 'auto',
-    sidebarCollapsed = false,
-    sidebarPersistent = true,
-    class: className = '',
-    showSidebarOnMobile = false,
-    children
-  }: Props = $props();
-
-  // Initialize layout context - SIMPLE VERSION
+  let { children, theme = 'auto', class: className = '' }: Props = $props();
+  
+  // Create layout context immediately (not onMount to support SSR)
   const layoutContext = createLayoutContext({
-    sidebarCollapsed,
-    sidebarPersistent,
-    theme: {
-      name: theme === 'auto' ? 'default' : theme,
-      isDark: theme === 'dark'
-    }
+    sidebarCollapsed: false,
+    sidebarPersistent: true,
+    showSidebarOnMobile: false,
+    theme: { name: theme, isDark: false }
   });
-
-  // Set context for child components
+  
   setLayoutContext(layoutContext);
-
-  // Simple sidebar width
-  let sidebarWidth = $derived(() => {
-    const isCollapsed = layoutContext.contextValue.sidebar.isCollapsed;
-    console.log('AppLayout: sidebarWidth calculation, isCollapsed:', isCollapsed);
-    return isCollapsed ? '64px' : '280px';
+  
+  onDestroy(() => {
+    layoutContext.cleanup();
   });
 </script>
 
-<!-- SIMPLE CSS GRID LAYOUT -->
-<div 
-  class="h-full w-full  overflow-hidden grid "
-  style="display: grid; grid-template-columns: {sidebarWidth()} 1fr; grid-template-rows: 1fr; min-width: 100svw; max-width: 100dvw; max-height: 100dvh;"
->
+<div class="wrapper bg-gray-100 mx-auto w-full flex font-family-primary {className}">
   {#if children}
     {@render children()}
   {/if}
 </div>
+
+<style>
+  .wrapper {
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  :global(html, body) {
+    background-color: var(--color-gray-100);
+  }
+</style>
