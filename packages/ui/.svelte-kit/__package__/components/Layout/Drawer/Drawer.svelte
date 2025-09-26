@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
   import { getLayoutContext } from '../utils/layoutContext.svelte.js';
-  import DrawerHeader from './DrawerHeader.svelte';
+  import type { DrawerProps, SwipeDirection, TouchEventData } from './Drawer.types.js';
   import DrawerFooter from './DrawerFooter.svelte';
-  import type { DrawerProps, SwipeDirection, TouchEventData, DrawerAnimationState } from './Drawer.types.js';
+  import DrawerHeader from './DrawerHeader.svelte';
   
   interface Props extends DrawerProps {
     children?: import('svelte').Snippet;
@@ -45,7 +46,6 @@
   
   let drawerElement: HTMLDivElement;
   let backdropElement: HTMLDivElement;
-  let animationState = $state<DrawerAnimationState>('closed');
   
   // Touch gesture state
   let touchData: TouchEventData | null = null;
@@ -79,18 +79,35 @@
     const sizeMap = isHorizontal ? sizeConfig.horizontal : sizeConfig.vertical;
     
     if (isHorizontal) {
+      // For desktop horizontal drawers, we need to account for the positioning
+      const drawerWidth = width || sizeMap[size];
       return {
-        width: width || sizeMap[size],
-        height: height || '100vh',
+        width: isMobile ? drawerWidth : drawerWidth,
+        height: height || (isMobile ? '100vh' : 'calc(100vh - 2rem)'),
         maxWidth: isMobile ? '85vw' : undefined
       };
     } else {
       return {
-        width: width || '100vw',
+        width: width || (isMobile ? '100vw' : 'calc(100vw - 2rem)'),
         height: height || sizeMap[size],
         maxHeight: isMobile ? '85vh' : undefined
       };
     }
+  });
+  
+  // Style with CSS custom properties and proper positioning
+  let drawerStyle = $derived.by(() => {
+    const drawerWidth = drawerDimensions.width;
+    let style = `z-index: 52; --drawer-width: ${drawerWidth}; width: var(--drawer-width); height: ${drawerDimensions.height}; max-width: ${drawerDimensions.maxWidth || 'none'}; max-height: ${drawerDimensions.maxHeight || 'none'};`;
+    
+    // Add proper positioning for right drawer on desktop
+    if (!isMobile && position === 'right') {
+      style += ` left: calc(100vw - var(--drawer-width) - 1rem);`;
+    } else if (!isMobile && position === 'left') {
+      style += ` right: calc(100vw - var(--drawer-width) - 1rem);`;
+    }
+    
+    return style;
   });
   
   // Dynamic classes
@@ -99,18 +116,11 @@
       'drawer-backdrop',
       'fixed',
       'inset-0',
-      'transition-opacity',
-      'bg-black/50'
+      'bg-gray-100/70'
     ];
     
     if (blurBackdrop) {
       classes.push('backdrop-blur-sm');
-    }
-    
-    if (isOpen) {
-      classes.push('opacity-100');
-    } else {
-      classes.push('opacity-0', 'pointer-events-none');
     }
     
     return classes.join(' ');
@@ -121,46 +131,52 @@
       'drawer',
       'fixed',
       'flex',
-      'flex-col',
-      'bg-background',
-      'border',
-      'border-border',
-      'shadow-2xl',
-      'transition-transform',
-      'will-change-transform'
+      'flex-col'
     ];
     
-    // Position classes
-    switch (position) {
-      case 'left':
-        classes.push('top-0', 'left-0', 'h-full', 'border-r');
-        break;
-      case 'right':
-        classes.push('top-0', 'right-0', 'h-full', 'border-l');
-        break;
-      case 'top':
-        classes.push('top-0', 'left-0', 'w-full', 'border-b');
-        break;
-      case 'bottom':
-        classes.push('bottom-0', 'left-0', 'w-full', 'border-t');
-        break;
-    }
-    
-    // Transform classes based on open state
-    if (!isOpen && !isDragging) {
-      switch (position) {
-        case 'left':
-          classes.push('-translate-x-full');
-          break;
-        case 'right':
-          classes.push('translate-x-full');
-          break;
-        case 'top':
-          classes.push('-translate-y-full');
-          break;
-        case 'bottom':
-          classes.push('translate-y-full');
-          break;
+    // Responsive styling: Desktop vs Mobile
+    if (isMobile) {
+      // Mobile: Full screen overlay with positioning
+      classes.push(
+        'bg-white/90',
+        'backdrop-blur-md',
+        'text-white'
+      );
+      
+      // Mobile positioning
+      if (position === 'right') {
+        classes.push('right-0', 'top-0', 'bottom-0');
+      } else if (position === 'left') {
+        classes.push('left-0', 'top-0', 'bottom-0');
+      } else if (position === 'top') {
+        classes.push('top-0', 'left-0', 'right-0');
+      } else if (position === 'bottom') {
+        classes.push('bottom-0', 'left-0', 'right-0');
+      }
+    } else {
+      // Desktop: Inset with rounded corners (like sidebar)
+      classes.push(
+        'inset-y-4',
+        'rounded-2xl',
+        // 'shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)]',
+				'shadow-xl',
+        'bg-white/90',
+        'backdrop-blur-xl',
+        'text-gray-600',
+        'overflow-hidden',
+				'border',
+				'border-gray-500/20'
+      );
+      
+      // Desktop positioning - use fixed positioning with CSS custom properties
+      if (position === 'right') {
+        classes.push('top-4', 'bottom-4', 'right-4');
+      } else if (position === 'left') {
+        classes.push('top-4', 'bottom-4', 'left-4');
+      } else if (position === 'top') {
+        classes.push('top-4', 'left-4', 'right-4');
+      } else if (position === 'bottom') {
+        classes.push('bottom-4', 'left-4', 'right-4');
       }
     }
     
@@ -190,26 +206,7 @@
   // Close drawer
   function closeDrawer() {
     if (persistent) return;
-    
-    animationState = 'closing';
     onClose?.();
-    
-    // Wait for animation to complete
-    setTimeout(() => {
-      animationState = 'closed';
-      onAnimationComplete?.(false);
-    }, animationDuration);
-  }
-  
-  // Open drawer
-  function openDrawer() {
-    animationState = 'opening';
-    onOpen?.();
-    
-    setTimeout(() => {
-      animationState = 'open';
-      onAnimationComplete?.(true);
-    }, animationDuration);
   }
   
   // Touch gesture handling
@@ -325,12 +322,6 @@
   
   // Effects
   $effect(() => {
-    if (isOpen) {
-      openDrawer();
-    } else {
-      animationState = 'closed';
-    }
-    
     manageFocus();
   });
   
@@ -344,16 +335,17 @@
   });
 </script>
 
-{#if isOpen || animationState !== 'closed'}
+{#if isOpen}
   <!-- Backdrop -->
   {#if showBackdrop}
     <div
       bind:this={backdropElement}
       class={backdropClasses}
-      style="z-index: {zIndex - 1}; transition-duration: {animationDuration}ms; transition-timing-function: {animationEasing};"
+      style="z-index: 51;"
       onclick={handleBackdropClick}
       role="presentation"
       aria-hidden="true"
+      transition:fade={{ duration: animationDuration }}
     ></div>
   {/if}
   
@@ -361,13 +353,21 @@
   <div
     bind:this={drawerElement}
     class={drawerClasses}
-    style="z-index: {zIndex}; transition-duration: {animationDuration}ms; transition-timing-function: {animationEasing}; width: {drawerDimensions.width}; height: {drawerDimensions.height}; max-width: {drawerDimensions.maxWidth || 'none'}; max-height: {drawerDimensions.maxHeight || 'none'};"
+    style={drawerStyle}
     role="dialog"
     aria-modal="true"
     aria-label={title || 'Drawer'}
     ontouchstart={handleTouchStart}
     ontouchmove={handleTouchMove}
     ontouchend={handleTouchEnd}
+    transition:fly={{ 
+      x: position === 'right' ? 400 : position === 'left' ? -400 : 0,
+      y: position === 'top' ? -300 : position === 'bottom' ? 300 : 0,
+      duration: animationDuration 
+    }}
+    onintrostart={() => onOpen?.()}
+    onintroend={() => onAnimationComplete?.(true)}
+    onoutroend={() => onAnimationComplete?.(false)}
   >
     <!-- Header -->
     {#if header}
@@ -382,7 +382,7 @@
     {/if}
     
     <!-- Content -->
-    <div class="drawer-content flex-1 overflow-y-auto">
+    <div class="drawer-content flex-1 overflow-y-auto overscroll-contain">
       {#if children}
         {@render children()}
       {/if}
@@ -408,7 +408,8 @@
   /* Custom scrollbar for drawer content */
   .drawer-content {
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb, rgba(0,0,0,0.2)) var(--scrollbar-track, transparent);
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+    scroll-behavior: smooth;
   }
   
   .drawer-content::-webkit-scrollbar {
@@ -416,23 +417,23 @@
   }
   
   .drawer-content::-webkit-scrollbar-track {
-    background: var(--scrollbar-track, transparent);
+    background: transparent;
   }
   
   .drawer-content::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb, rgba(0,0,0,0.2));
+    background: rgba(255,255,255,0.3);
     border-radius: 3px;
   }
   
   .drawer-content::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover, rgba(0,0,0,0.3));
+    background: rgba(255,255,255,0.5);
   }
   
   /* Backdrop blur fallback */
-  .drawer-backdrop {
+  /* .drawer-backdrop {
     background-color: rgba(0, 0, 0, 0.5);
   }
-  
+   */
   @supports (backdrop-filter: blur(8px)) {
     .drawer-backdrop.backdrop-blur-sm {
       backdrop-filter: blur(8px);

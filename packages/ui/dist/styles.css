@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
-
+/* Import all theme files with semantic tokens */
+@import './themes/teacher.css';
 @import './themes/student.css';
 @import './themes/parent.css';
 @import './themes/admin.css';
@@ -33,11 +34,11 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100 rounded-full;
+    @apply bg-neutral-100 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full hover:bg-gray-400;
+    @apply bg-neutral-300 rounded-full hover:bg-neutral-400;
   }
 }
 
@@ -81,20 +82,20 @@
     animation: confetti 3s ease-out forwards;
   }
 
-  /* Educational color utilities */
-  .text-grade-1 { @apply text-red-600; }
-  .text-grade-2 { @apply text-orange-600; }
-  .text-grade-3 { @apply text-yellow-600; }
-  .text-grade-4 { @apply text-green-600; }
-  .text-grade-5 { @apply text-blue-600; }
-  .text-grade-6 { @apply text-indigo-600; }
+  /* Educational color utilities - Using semantic tokens */
+  .text-grade-1 { @apply text-danger-600; }
+  .text-grade-2 { @apply text-warning-600; }
+  .text-grade-3 { @apply text-warning-600; }
+  .text-grade-4 { @apply text-success-600; }
+  .text-grade-5 { @apply text-info-600; }
+  .text-grade-6 { @apply text-secondary-600; }
 
-  .bg-grade-1 { @apply bg-red-100; }
-  .bg-grade-2 { @apply bg-orange-100; }
-  .bg-grade-3 { @apply bg-yellow-100; }
-  .bg-grade-4 { @apply bg-green-100; }
-  .bg-grade-5 { @apply bg-blue-100; }
-  .bg-grade-6 { @apply bg-indigo-100; }
+  .bg-grade-1 { @apply bg-danger-100; }
+  .bg-grade-2 { @apply bg-warning-100; }
+  .bg-grade-3 { @apply bg-warning-100; }
+  .bg-grade-4 { @apply bg-success-100; }
+  .bg-grade-5 { @apply bg-info-100; }
+  .bg-grade-6 { @apply bg-secondary-100; }
 
   /* Achievement glow effects */
   .glow-achievement {
@@ -122,9 +123,9 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Educational interaction states */
+  /* Educational interaction states - Using semantic tokens */
   .educational-card {
-    @apply bg-white rounded-xl border-2 border-gray-200 p-4 transition-all duration-200;
+    @apply bg-background rounded-xl border-2 border-neutral-200 p-4 transition-all duration-200;
   }
 
   .educational-card:hover {
@@ -141,7 +142,7 @@
 
   /* Loading states */
   .skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
+    @apply animate-pulse bg-neutral-200 rounded;
   }
 
   .skeleton-text {
@@ -246,11 +247,11 @@
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .educational-card {
-    @apply border-4 border-black;
+    @apply border-4 border-neutral-900;
   }
 
   .educational-card:hover {
-    @apply bg-yellow-100;
+    @apply bg-warning-100;
   }
 }
 

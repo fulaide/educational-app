@@ -3,23 +3,37 @@
  * These classes apply semantic tokens to provide consistent styling
  */
 
-/* Form Elements */
+
+/* Screen Reader Only - Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Form Elements - Using Semantic Tokens */
 .form-label {
-  font-size: var(--text-body-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
   display: block;
-  margin-bottom: var(--spacing-component-sm);
+  margin-bottom: var(--spacing-2);
 }
 
 .form-input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: var(--input-radius);
-  padding: var(--input-padding-y) var(--input-padding-x);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3) var(--spacing-3);
   font-family: inherit;
-  font-size: var(--text-body);
-  color: var(--input-text);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
   width: 100%;
   appearance: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -27,26 +41,26 @@
 
 .form-input:focus {
   outline: none;
-  border-color: var(--input-border-focus);
+  border-color: var(--color-border-focus);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Focus ring with primary color */
 }
 
 .form-input::placeholder {
-  color: var(--input-placeholder);
+  color: var(--color-text-subtle);
 }
 
 .form-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: var(--color-surface-tertiary);
+  background: var(--color-surface-muted);
 }
 
 .form-input-error {
-  border-color: var(--input-border-error);
+  border-color: var(--color-danger-500);
 }
 
 .form-input-error:focus {
-  border-color: var(--input-border-error);
+  border-color: var(--color-danger-500);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); /* Error focus ring */
 }
 
@@ -65,21 +79,19 @@
   gap: var(--spacing-component-xs);
 }
 
-/* Button Elements */
+/* Button Elements - Using Semantic Tokens */
 .btn-primary {
-  background: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border: none;
-  border-radius: var(--button-primary-radius);
-  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-medium);
+  background: var(--color-primary-500);
+  color: var(--color-text-on-primary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
+  box-sizing: border-box;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--button-primary-bg-hover);
+  background: var(--color-primary-600);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -92,19 +104,17 @@
 }
 
 .btn-secondary {
-  background: var(--button-secondary-bg);
-  color: var(--button-secondary-text);
-  border: 1px solid var(--button-secondary-border);
-  border-radius: var(--button-primary-radius);
-  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-medium);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
+  box-sizing: border-box;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--button-secondary-bg-hover);
+  background: var(--color-surface-hover);
 }
 
 .btn-secondary:active:not(:disabled) {
@@ -115,6 +125,35 @@
   background: var(--color-interactive-disabled);
   border-color: var(--color-interactive-disabled);
   cursor: not-allowed;
+}
+
+/* Button Size Utilities */
+.btn-sm {
+  padding: var(--button-sm-padding-y) var(--button-sm-padding-x);
+  font-size: var(--button-sm-font-size);
+  font-weight: var(--button-sm-font-weight);
+  cursor: pointer;
+}
+
+.btn-md {
+  padding: var(--button-md-padding-y) var(--button-md-padding-x);
+  font-size: var(--button-md-font-size);
+  font-weight: var(--button-md-font-weight);
+  cursor: pointer;
+}
+
+.btn-lg {
+  padding: var(--button-lg-padding-y) var(--button-lg-padding-x);
+  font-size: var(--button-lg-font-size);
+  font-weight: var(--button-lg-font-weight);
+  cursor: pointer;
+}
+
+.btn-xl {
+  padding: var(--button-xl-padding-y) var(--button-xl-padding-x);
+  font-size: var(--button-xl-font-size);
+  font-weight: var(--button-xl-font-weight);
+  cursor: pointer;
 }
 
 /* Typography Classes */
@@ -186,18 +225,18 @@
 .surface-tertiary { background: var(--color-surface-tertiary); }
 .surface-brand { background: var(--color-surface-brand); }
 
-/* Card Component */
+/* Card Component - Using Semantic Tokens */
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  padding: var(--card-padding);
-  box-shadow: var(--card-shadow);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: var(--card-shadow-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .card-clickable:hover {

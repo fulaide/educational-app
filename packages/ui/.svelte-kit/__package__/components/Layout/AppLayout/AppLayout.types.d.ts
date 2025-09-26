@@ -72,12 +72,20 @@ export interface AppLayoutProps {
      * Custom breakpoint configuration
      */
     breakpoints?: Partial<BreakpointConfig>;
+    /**
+     * Background image URL for the layout wrapper
+     */
+    backgroundImage?: string;
+    /**
+     * Custom background CSS class (default: 'bg-gray-100')
+     */
+    backgroundClass?: string;
 }
 export interface NavigationItem {
     id: string;
     label: string;
     href?: string;
-    icon?: string;
+    icon?: string | any;
     badge?: string | number;
     children?: NavigationItem[];
     isActive?: boolean;

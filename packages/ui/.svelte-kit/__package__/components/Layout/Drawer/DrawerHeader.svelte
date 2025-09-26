@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Button } from '../../../index.js';
+  import { X } from 'lucide-svelte';
   import type { DrawerHeaderProps } from './Drawer.types.js';
   
   interface Props extends DrawerHeaderProps {}
@@ -11,20 +13,23 @@
     class: className = ''
   }: Props = $props();
   
+  // Simplified icon resolution - expects component or null
+  function getIconComponent(icon: any) {
+    if (!icon) return null;
+    
+    // If it's already a Svelte component or function, return it
+    if (typeof icon === 'object' && icon.$render) return icon;
+    if (typeof icon === 'function') return icon;
+    
+    return null;
+  }
+  
   // Handle action clicks
   function handleActionClick(action: any) {
     if (action.href && typeof window !== 'undefined') {
       window.location.href = action.href;
     }
     action.onClick?.();
-  }
-  
-  // Handle keyboard navigation for actions
-  function handleActionKeyDown(event: KeyboardEvent, action: any) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleActionClick(action);
-    }
   }
   
   // Dynamic header classes
@@ -37,9 +42,10 @@
       'min-h-[60px]',
       'px-4',
       'py-3',
-      'bg-background',
+      'bg-gray-100/20',
+      'backdrop-blur-sm',
       'border-b',
-      'border-border',
+      'border-gray-500/20',
       'flex-shrink-0'
     ];
     
@@ -52,7 +58,7 @@
 </script>
 
 <!-- Drawer Header -->
-<header class={headerClasses} role="banner">
+<header class={headerClasses}>
   <!-- Title Section -->
   <div class="drawer-header-title flex-1 min-w-0">
     {#if title}
@@ -67,36 +73,33 @@
     <!-- Custom Actions -->
     {#if actions.length > 0}
       {#each actions as action (action.id)}
-        <button
-          type="button"
-          class="drawer-header-action flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary {action.isDisabled ? 'opacity-50 cursor-not-allowed' : 'text-foreground hover:bg-accent hover:text-accent-foreground'}"
-          onclick={() => handleActionClick(action)}
-          onkeydown={(e) => handleActionKeyDown(e, action)}
+        <Button
+          variant="ghost"
+          size="sm"
           disabled={action.isDisabled}
-          aria-label={action.label}
-          title={action.label}
+          onclick={() => handleActionClick(action)}
+          class="drawer-header-action {action.icon ? " flex gap-2 items-center" : ""}"
         >
-          <!-- Action Icon -->
-          {#if action.icon}
-            <span class="w-4 h-4 flex-shrink-0" aria-hidden="true">
-              {#if typeof action.icon === 'string'}
-                <i class={action.icon}></i>
-              {:else}
-                {@render action.icon()}
+          {#snippet children()}
+            <!-- Action Icon -->
+            {#if action.icon}
+              {@const IconComponent = getIconComponent(action.icon)}
+              {#if IconComponent}
+                <IconComponent class="w-4 h-4 flex-shrink-0" />
               {/if}
-            </span>
-          {/if}
-          
-          <!-- Action Label -->
-          <span>{action.label}</span>
-          
-          <!-- Badge -->
-          {#if action.badge}
-            <span class="drawer-header-action-badge ml-1 px-1.5 py-0.5 text-xs font-semibold rounded bg-primary text-primary-foreground">
-              {action.badge}
-            </span>
-          {/if}
-        </button>
+            {/if}
+            
+            <!-- Action Label -->
+            <span>{action.label}</span>
+            
+            <!-- Badge -->
+            {#if action.badge}
+              <span class="drawer-header-action-badge px-1.5 py-0.5 text-xs font-semibold rounded bg-primary text-primary-foreground">
+                {action.badge}
+              </span>
+            {/if}
+          {/snippet}
+        </Button>
       {/each}
     {/if}
     
@@ -105,58 +108,32 @@
       <!-- Spacer when no close handler but button should show -->
       <div class="w-8 h-8"></div>
     {:else if showCloseButton && onClose}
-      <button
-        type="button"
-        class="drawer-close-button p-2 -m-2 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      <Button
+        variant="ghost"
+        size="sm"
         onclick={onClose}
-        aria-label="Close drawer"
-        title="Close drawer"
+        class="drawer-close-button p-2"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+        {#snippet children()}
+          <X class="w-5 h-5" />
+          <span class="sr-only">Close drawer</span>
+        {/snippet}
+      </Button>
     {/if}
   </div>
 </header>
 
 <style>
   /* Drawer header styles */
-  .drawer-header {
-    /* Ensure proper contrast and spacing */
+  /* .drawer-header {
     background-color: var(--background);
     border-bottom-color: var(--border);
-  }
-  
-  /* Focus styles for accessibility */
-  .drawer-header-action:focus-visible,
-  .drawer-close-button:focus-visible {
-    outline: 2px solid var(--focus-ring, rgb(59 130 246));
-    outline-offset: 2px;
-  }
+  } */
   
   /* High contrast mode support */
   @media (prefers-contrast: high) {
     .drawer-header {
       border-bottom-width: 2px;
-    }
-    
-    .drawer-header-action,
-    .drawer-close-button {
-      border: 1px solid transparent;
-    }
-    
-    .drawer-header-action:hover,
-    .drawer-close-button:hover {
-      border-color: currentColor;
-    }
-  }
-  
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    .drawer-header-action,
-    .drawer-close-button {
-      transition: none;
     }
   }
   
@@ -167,8 +144,8 @@
       background: transparent;
     }
     
-    .drawer-header-action,
-    .drawer-close-button {
+    .drawer-header :global(.drawer-header-action),
+    .drawer-header :global(.drawer-close-button) {
       display: none;
     }
   }
@@ -182,11 +159,6 @@
     
     .drawer-header-title h2 {
       font-size: 1rem;
-    }
-    
-    .drawer-header-action {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.875rem;
     }
   }
 </style>
