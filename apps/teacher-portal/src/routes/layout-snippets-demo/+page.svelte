@@ -7,6 +7,15 @@
     Sidebar,
     type NavigationSection
   } from '@educational-app/ui';
+  import { 
+    BarChart3, 
+    GraduationCap, 
+    Puzzle, 
+    FileText, 
+    TrendingUp,
+    User,
+    LogOut
+  } from 'lucide-svelte';
   import { onMount } from 'svelte';
   
   // Layout state
@@ -26,20 +35,20 @@
         { 
           id: 'dashboard', 
           label: 'Dashboard', 
-          icon: '📊',
+          icon: 'BarChart3',
           isActive: currentView === 'dashboard'
         },
         { 
           id: 'classes', 
           label: 'Classes', 
-          icon: '🎓',
+          icon: 'GraduationCap',
           badge: '3',
           isActive: currentView === 'classes'
         },
         { 
           id: 'snippets', 
           label: 'Snippets Demo', 
-          icon: '🧩',
+          icon: 'Puzzle',
           isActive: currentView === 'snippets'
         }
       ]
@@ -50,13 +59,13 @@
         { 
           id: 'assignments', 
           label: 'Assignments', 
-          icon: '📝',
+          icon: 'FileText',
           isActive: currentView === 'assignments'
         },
         { 
           id: 'reports', 
           label: 'Reports', 
-          icon: '📈',
+          icon: 'TrendingUp',
           isActive: currentView === 'reports'
         }
       ]
@@ -84,6 +93,19 @@
         break;
     }
   }
+  
+  // Debug: Update window width
+  onMount(() => {
+    function updateWidth() {
+      const widthEl = document.getElementById('window-width');
+      if (widthEl) {
+        widthEl.textContent = `${window.innerWidth}px`;
+      }
+    }
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  });
 </script>
 
 <AppLayout theme="auto">
@@ -120,8 +142,8 @@
         avatar: '👨‍🏫'
       },
       actions: [
-        { id: 'profile', label: 'Profile', icon: '👤' },
-        { id: 'logout', label: 'Logout', icon: '🚪' }
+        { id: 'profile', label: 'Profile', icon: 'User' },
+        { id: 'logout', label: 'Logout', icon: 'LogOut' }
       ]
     }}
     onNavigate={handleNavigation}
@@ -187,6 +209,7 @@
     title="Flexible Snippet Injection Demo"
     subtitle="Demonstrating the power of Svelte 5 snippets for layout customization"
     showMobileHeader={true}
+    showDebugInfo={true}
   >
     <!-- Custom header actions -->
     {#snippet headerActions()}
@@ -221,6 +244,16 @@
       </div>
     {/snippet}
     
+    <!-- Debug Info -->
+    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <h3 class="font-semibold text-yellow-900 mb-2">🔍 Debug Info</h3>
+      <div class="text-sm text-yellow-800 space-y-1">
+        <div>Current window width: <span id="window-width">Loading...</span></div>
+        <div>Sidebar should be visible on screens ≥ 768px (md breakpoint)</div>
+        <div>Mobile menu button should show on screens &lt; 768px</div>
+      </div>
+    </div>
+
     <!-- Main content -->
     <div class="space-y-8">
       <!-- Controls -->

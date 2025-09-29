@@ -56,14 +56,14 @@
 </script>
 
 
-<div class="wrapper bg-gray-900 mx-auto w-full flex font-family-primary ">
+<div class="wrapper bg-gray-100 mx-auto w-full flex font-family-primary ">
 	<!-- Desktop Sidebar - Dynamic width with collapse toggle (lg+) -->
-	<aside id="Sidebar" class="navbar fixed inset-y-4 z-50  mx-4 rounded-2xl shadow-[inset_0_0_0_0.4px_theme(colors.white/30)] overflow-hidden   hidden lg:flex lg:flex-col bg-white/50 backdrop-blur-md text-white transition-all duration-300 ease-in-out {isDesktopCollapsed ? 'lg:w-16' : 'lg:w-64'}" style="">
+	<aside id="Sidebar" class="navbar fixed inset-y-4 z-50  mx-4 rounded-2xl shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)] overflow-hidden   hidden lg:flex lg:flex-col bg-gray-300/30 backdrop-blur-md text-white transition-all duration-300 ease-in-out {isDesktopCollapsed ? 'lg:w-16' : 'lg:w-64'}" style="">
 		<div class="flex flex-col flex-1 min-h-0">
 			
 			<!-- Header -->
 			<div class="">
-				<div class=" flex items-center justify-between h-16 px-4 bg-white/5">
+				<div class=" flex items-center justify-between h-16 px-4 bg-white/10">
 					<a href="/" aria-current="page" class="hide-text w-inline-block w--current flex items-center {isDesktopCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'} transition-all duration-200">
 						<div class="text-size-regular text-gray-700 no-wrap text-xl font-semibold whitespace-nowrap">SparkLabs</div>
 					</a>
@@ -71,7 +71,7 @@
 					<div class="">
 						<button
 							onclick={toggleDesktopSidebar}
-							class="p-2 flex items-center justify-center rounded hover:bg-white/30 transition-colors"
+							class="p-2 flex items-center justify-center rounded hover:bg-gray-500/10 transition-colors"
 							aria-label="Toggle sidebar"
 						>	
 							{#if isDesktopCollapsed}
@@ -84,7 +84,7 @@
 					</div>
 
 				</div>
-				<div class=" border-t  border-white/40 w-full h-px"></div>
+				<div class=" border-t  border-gray-500/20 w-full h-px"></div>
 			</div>
 			
 			<!-- Navigation Links -->
@@ -93,11 +93,11 @@
 					<div class="relative group">
 						<a 
 							href={item.href}
-							class=" group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors duration-200 {item.isActive ? 'bg-white/30 text-gray-800 border border-white/70' : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'}"
+							class=" group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors duration-200 {item.isActive ? 'bg-gray-300/20 text-gray-900 border border-gray-500/20' : 'text-gray-500 hover:bg-gray-500/10 hover:text-gray-900'}"
 							onmouseenter={(e) => showTooltip(e, item.label)}
 							onmouseleave={hideTooltip}
 						>
-							<div class="mr-3 w-6 h-6 bg-white/50 rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+							<div class="mr-3 w-6 h-6 bg-gray-300/70 rounded flex items-center justify-center overflow-hidden flex-shrink-0">
 								<div class="flex items-center justify-center">
 									<svelte:component this={item.icon} class="w-4 h-4" />
 								</div>
@@ -110,7 +110,7 @@
 				{/each}
 				
 				<!-- Additional Links Section -->
-				<div class=" flex flex-col space-y-1 mt-8 pt-4 border-t border-white/70 {isDesktopCollapsed ? 'hidden' : 'block'}">
+				<div class=" flex flex-col space-y-1 mt-8 pt-4 border-t border-gray-500/20 {isDesktopCollapsed ? 'hidden' : 'block'}">
 					<div class=" text-gray-500 py-2 px-3 text-sm hover:text-gray-700  transition-colors cursor-pointer">About</div>
 					<div class=" text-gray-500 py-2 px-3 text-sm hover:text-gray-700 transition-colors cursor-pointer">Submit</div>
 				</div>
@@ -118,13 +118,14 @@
 			
 			<!-- Footer -->
 			<div class="flex-shrink-0 p-4  space-y-4 {isDesktopCollapsed ? 'px-2' : 'px-4'}">
-				<div class=" border-t  border-white/40 w-full h-px mb-4"></div>
-				<div class="w-full {isDesktopCollapsed ? 'h-12' : 'h-20'} bg-white/30 backdrop-blur-3xl rounded-lg border border-white/70 flex items-center justify-center text-gray-500 text-sm transition-all duration-200">
+				<div class=" border-t  border-gray-500/20 w-full h-px mb-4"></div>
+
+				<div class="w-full {isDesktopCollapsed ? 'h-12' : 'h-20'} bg-gray-300/30 backdrop-blur-3xl rounded-lg border border-gray-500/20 flex items-center justify-center text-gray-500 text-sm transition-all duration-200">
 					{isDesktopCollapsed ? 'Ad' : 'Sponsored Ad Space'}
 				</div>
 
 				<div class="flex items-center {isDesktopCollapsed ? 'gap-0 ' : 'gap-3  '}">
-					<div class="w-12 h-12 bg-white/80 border border-white/60 rounded-full overflow-hidden ">
+					<div class="w-12 h-12 bg-gray-300/80 border border-gray-500/20 rounded-full overflow-hidden ">
 						<!-- Avatar -->
 					</div>
 
@@ -140,17 +141,17 @@
 	</aside>
 	
 	<!-- Tablet Sidebar - Collapsed to icons (md to lg) -->
-	<div class="navbar fixed inset-y-4  mx-4 shadow-[inset_0_0_0_0.4px_theme(colors.white/30)] rounded-2xl overflow-hidden  z-50 hidden md:flex lg:hidden md:w-16 md:flex-col bg-white/50 backdrop-blur-md text-white">
+	<div class="navbar fixed inset-y-4  mx-4 shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)]  rounded-2xl overflow-hidden  z-50 hidden md:flex lg:hidden md:w-16 md:flex-col bg-gray-300/30  backdrop-blur-md text-white">
 		<div class="flex flex-col flex-1 min-h-0">
 			
 			<!-- Header - Icon only -->
 			<div class="">
-				<div class="flex items-center justify-center h-16 bg-white/5">
-					<div class="w-8 h-8 bg-white/50 rounded-lg flex items-center justify-center">
+				<div class="flex items-center justify-center h-16 bg-white/10">
+					<div class="w-8 h-8 bg-gray-500/20 rounded-lg flex items-center justify-center">
 						<span class="text-gray-800 font-bold text-sm">S</span>
 					</div>
 				</div>
-				<div class="border-t border-white/40 w-full h-px"></div>
+				<div class="border-t border-gray-500/20  w-full h-px"></div>
 			</div>
 			
 			<!-- Navigation - Icons only with tooltips -->
@@ -159,9 +160,9 @@
 					<div class="relative group">
 						<a 
 							href={item.href}
-							class="flex items-center justify-center p-3 rounded-lg transition-colors duration-200 {item.isActive ? 'bg-white/30 text-gray-800 border border-white/70' : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'}"
+							class="flex items-center justify-center p-3 rounded-lg transition-colors duration-200 {item.isActive ? 'bg-gray-300/20 text-gray-900 border border-gray-500/20' : 'text-gray-500 hover:bg-gray-500/10 hover:text-gray-900'}"
 						>
-							<div class="w-6 h-6 bg-white/50 rounded flex items-center justify-center">
+							<div class="w-6 h-6 bg-gray-300/70 rounded flex items-center justify-center">
 								<svelte:component this={item.icon} class="w-4 h-4" />
 							</div>
 						</a>
@@ -177,14 +178,14 @@
 			
 			<!-- Footer - Compact -->
 			<div class="flex-shrink-0 p-2 space-y-4">
-				<div class=" border-t  border-white/40 w-full h-px mb-4"></div>
+				<div class=" border-t  border-gray-500/20 w-full h-px mb-4"></div>
 
-				<div class=" w-12 h-12 bg-white/30 backdrop-blur-3xl rounded border border-white/70 flex items-center justify-center">
+				<div class=" w-12 h-12 bg-gray-300/30 backdrop-blur-3xl rounded border border-gray-500/20 flex items-center justify-center">
 					<span class="text-gray-500 text-xs">Ad</span>
 				</div>
 
 				<div class="flex items-center {isDesktopCollapsed ? 'gap-0 ' : 'gap-3  '}">
-					<div class="w-12 h-12 bg-white/80 border border-white/60 rounded-full overflow-hidden ">
+					<div class="w-12 h-12 bg-gray-300/80 border border-gray-500/20 rounded-full overflow-hidden ">
 						<!-- Avatar -->
 					</div>
 				</div>
@@ -194,12 +195,12 @@
 	</div>
 	
 	<!-- Mobile Navigation Bar (md:hidden) -->
-	<div class="md:hidden fixed top-0 left-0 right-0 z-30 bg-white/50 backdrop-blur-md border border-white/30 rounded-2xl m-4 shadow-[inset_0_0_0_0.4px_theme(colors.white/30)]">
+	<div class="md:hidden fixed top-0 left-0 right-0 z-30 bg-gray-300/30 backdrop-blur-md border border-white/30 rounded-2xl m-4 shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)]">
 		<div class="flex items-center justify-between h-16 px-6">
 			<div class="text-gray-800 text-xl font-semibold">SparkLabs</div>
 			<button
 				onclick={toggleMobileMenu}
-				class="p-2 rounded-lg bg-white/30 hover:bg-white/50 transition-colors flex items-center justify-center"
+				class="p-2 rounded-lg  hover:bg-gray-500/10  transition-colors flex items-center justify-center"
 				aria-label="Toggle navigation"
 			>
 				{#if isMobileMenuOpen}
@@ -222,7 +223,7 @@
 		{/if}
 		
 		<!-- Mobile Sidebar Panel -->
-		<div class="navbar fixed inset-y-0 left-0 w-80 bg-white/50 backdrop-blur-3xl text-white transform transition-transform duration-300 ease-in-out shadow-[inset_0_0_0_0.4px_theme(colors.white/30)] {isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}">
+		<div class="navbar fixed inset-y-0 left-0 w-80 bg-gray-300/30 backdrop-blur-3xl text-white transform transition-transform duration-300 ease-in-out shadow-[inset_0_0_0_0.75px_rgba(0,_0,_0,_0.15)] {isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}">
 			<div class="flex flex-col h-full">
 				
 				<!-- Navigation - No header duplication -->
@@ -231,9 +232,9 @@
 						<a 
 							href={item.href}
 							onclick={closeMobileMenu}
-							class=" group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors duration-200 {item.isActive ? 'bg-white/30 text-gray-800 border border-white/70' : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'}"
+							class=" group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors duration-200 {item.isActive ? 'bg-gray-300/20 text-gray-900 border border-gray-500/20' : 'text-gray-500 hover:bg-gray-500/10 hover:text-gray-900'}"
 						>
-							<div class=" mr-3 w-6 h-6 bg-white/50 rounded flex items-center justify-center">
+							<div class=" mr-3 w-6 h-6 bg-gray-300/70  rounded flex items-center justify-center">
 								<div class="">
 									<svelte:component this={item.icon} class="w-4 h-4" />
 								</div>
@@ -245,7 +246,7 @@
 					{/each}
 					
 					<!-- Mobile Additional Links -->
-					<div class="flex flex-col space-y-1 mt-8 pt-4 border-t border-white/70">
+					<div class="flex flex-col space-y-1 mt-8 pt-4 border-t border-gray-500/20">
 						<div class=" text-gray-500 py-3 px-3 text-sm hover:text-gray-700 transition-colors cursor-pointer">About</div>
 						<div class=" text-gray-500 py-3 px-3 text-sm hover:text-gray-700 transition-colors cursor-pointer">Submit</div>
 						
@@ -253,8 +254,8 @@
 				</div>
 				
 				<!-- Footer -->
-				<div class="flex-shrink-0 p-4 space-y-4 border-t border-white/70">
-					<div class=" w-full h-32 bg-white/30 backdrop-blur-3xl rounded-lg border border-white/70 flex items-center justify-center text-gray-500 text-sm">
+				<div class="flex-shrink-0 p-4 space-y-4 border-t border-gray-500/20 ">
+					<div class=" w-full h-32bg-gray-300/30 backdrop-blur-3xl rounded-lg border border-gray-500/20 flex items-center justify-center p-4 text-gray-500 text-sm">
 						<div class="text-center">
 							<div class="font-semibold text-gray-800 mb-2">Never run out of design inspiration again.</div>
 							<div class="text-xs">Featuring over 1,200 iOS, Android & Web apps on Mobbin.com</div>
@@ -262,7 +263,7 @@
 					</div>
 
 					<div class="flex items-center {isDesktopCollapsed ? 'gap-0 ' : 'gap-3  '}">
-						<div class="w-12 h-12 bg-white/80 border border-white/60 rounded-full overflow-hidden ">
+						<div class="w-12 h-12 bg-gray-300/80 border border-gray-500/20 rounded-full overflow-hidden ">
 							<!-- Avatar -->
 						</div>
 						<div class="overflow-hidden {isDesktopCollapsed ? 'w-0 hidden' : 'w-auto '}}">
@@ -281,7 +282,13 @@
 	
 	<!-- Main Content Area -->
 	<div class=" transition-all duration-300 ease-in-out  {isDesktopCollapsed ? 'lg:ml-16' : 'lg:ml-64'} md:ml-16">
-		<div class="min-h-screen   md:ml-8  pt-24 md:pt-4 p-4">
+		<div class="min-h-screen   md:ml-8  pt-24 md:pt-4 p-4 relative">
+
+
+			<!-- Sticky header optional for actions -->
+			<!-- <div class="w-full sticky inset-4  md:inset-4 rounded-2xl overflow-hidden max-width max-w-7xl mx-auto bg-white px-4 md:px-8 xl:px-12 min-h-12 mb-4 py-4 ">  
+				<h2 class="leading-4 text-md py-2">Action Bar</h2>
+			</div> -->
 			
 			<!-- Content Container -->
 			<div class="max-width max-w-7xl mx-auto bg-white p-4 md:p-8 xl:p-12 rounded-2xl ">
@@ -430,11 +437,11 @@
 		/* background-image: url(https://img.freepik.com/free-vector/gradient-comic-book-city-background_52683-156231.jpg?t=st=1758609210~exp=1758612810~hmac=b27bb287f3bfde5d06658e09a1435b60e01f66f9f87aa95d57820c446f9e2f21&w=2000); */
 		background-repeat: no-repeat;
 		background-size: cover;
-		background-color: #EEF5E5;
+		/* background-color: #EEF5E5; */
 	}
 
 	:global(html, body ){
-		background-color: #EEF5E5;
+		background-color: var(--color-gray-100);
 	}
 	
 </style> 

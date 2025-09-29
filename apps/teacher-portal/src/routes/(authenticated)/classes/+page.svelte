@@ -2,12 +2,12 @@
 	import { enhance } from '$app/forms';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
-	import { AppLayout, Sidebar, MainContent, Drawer, AuthButton, AuthInput, AuthForm, Button, Card, useNotifications } from '@educational-app/ui';
+	import { Drawer, AuthButton, AuthInput, AuthForm, Button, Card, useNotifications } from '@educational-app/ui';
 	import { t } from '@educational-app/i18n';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { Home, Users, BookOpen, BarChart3, Settings, LogOut, Plus, Eye } from 'lucide-svelte';
+	import { BookOpen, Plus, Eye, Users } from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import type { ImageAsset } from '@educational-app/media-manager';
 	import { invalidateAll } from '$app/navigation';
@@ -22,43 +22,7 @@
 	let { data }: Props = $props();
 
 	// Navigation structure for teacher portal (same as dashboard)
-	const teacherNavigation = [
-		{
-			label: 'Dashboard',
-			href: '/dashboard',
-			icon: Home
-		},
-		{
-			label: 'Classes',
-			href: '/classes',
-			icon: BookOpen,
-			badge: data.classes.length,
-			isActive: true
-		},
-		{
-			label: 'Students',
-			href: '/students',
-			icon: Users
-		},
-		{
-			label: 'QR Codes',
-			href: '/qr-codes',
-			icon: BarChart3
-		}
-	];
-
-	const accountNavigation = [
-		{
-			label: 'Settings',
-			href: '/settings',
-			icon: Settings
-		},
-		{
-			label: 'Sign Out',
-			href: '/auth/signout',
-			icon: LogOut
-		}
-	];
+	// Navigation is now handled by the parent authenticated layout
 
 	const createClassSchema = z.object({
 		name: z.string().min(1),
@@ -168,17 +132,7 @@
 	<title>{$t('dashboard.my_classes')} - {$t('teacher.home.teacher_portal')}</title>
 </svelte:head>
 
-<AppLayout theme="teacher">
-	<!-- Sidebar -->
-	<Sidebar 
-		navigation={teacherNavigation}
-		accountNavigation={accountNavigation}
-		userName="Teacher" 
-		userRole="TEACHER"
-	/>
-
-	<!-- Main Content -->
-	<MainContent>
+<!-- Content is now wrapped by the parent authenticated layout -->
 		<!-- Header -->
 		<div class="mb-8">
 			<div class="flex justify-between items-center">
@@ -276,7 +230,6 @@
 				{/each}
 			</div>
 		{/if}
-	</MainContent>
 
 	<!-- Create Class Drawer -->
 	<Drawer 
@@ -393,4 +346,3 @@
 			</div>
 		</form>
 	</Drawer>
-</AppLayout>

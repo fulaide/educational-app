@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { AppLayout, Sidebar, MainContent, Drawer, Card, Button } from '@educational-app/ui';
+	import { Drawer, Card, Button } from '@educational-app/ui';
 	import { t } from '@educational-app/i18n';
-	import { Home, Users, BookOpen, BarChart3, Settings, LogOut, Plus, Eye } from 'lucide-svelte';
+	import { BookOpen, Plus, Eye, BarChart3, Users } from 'lucide-svelte';
 	import type { PageData } from './$types'
 
 	interface Props {
@@ -9,46 +9,6 @@
 	}
 
 	let { data }: Props = $props();
-
-	// Navigation structure for teacher portal
-	const teacherNavigation = [
-		{
-			label: 'Dashboard',
-			href: '/dashboard',
-			icon: Home,
-			isActive: true
-		},
-		{
-			label: 'Classes',
-			href: '/classes',
-			icon: BookOpen,
-			badge: data.totalClasses
-		},
-		{
-			label: 'Students',
-			href: '/students',
-			icon: Users,
-			badge: data.totalStudents
-		},
-		{
-			label: 'QR Codes',
-			href: '/qr-codes',
-			icon: BarChart3
-		}
-	];
-
-	const accountNavigation = [
-		{
-			label: 'Settings',
-			href: '/settings',
-			icon: Settings
-		},
-		{
-			label: 'Sign Out',
-			href: '/auth/signout',
-			icon: LogOut
-		}
-	];
 
 	// Drawer state for creating/editing content
 	let showCreateClassDrawer = $state(false);
@@ -72,18 +32,7 @@
 	<title>{$t('dashboard.title')} - {$t('teacher.home.teacher_portal')}</title>
 </svelte:head>
 
-<AppLayout theme="teacher">
-	<!-- Sidebar with teacher navigation -->
-	<Sidebar 
-		navigation={teacherNavigation}
-		accountNavigation={accountNavigation}
-		userName={data.user?.name || data.user?.email || 'Teacher'}
-		userRole={data.user?.role || 'TEACHER'}
-		organizationName={data.teacherData?.organization?.name}
-	/>
-
-	<!-- Main Content -->
-	<MainContent>
+<!-- Content is now wrapped by the parent layout -->
 		<!-- Welcome Header -->
 		<div class="md:flex md:items-center md:justify-between mb-8">
 			<div class="flex-1 min-w-0">
@@ -310,7 +259,6 @@
 					</ul>
 				{/if}
 			</div>
-	</MainContent>
 
 	<!-- Create Class Drawer -->
 	<Drawer 
@@ -405,4 +353,3 @@
 			</button>
 		</div>
 	</Drawer>
-</AppLayout>

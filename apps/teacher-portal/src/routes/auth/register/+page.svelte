@@ -2,19 +2,23 @@
 	import { enhance } from '$app/forms'
 	import type { ActionData } from './$types'
 
-	export let form: ActionData
+	interface Props {
+		form: ActionData;
+	}
 
-	let name = form?.name || ''
-	let email = form?.email || ''
-	let password = ''
-	let confirmPassword = ''
-	let loading = false
-	let showPassword = false
-	let showConfirmPassword = false
+	let { form }: Props = $props();
 
-	$: passwordsMatch = password && confirmPassword && password === confirmPassword
-	$: passwordStrong = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)
-	$: canSubmit = name.trim() && email.trim() && passwordsMatch && passwordStrong && !loading
+	let name = $state(form?.name || '')
+	let email = $state(form?.email || '')
+	let password = $state('')
+	let confirmPassword = $state('')
+	let loading = $state(false)
+	let showPassword = $state(false)
+	let showConfirmPassword = $state(false)
+
+	const passwordsMatch = $derived(password && confirmPassword && password === confirmPassword)
+	const passwordStrong = $derived(password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password))
+	const canSubmit = $derived(name.trim() && email.trim() && passwordsMatch && passwordStrong && !loading)
 </script>
 
 <svelte:head>

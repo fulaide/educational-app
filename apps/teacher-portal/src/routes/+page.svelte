@@ -18,7 +18,7 @@
 	<title>{$t('teacher.home.title')} - {PUBLIC_APP_NAME || 'Lexi'}</title>
 </svelte:head>
 
-<div class="min-h-screen flex flex-col gap-6 items-center   bg-gradient-to-b from-blue-50 to-blue-100 p-4">
+<div class="min-h-screen flex flex-col gap-6 items-center   bg-gradient-to-b from-primary-50 to-primary-100 p-4">
 
 	<!-- Language Switcher -->
 	<div class="w-full max-w-4xl">
@@ -40,10 +40,10 @@
 
 		<div class="flex items-center gap-4 p-6">
 
-			<a href="/dashboard" class="text-xl font-bold font-family-comic text-primary">{dashboardText}</a>
-			<a href="/auth/signin" class="text-xl font-bold font-family-comic text-primary">{signInText}</a>
-			<a href="/students/register" class="text-xl font-bold font-family-comic text-primary">{registerStudentsText}</a>
-			<a href="/qr-codes" class="text-xl font-bold font-family-comic text-primary">{qrCodesText}</a>
+			<a href="/dashboard" class="text-xl font-bold text-primary">{dashboardText}</a>
+			<a href="/auth/signin" class="text-xl font-bold text-primary">{signInText}</a>
+			<a href="/students/register" class="text-xl font-bold text-primary">{registerStudentsText}</a>
+			<a href="/qr-codes" class="text-xl font-bold text-primary">{qrCodesText}</a>
 		</div>
 	</Card>
 

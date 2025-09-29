@@ -1,38 +1,18 @@
 import type { PageServerLoad, Actions } from './$types'
-import { PrismaClient } from '@educational-app/database'
+import { error } from '@sveltejs/kit'
+import { prisma } from '@educational-app/database'
+import { requireRole } from '$lib/auth/auth-helpers.server'
 import { generateStudentQRCode, generateClassQRCodesAPI } from '$lib/server/api/qr-router'
-import { error, redirect } from '@sveltejs/kit'
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth()
-	
-	if (!session?.user) {
-		redirect(302, '/auth/signin')
-	}
-
-	if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
-		error(403, 'Access denied. Teachers only.')
-	}
+	// Ensure user is authenticated and is a teacher
+	const session = await requireRole(locals, 'TEACHER');
 
 	try {
 		// Get teacher's classes and students
 		const teacherClasses = await prisma.class.findMany({
 			where: {
-				teachers: {
-					some: {
-						id: session.user.id
-					}
-				}
+				teacherId: session.user.id
 			},
 			include: {
 				students: {
@@ -74,10 +54,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	generateStudentQR: async ({ request, locals }) => {
-		const session = await locals.auth()
-		if (!session?.user) {
-			error(401, 'Not authenticated')
-		}
+		const session = await requireRole(locals, 'TEACHER')
 
 		const formData = await request.formData()
 		const studentId = formData.get('studentId') as string
@@ -99,10 +76,7 @@ export const actions: Actions = {
 	},
 
 	generateClassQR: async ({ request, locals }) => {
-		const session = await locals.auth()
-		if (!session?.user) {
-			error(401, 'Not authenticated')
-		}
+		const session = await requireRole(locals, 'TEACHER')
 
 		const formData = await request.formData()
 		const classId = formData.get('classId') as string
