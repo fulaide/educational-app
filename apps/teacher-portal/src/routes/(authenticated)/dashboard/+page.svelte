@@ -79,80 +79,74 @@
 		<!-- Stats Overview -->
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
 			<!-- Total Classes -->
-			<Card>
-				<div class="p-6">
-					<div class="flex items-center">
-						<div class="flex-shrink-0">
-							<BookOpen class="h-8 w-8 text-blue-500" />
-						</div>
-						<div class="ml-5 w-0 flex-1">
-							<dl>
-								<dt class="text-sm font-medium text-gray-500 truncate">Total Classes</dt>
-								<dd class="text-2xl font-bold text-gray-900">{data.totalClasses || 0}</dd>
-							</dl>
-						</div>
+			<Card variant="elevated" padding="lg">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<BookOpen class="h-8 w-8 text-blue-500" />
 					</div>
-					<div class="mt-4">
-						<button 
-							on:click={() => window.location.href = '/classes'}
-							class="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center"
-						>
-							<Eye class="mr-1 h-4 w-4" />
-							View all classes
-						</button>
+					<div class="ml-5 w-0 flex-1">
+						<dl>
+							<dt class="text-sm font-medium text-gray-500 truncate">Total Classes</dt>
+							<dd class="text-2xl font-bold text-gray-900">{data.totalClasses || 0}</dd>
+						</dl>
 					</div>
+				</div>
+				<div class="mt-4">
+					<button
+						on:click={() => window.location.href = '/classes'}
+						class="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center"
+					>
+						<Eye class="mr-1 h-4 w-4" />
+						View all classes
+					</button>
 				</div>
 			</Card>
 
 			<!-- Total Students -->
-			<Card>
-				<div class="p-6">
-					<div class="flex items-center">
-						<div class="flex-shrink-0">
-							<Users class="h-8 w-8 text-green-500" />
-						</div>
-						<div class="ml-5 w-0 flex-1">
-							<dl>
-								<dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
-								<dd class="text-2xl font-bold text-gray-900">{data.totalStudents || 0}</dd>
-							</dl>
-						</div>
+			<Card variant="elevated" padding="lg">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<Users class="h-8 w-8 text-green-500" />
 					</div>
-					<div class="mt-4">
-						<button 
-							on:click={() => window.location.href = '/students'}
-							class="text-sm font-medium text-green-600 hover:text-green-500 flex items-center"
-						>
-							<Eye class="mr-1 h-4 w-4" />
-							Manage students
-						</button>
+					<div class="ml-5 w-0 flex-1">
+						<dl>
+							<dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+							<dd class="text-2xl font-bold text-gray-900">{data.totalStudents || 0}</dd>
+						</dl>
 					</div>
+				</div>
+				<div class="mt-4">
+					<button
+						on:click={() => window.location.href = '/students'}
+						class="text-sm font-medium text-green-600 hover:text-green-500 flex items-center"
+					>
+						<Eye class="mr-1 h-4 w-4" />
+						Manage students
+					</button>
 				</div>
 			</Card>
 
 			<!-- Quick Actions -->
-			<Card>
-				<div class="p-6">
-					<div class="flex items-center">
-						<div class="flex-shrink-0">
-							<BarChart3 class="h-8 w-8 text-purple-500" />
-						</div>
-						<div class="ml-5 w-0 flex-1">
-							<dl>
-								<dt class="text-sm font-medium text-gray-500 truncate">Quick Actions</dt>
-								<dd class="text-2xl font-bold text-gray-900">Ready</dd>
-							</dl>
-						</div>
+			<Card variant="elevated" padding="lg">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<BarChart3 class="h-8 w-8 text-purple-500" />
 					</div>
-					<div class="mt-4">
-						<button 
-							on:click={() => showQuickActionsDrawer = true}
-							class="text-sm font-medium text-purple-600 hover:text-purple-500 flex items-center"
-						>
-							<Plus class="mr-1 h-4 w-4" />
-							Open actions
-						</button>
+					<div class="ml-5 w-0 flex-1">
+						<dl>
+							<dt class="text-sm font-medium text-gray-500 truncate">Quick Actions</dt>
+							<dd class="text-2xl font-bold text-gray-900">Ready</dd>
+						</dl>
 					</div>
+				</div>
+				<div class="mt-4">
+					<button
+						on:click={() => showQuickActionsDrawer = true}
+						class="text-sm font-medium text-purple-600 hover:text-purple-500 flex items-center"
+					>
+						<Plus class="mr-1 h-4 w-4" />
+						Open actions
+					</button>
 				</div>
 			</Card>
 			</div>
