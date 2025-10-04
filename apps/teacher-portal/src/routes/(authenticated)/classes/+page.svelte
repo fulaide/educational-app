@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
-	import { Drawer, AuthButton, AuthInput, AuthForm, Button, Card, useNotifications } from '@educational-app/ui';
+	import { Drawer, AuthInput, Button, Card, useNotifications } from '@educational-app/ui';
 	import { t } from '@educational-app/i18n';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
