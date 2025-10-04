@@ -31,7 +31,7 @@
 	// Variant styles - using Tailwind utilities
 	const variants = {
 		default: 'border border-gray-200',
-		elevated: 'shadow-md hover:shadow-lg',
+		elevated: 'shadow-lg',
 		outlined: 'border-2 border-gray-300',
 		soft: 'bg-gray-50 border border-gray-100'
 	};
@@ -59,6 +59,9 @@
 			// Interactive styles
 			hoverable && 'hover:shadow-md hover:border-gray-300',
 			clickable && 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500',
+
+			// Elevated variant hover enhancement
+			variant === 'elevated' && (hoverable || clickable) && 'hover:shadow-xl',
 
 			// Custom classes
 			className
