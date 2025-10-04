@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Button from '../Button/Button.svelte';
 	import type { ColorVariant } from '$lib/utils/index.js';
 	import type { Snippet } from 'svelte';
+	import Button from '../Button/Button.svelte';
 
 	interface Props {
 		type?: 'button' | 'submit' | 'reset';

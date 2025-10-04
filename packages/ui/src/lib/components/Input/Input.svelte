@@ -110,12 +110,12 @@
 <div class="space-y-2">
 	{#if label}
 		<label for={id} class={cn(
-			'block text-sm font-medium text-primary font-primary',
-			{ 'text-error': hasError }
+			'block text-sm font-medium text-neutral-900 font-primary',
+			{ 'text-danger-600': hasError }
 		)}>
 			{label}
 			{#if required}
-				<span class="text-error ml-1">*</span>
+				<span class="text-danger-600 ml-1">*</span>
 			{/if}
 		</label>
 	{/if}
@@ -160,12 +160,12 @@
 	</div>
 
 	{#if error}
-		<div id="{id}-error" class="flex items-center gap-xs text-sm text-error font-primary">
+		<div id="{id}-error" class="flex items-center gap-xs text-sm text-danger-600 font-primary">
 			<AlertCircle class="h-4 w-4" />
 			{error}
 		</div>
 	{:else if hint}
-		<div id="{id}-hint" class="text-sm text-secondary font-primary">
+		<div id="{id}-hint" class="text-sm text-neutral-600 font-primary">
 			{hint}
 		</div>
 	{/if}

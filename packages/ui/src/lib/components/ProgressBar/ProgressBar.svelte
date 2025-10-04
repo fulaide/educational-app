@@ -79,7 +79,7 @@
 <div class="space-y-2">
 	{#if showLabel}
 		<div class="flex justify-between items-center text-sm">
-			<span class="font-medium text-primary font-primary">
+			<span class="font-medium text-neutral-900 font-primary">
 				Progress
 			</span>
 			{#if showPercentage}

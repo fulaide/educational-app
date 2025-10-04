@@ -1,272 +1,54 @@
 /**
- * Component utility classes using design tokens
- * These classes apply semantic tokens to provide consistent styling
+ * Global Utility Classes
+ * Only truly global, reusable patterns that aren't component-specific
+ * Component-specific styles should live in the component files
  */
 
-/* Form Elements */
-.form-label {
-  font-size: var(--text-body-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  display: block;
-  margin-bottom: var(--spacing-component-sm);
+/* Screen Reader Only - Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.form-input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: var(--input-radius);
-  padding: var(--input-padding-y) var(--input-padding-x);
-  font-family: inherit;
-  font-size: var(--text-body);
-  color: var(--input-text);
-  width: 100%;
-  appearance: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+/* Safe Area Insets for Mobile (global patterns) */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: var(--input-border-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Focus ring with primary color */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.form-input::placeholder {
-  color: var(--input-placeholder);
+.safe-left {
+  padding-left: env(safe-area-inset-left);
 }
 
-.form-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--color-surface-tertiary);
+.safe-right {
+  padding-right: env(safe-area-inset-right);
 }
 
-.form-input-error {
-  border-color: var(--input-border-error);
+/* Print Utilities (global patterns) */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
 }
 
-.form-input-error:focus {
-  border-color: var(--input-border-error);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); /* Error focus ring */
-}
-
-.form-error {
-  font-size: var(--text-body-sm);
-  color: var(--color-text-error);
-  margin-top: var(--spacing-component-xs);
-}
-
-.password-strength {
-  margin-top: var(--spacing-component-sm);
-  font-size: var(--text-caption);
-  color: var(--color-text-tertiary);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-component-xs);
-}
-
-/* Button Elements */
-.btn-primary {
-  background: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border: none;
-  border-radius: var(--button-primary-radius);
-  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--button-primary-bg-hover);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-primary:disabled {
-  background: var(--color-interactive-disabled);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--button-secondary-bg);
-  color: var(--button-secondary-text);
-  border: 1px solid var(--button-secondary-border);
-  border-radius: var(--button-primary-radius);
-  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--button-secondary-bg-hover);
-}
-
-.btn-secondary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-secondary:disabled {
-  background: var(--color-interactive-disabled);
-  border-color: var(--color-interactive-disabled);
-  cursor: not-allowed;
-}
-
-/* Typography Classes */
-.heading-1 {
-  font-size: var(--text-heading-1);
-  font-weight: var(--text-heading-1-weight);
-  line-height: var(--text-heading-1-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.heading-2 {
-  font-size: var(--text-heading-2);
-  font-weight: var(--text-heading-2-weight);
-  line-height: var(--text-heading-2-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-lg);
-}
-
-.heading-3 {
-  font-size: var(--text-heading-3);
-  font-weight: var(--text-heading-3-weight);
-  line-height: var(--text-heading-3-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-sm);
-}
-
-.body-lg {
-  font-size: var(--text-body-lg);
-  font-weight: var(--text-body-lg-weight);
-  line-height: var(--text-body-lg-line-height);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.body {
-  font-size: var(--text-body);
-  font-weight: var(--text-body-weight);
-  line-height: var(--text-body-line-height);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.body-sm {
-  font-size: var(--text-body-sm);
-  font-weight: var(--text-body-sm-weight);
-  line-height: var(--text-body-sm-line-height);
-  margin-bottom: var(--spacing-component-sm);
-}
-
-.caption {
-  font-size: var(--text-caption);
-  font-weight: var(--text-caption-weight);
-  line-height: var(--text-caption-line-height);
-  color: var(--color-text-tertiary);
-  margin-bottom: var(--spacing-component-xs);
-}
-
-/* Text Color Classes */
-.text-primary { color: var(--color-text-primary); }
-.text-secondary { color: var(--color-text-secondary); }
-.text-tertiary { color: var(--color-text-tertiary); }
-.text-brand { color: var(--color-text-brand); }
-.text-success { color: var(--color-text-success); }
-.text-warning { color: var(--color-text-warning); }
-.text-error { color: var(--color-text-error); }
-
-/* Surface Classes */
-.surface-primary { background: var(--color-surface-primary); }
-.surface-secondary { background: var(--color-surface-secondary); }
-.surface-tertiary { background: var(--color-surface-tertiary); }
-.surface-brand { background: var(--color-surface-brand); }
-
-/* Card Component */
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  padding: var(--card-padding);
-  box-shadow: var(--card-shadow);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: var(--card-shadow-hover);
-}
-
-.card-clickable:hover {
-  transform: translateY(-2px);
-}
-
-/* Status Messages */
-.status-success, .status-warning, .status-error, .status-info {
-  padding: var(--spacing-component-md);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-component-md);
-  font-size: var(--text-body-sm);
-}
-
-.status-success {
-  background: var(--color-status-success-bg);
-  color: var(--color-status-success);
-  border: 1px solid var(--color-border-success);
-}
-
-.status-warning {
-  background: var(--color-status-warning-bg);
-  color: var(--color-status-warning);
-  border: 1px solid var(--color-amber-300);
-}
-
-.status-error {
-  background: var(--color-status-error-bg);
-  color: var(--color-status-error);
-  border: 1px solid var(--color-border-error);
-}
-
-.status-info {
-  background: var(--color-status-info-bg);
-  color: var(--color-status-info);
-  border: 1px solid var(--color-blue-300);
-}
-
-/* Auth Components */
-.auth-header {
-  text-align: center;
-  margin-bottom: var(--spacing-component-xl);
-}
-
-.auth-logo {
-  margin: 0 auto var(--spacing-component-lg);
-  height: 3rem;
-  width: 3rem;
-  color: var(--color-interactive-primary);
-}
-
-.auth-form {
-  margin-top: var(--spacing-layout-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-component-lg);
-}
-
-/* Layout utilities */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--spacing-layout-md);
-}
-
-.section {
-  margin-bottom: var(--spacing-layout-lg);
-  padding: var(--spacing-layout-md);
-  background: var(--color-surface-secondary);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border-primary);
-}
+/* Note: All other styles have been moved to component files
+ * - Form styles → AuthInput.svelte, Input.svelte, AuthPasswordInput.svelte
+ * - Typography → Use Tailwind utilities directly
+ * - Buttons → Button.svelte
+ * - Cards → Use Tailwind utilities or component-specific styles
+ * - Status messages → Use Tailwind utilities
+ */

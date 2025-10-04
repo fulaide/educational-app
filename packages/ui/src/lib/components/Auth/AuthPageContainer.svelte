@@ -9,7 +9,7 @@
 	let { children, class: className }: Props = $props();
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 {className || ''}">
+<div class="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 {className || ''}">
 	<div class="max-w-md w-full space-y-8">
 		{@render children()}
 	</div>
