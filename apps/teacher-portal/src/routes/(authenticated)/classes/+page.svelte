@@ -146,7 +146,7 @@
 						{/if}
 					</p>
 				</div>
-				<Button 
+				<Button
 					variant="solid"
 					color="primary"
 					onclick={() => showCreateDrawer = true}
@@ -159,11 +159,11 @@
 
 		<!-- Classes Grid -->
 		{#if data.classes.length === 0}
-			<Card class="p-12 text-center">
+			<Card variant="outlined" padding="xl" class="text-center">
 				<BookOpen class="mx-auto h-12 w-12 text-gray-400 mb-4" />
 				<h3 class="text-lg font-medium text-gray-900 mb-2">No classes yet</h3>
 				<p class="text-gray-500 mb-6">Get started by creating your first class.</p>
-				<Button 
+				<Button
 					variant="solid"
 					color="primary"
 					onclick={() => showCreateDrawer = true}
@@ -176,7 +176,7 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{#each data.classes as classItem}
 					<a href="/classes/{classItem.id}" class="block group">
-						<Card hoverable={true} class="transition-all duration-200 group-hover:shadow-lg">
+						<Card variant="elevated" hoverable={true} padding="lg">
 							<!-- Class Image -->
 							<div class="flex justify-center mb-4">
 								{#if classItem.avatarUrl}
@@ -328,21 +328,26 @@
 			</div>
 
 			<div class="flex justify-end space-x-3 pt-6 border-t">
-				<Button 
+				<Button
 					variant="outline"
 					onclick={() => showCreateDrawer = false}
 					disabled={$submitting}
 				>
 					Cancel
 				</Button>
-				<AuthButton type="submit" disabled={$submitting}>
+				<Button
+					type="submit"
+					variant="solid"
+					color="primary"
+					disabled={$submitting}
+				>
 					{#if $submitting}
 						<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
 						Creating...
 					{:else}
 						Create Class
 					{/if}
-				</AuthButton>
+				</Button>
 			</div>
 		</form>
 	</Drawer>
