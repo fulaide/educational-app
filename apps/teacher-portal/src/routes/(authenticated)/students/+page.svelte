@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Card, Button } from '@educational-app/ui';
-	import { Users, UserPlus, BarChart3 } from 'lucide-svelte';
-	// Layout is now provided by parent authenticated layout
+	import { Button, Card } from '@educational-app/ui';
+	import { BarChart3, UserPlus, Users } from 'lucide-svelte';
+// Layout is now provided by parent authenticated layout
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -66,8 +66,8 @@
 			</div>
 			<div class="mt-4">
 				<Button
-					variant="solid"
-					color="secondary"
+					variant="outline"
+					color="primary"
 					class="w-full"
 					onclick={() => window.location.href = '/qr-codes'}
 				>
