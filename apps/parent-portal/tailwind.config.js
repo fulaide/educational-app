@@ -10,11 +10,6 @@ export default {
     './src/**/*.{html,js,svelte,ts}'
   ],
 
-  // Keep only app-specific dynamic classes that can't be detected by content scanning
-  safelist: [
-    // Dynamic grid columns with arbitrary values
-    {
-      pattern: /grid-cols-\[repeat\(auto-fit,minmax\(.+,1fr\)\)\]/
-    }
-  ]
+  // No safelist needed! UI preset handles all UI component classes
+  safelist: []
 };

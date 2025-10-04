@@ -1,71 +1,76 @@
 {
-  "name": "@educational-app/ui",
-  "version": "0.1.0",
-  "description": "Shared Svelte 5 component library with Tailwind CSS",
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "svelte": "./dist/index.js"
-    },
-    "./styles": "./dist/styles.css",
-    "./themes/student": "./dist/themes/student.css",
-    "./themes/teacher": "./dist/themes/teacher.css",
-    "./themes/parent": "./dist/themes/parent.css",
-    "./themes/admin": "./dist/themes/admin.css",
-    "./tailwind.config.js": "./tailwind.config.js"
-  },
-  "files": [
-    "dist",
-    "tailwind.config.js"
-  ],
-  "scripts": {
-    "dev": "vite build --watch",
-    "build": "vite build && npm run package",
-    "package": "svelte-kit sync && svelte-package && publint",
-    "prepublishOnly": "npm run package",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "lint": "prettier --check . && eslint .",
-    "format": "prettier --write .",
-    "clean": "rm -rf dist .svelte-kit"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "lucide-svelte": "^0.400.0",
-    "tailwind-merge": "^2.5.4"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-auto": "^6.0.0",
-    "@sveltejs/kit": "^2.22.0",
-    "@sveltejs/package": "^2.3.7",
-    "@sveltejs/vite-plugin-svelte": "^6.0.0",
-    "@tailwindcss/vite": "^4.1.12",
-    "@types/node": "^22.7.9",
-    "@typescript-eslint/eslint-plugin": "^8.14.0",
-    "@typescript-eslint/parser": "^8.14.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.15.0",
-    "eslint-plugin-svelte": "^2.46.0",
-    "postcss": "^8.4.49",
-    "prettier": "^3.3.3",
-    "prettier-plugin-svelte": "^3.2.8",
-    "publint": "^0.2.12",
-    "svelte": "^5.0.0",
-    "svelte-check": "^4.0.0",
-    "tailwindcss": "^4.1.12",
-    "typescript": "^5.6.0",
-    "vite": "^7.0.4",
-    "vitest": "^2.1.5"
-  },
-  "peerDependencies": {
-    "svelte": "^5.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+	"name": "@educational-app/ui",
+	"version": "0.1.0",
+	"description": "Shared Svelte 5 component library with Tailwind CSS",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js"
+		},
+		"./styles": "./dist/styles.css",
+		"./themes/student": "./dist/themes/student.css",
+		"./themes/teacher": "./dist/themes/teacher.css",
+		"./themes/parent": "./dist/themes/parent.css",
+		"./themes/admin": "./dist/themes/admin.css",
+		"./tailwind-preset": "./tailwind-preset.js"
+	},
+	"files": [
+		"dist",
+		"tailwind-preset.js"
+	],
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "vite build && npm run package",
+		"package": "svelte-kit sync && svelte-package && publint",
+		"prepublishOnly": "npm run package",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest",
+		"test:watch": "vitest --watch",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"clean": "rm -rf dist .svelte-kit",
+		"user:ui": "npm run build --workspace=@educational-app/ui",
+		"user:teacher": "npm run dev:teacher",
+		"user:parents": "npm run dev:parent",
+		"user:students": "npm run dev:student",
+		"user:admin": "npm run dev:admin"
+	},
+	"dependencies": {
+		"clsx": "^2.1.1",
+		"lucide-svelte": "^0.400.0",
+		"tailwind-merge": "^2.5.4"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/kit": "^2.22.0",
+		"@sveltejs/package": "^2.3.7",
+		"@sveltejs/vite-plugin-svelte": "^6.0.0",
+		"@tailwindcss/vite": "^4.1.12",
+		"@types/node": "^22.7.9",
+		"@typescript-eslint/eslint-plugin": "^8.14.0",
+		"@typescript-eslint/parser": "^8.14.0",
+		"autoprefixer": "^10.4.20",
+		"eslint": "^9.15.0",
+		"eslint-plugin-svelte": "^2.46.0",
+		"postcss": "^8.4.49",
+		"prettier": "^3.3.3",
+		"prettier-plugin-svelte": "^3.2.8",
+		"publint": "^0.2.12",
+		"svelte": "^5.0.0",
+		"svelte-check": "^4.0.0",
+		"tailwindcss": "^4.1.12",
+		"typescript": "^5.6.0",
+		"vite": "^7.0.4",
+		"vitest": "^2.1.5"
+	},
+	"peerDependencies": {
+		"svelte": "^5.0.0"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
 }

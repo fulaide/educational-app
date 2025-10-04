@@ -74,12 +74,38 @@ educational-app/
 export class StudentProgress {
   xp = $state(0)
   level = $derived(Math.floor(this.xp / 100) + 1)
-  
+
   addXP(points: number) {
     this.xp += points
   }
 }
 ```
+
+**CRITICAL: $derived Common Mistakes**
+```svelte
+<!-- ❌ WRONG: $derived with function that needs to be called -->
+const label = $derived(() => {
+  if (condition) return 'A';
+  else return 'B';
+});
+// Then using: {label()} - This renders the function as a string!
+
+<!-- ✅ CORRECT: $derived with direct expression -->
+const label = $derived(condition ? 'A' : 'B');
+// Then using: {label} - This renders the actual value
+
+<!-- ❌ WRONG: Calling a $derived value like a function -->
+<button title={switchToLabel()}>  <!-- Error: not callable -->
+
+<!-- ✅ CORRECT: Using $derived value directly -->
+<button title={switchToLabel}>  <!-- Works correctly -->
+```
+
+**Key Rules:**
+- `$derived` creates a **reactive value**, not a function
+- Never wrap the expression in `() => { ... }` unless you actually want to derive a function
+- Never call a `$derived` value with `()` - use it directly
+- For complex logic, use ternary operators or extract to a separate function that returns the value
 
 ### Platform Abstraction
 ```typescript
@@ -177,6 +203,212 @@ npm run db:seed          # Seed development data
 3. **Parent Involvement**: Easy progress visibility and reward management
 4. **Technical Performance**: Smooth offline/online transitions
 5. **Scalability**: Architecture must support thousands of concurrent users
+
+## CRUD Implementation Standards
+
+### **Mandatory CRUD Pattern for All Forms**
+All Create, Read, Update, Delete operations MUST follow this standardized pattern for consistency and user experience:
+
+#### **1. Form Configuration with SuperForms + Zod**
+```typescript
+const editForm = superForm(data.editForm, {
+  validators: zodClient(editSchema),
+  id: 'editResource',
+  onUpdated({ form }) {
+    if (form.valid && form.message) {
+      notifications.success(form.message);
+      closeModal(); // Close any overlays/modals
+      invalidateAll(); // Refresh page data
+    } else if (form.message) {
+      notifications.error(form.message);
+    }
+  },
+  onError({ result }) {
+    notifications.error('Operation failed. Please try again.');
+  }
+});
+
+const { form, enhance, submitting } = editForm;
+```
+
+#### **2. UI Reactivity with Svelte 5 Runes**
+```typescript
+// ✅ Correct: Use $derived for reactive data access
+const items = $derived(data.items);
+const availableItems = $derived(data.availableItems);
+
+// ❌ Incorrect: Static destructuring breaks reactivity
+const { items, availableItems } = data;
+```
+
+#### **3. Loading States with Visual Feedback**
+```svelte
+<button 
+  type="submit" 
+  disabled={$submitting}
+  class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {#if $submitting}
+    <svg class="animate-spin mr-2 h-4 w-4">...</svg>
+    Processing...
+  {:else}
+    Save Changes
+  {/if}
+</button>
+```
+
+#### **4. Toast Notifications for All Operations**
+- **Success**: `notifications.success("Item updated successfully!")`
+- **Error**: `notifications.error("Failed to update item.")`
+- **Loading**: Optional loading toasts for long operations
+
+#### **5. Automatic UI Synchronization**
+- Use `invalidateAll()` in `onUpdated` callbacks
+- Ensure reactive data access with `$derived`
+- Close modals/overlays after successful operations
+- Reset form state appropriately
+
+#### **Required Elements Checklist:**
+- [ ] SuperForm with proper validation
+- [ ] Toast notifications (success/error)
+- [ ] Loading indicators during submission
+- [ ] Button disabled states while submitting
+- [ ] UI reactivity with `$derived` or proper reactive patterns
+- [ ] `invalidateAll()` for data refresh
+- [ ] Modal/overlay auto-close on success
+- [ ] Consistent error handling
+
+#### **Example Implementation:**
+```svelte
+// Form setup
+const removeForm = superForm(data.removeForm, {
+  validators: zodClient(removeSchema),
+  onUpdated({ form }) {
+    if (form.valid && form.message) {
+      notifications.success(form.message);
+      confirmRemove = null; // Close modal
+      invalidateAll(); // Refresh data
+    } else if (form.message) {
+      notifications.error(form.message);
+    }
+  }
+});
+
+// Template with loading state
+<button type="submit" disabled={$submitting}>
+  {#if $submitting}
+    <LoadingSpinner />
+    Removing...
+  {:else}
+    Remove Item
+  {/if}
+</button>
+```
+
+This pattern ensures consistent, professional user experience across all CRUD operations in the application.
+
+## Tailwind CSS Monorepo Configuration Pattern
+
+### **Architecture: Shared Preset for UI Package**
+
+The UI package provides a Tailwind preset that all apps import. This ensures UI component classes are never purged, eliminating the need for error-prone safelist configurations.
+
+#### **How It Works**
+
+**UI Package Preset** (`packages/ui/tailwind-preset.js`):
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  // Preset includes UI package content paths
+  // Apps automatically scan these paths when using the preset
+  content: [
+    './node_modules/@educational-app/ui/src/**/*.{html,js,svelte,ts}',
+    './node_modules/@educational-app/ui/dist/**/*.{html,js,svelte,ts}',
+    '../../packages/ui/src/**/*.{html,js,svelte,ts}',  // Monorepo dev
+    '../../packages/ui/dist/**/*.{html,js,svelte,ts}', // Monorepo dev
+  ],
+  theme: {
+    extend: {
+      // Apps can extend this
+    }
+  },
+  safelist: [] // No safelist needed!
+}
+```
+
+**App Configuration** (e.g., `apps/teacher-portal/tailwind.config.js`):
+```javascript
+import uiPreset from '@educational-app/ui/tailwind-preset';
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  // Use preset for UI package content scanning
+  presets: [uiPreset],
+
+  // Only scan app-specific files
+  content: [
+    './src/**/*.{html,js,svelte,ts}'
+  ],
+
+  // No safelist for UI components needed!
+  // Only add app-specific dynamic classes if required
+  safelist: []
+};
+```
+
+#### **Key Benefits**
+
+✅ **No safelist maintenance** - UI component classes are automatically detected
+✅ **Single source of truth** - UI package controls its own content paths
+✅ **Proper Tailwind architecture** - Uses official preset pattern
+✅ **Works with Tailwind v4** - Compatible with new `@theme` system
+✅ **Future-proof** - Easy to publish as NPM package
+
+#### **Theme Tokens with Tailwind v4**
+
+Semantic tokens are defined in CSS `@theme` blocks in theme files:
+
+```css
+/* packages/ui/src/lib/themes/teacher.css */
+@theme {
+  --color-primary-500: #79c71b;
+  --color-secondary-500: #d946ef;
+  /* ... all semantic tokens */
+}
+```
+
+These tokens automatically become Tailwind utilities (`bg-primary-500`, `text-primary-500`, etc.) and are preserved because the preset scans the UI package files.
+
+#### **Adding New Apps**
+
+1. Create `tailwind.config.js` in the app:
+```javascript
+import uiPreset from '@educational-app/ui/tailwind-preset';
+
+export default {
+  presets: [uiPreset],
+  content: ['./src/**/*.{html,js,svelte,ts}']
+};
+```
+
+2. Import theme CSS in app layout:
+```svelte
+<script>
+  import '@educational-app/ui/themes/teacher'; // or student/parent/admin
+</script>
+```
+
+3. Done! All UI components will work correctly.
+
+#### **Troubleshooting**
+
+If UI component styles are missing:
+1. Verify preset is imported: `import uiPreset from '@educational-app/ui/tailwind-preset'`
+2. Confirm preset in config: `presets: [uiPreset]`
+3. Rebuild UI package: `npm run build --workspace=@educational-app/ui`
+4. Restart dev server
+
+**No safelist workarounds needed!** The preset handles everything.
 
 ## Next Steps After Setup
 1. Create comprehensive GitHub issues for each development phase
