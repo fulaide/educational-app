@@ -92,13 +92,16 @@
 					</div>
 				</div>
 				<div class="mt-4">
-					<button
+					<Button
+						variant="ghost"
+						color="primary"
+						size="sm"
 						onclick={() => window.location.href = '/classes'}
-						class="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center transition-colors"
+						class="!p-0"
 					>
 						<Eye class="mr-1 h-4 w-4" />
 						View all classes
-					</button>
+					</Button>
 				</div>
 			</Card>
 
@@ -116,13 +119,16 @@
 					</div>
 				</div>
 				<div class="mt-4">
-					<button
+					<Button
+						variant="ghost"
+						color="success"
+						size="sm"
 						onclick={() => window.location.href = '/students'}
-						class="text-sm font-medium text-success-600 hover:text-success-700 flex items-center transition-colors"
+						class="!p-0"
 					>
 						<Eye class="mr-1 h-4 w-4" />
 						Manage students
-					</button>
+					</Button>
 				</div>
 			</Card>
 
@@ -140,13 +146,16 @@
 					</div>
 				</div>
 				<div class="mt-4">
-					<button
+					<Button
+						variant="ghost"
+						color="secondary"
+						size="sm"
 						onclick={() => showQuickActionsDrawer = true}
-						class="text-sm font-medium text-secondary-600 hover:text-secondary-700 flex items-center transition-colors"
+						class="!p-0"
 					>
 						<Plus class="mr-1 h-4 w-4" />
 						Open actions
-					</button>
+					</Button>
 				</div>
 			</Card>
 			</div>
