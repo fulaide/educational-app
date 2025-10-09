@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { AuthButton, AuthInput, Button, Card, Modal, useNotifications } from '@educational-app/ui';
-	import { ImagePicker, type ImageAsset } from '@educational-app/media-manager';
+	import { invalidateAll } from '$app/navigation';
+	import { setClassStore } from '$lib/stores/class-store.svelte.js';
 	import { t } from '@educational-app/i18n';
+	import { ImagePicker, type ImageAsset } from '@educational-app/media-manager';
+	import { AuthInput, Button, Modal, useNotifications } from '@educational-app/ui';
+	import { ArrowLeft, Edit } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import type { PageData } from './$types';
-	import { setClassStore } from '$lib/stores/class-store.svelte.js';
 
 	interface Props {
 		data: PageData;
@@ -104,16 +105,14 @@
 	<title>{classStore.name} - {$t('teacher.home.teacher_portal')}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-neutral-50">
+
 	<!-- Header -->
-	<div class="bg-white shadow-sm border-b">
+	<div class="bg-white ">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex justify-between items-center h-16">
 				<div class="flex items-center space-x-4">
-					<a href="/classes" class="text-neutral-500 hover:text-neutral-700">
-						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-						</svg>
+					<a href="/classes" class="text-neutral-500 hover:text-neutral-700" aria-label="Back to classes">
+						<ArrowLeft class="h-6 w-6" />
 					</a>
 					<!-- Class Avatar -->
 					{#if classStore.avatarUrl}
@@ -135,28 +134,24 @@
 					</div>
 				</div>
 				<div class="flex items-center space-x-3">
-					<Button 
+					<Button
 						variant="outline"
 						size="sm"
-						onclick={() => { 
-							showEditForm = true; 
-							showImagePicker = false; 
+						onclick={() => {
+							showEditForm = true;
+							showImagePicker = false;
 						}}
 					>
-						<svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-						</svg>
+						<Edit class="-ml-1 mr-2 h-4 w-4" />
 						{$t('common.edit')} Klasse
 					</Button>
-					<a href="/classes/{classItem.id}/students">
-						<Button variant="solid" color="primary" size="sm">
-							{$t('navigation.students')} verwalten
-						</Button>
-					</a>
+
 				</div>
 			</div>
 		</div>
 	</div>
+
+
 
 	<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 		<!-- Edit Form Modal -->
@@ -463,7 +458,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+
 
 <style>
 	/* ImagePicker styles for the edit modal */
