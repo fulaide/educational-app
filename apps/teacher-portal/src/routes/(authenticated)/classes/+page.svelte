@@ -137,8 +137,8 @@
 		<div class="mb-8">
 			<div class="flex justify-between items-center">
 				<div>
-					<h1 class="text-2xl font-bold text-gray-900">{$t('dashboard.my_classes')}</h1>
-					<p class="mt-1 text-sm text-gray-500">
+					<h1 class="text-2xl font-bold text-neutral-900">{$t('dashboard.my_classes')}</h1>
+					<p class="mt-1 text-sm text-neutral-500">
 						{#if data.classes.length > 0}
 							Manage your {data.classes.length} class{data.classes.length !== 1 ? 'es' : ''}
 						{:else}
@@ -160,9 +160,9 @@
 		<!-- Classes Grid -->
 		{#if data.classes.length === 0}
 			<Card variant="outlined" padding="xl" class="text-center">
-				<BookOpen class="mx-auto h-12 w-12 text-gray-400 mb-4" />
-				<h3 class="text-lg font-medium text-gray-900 mb-2">No classes yet</h3>
-				<p class="text-gray-500 mb-6">Get started by creating your first class.</p>
+				<BookOpen class="mx-auto h-12 w-12 text-neutral-400 mb-4" />
+				<h3 class="text-lg font-medium text-neutral-900 mb-2">No classes yet</h3>
+				<p class="text-neutral-500 mb-6">Get started by creating your first class.</p>
 				<Button
 					variant="solid"
 					color="primary"
@@ -180,46 +180,46 @@
 							<!-- Class Image -->
 							<div class="flex justify-center mb-4">
 								{#if classItem.avatarUrl}
-									<img 
-										src={classItem.avatarUrl} 
+									<img
+										src={classItem.avatarUrl}
 										alt="{classItem.name} Logo"
-										class="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+										class="w-20 h-20 rounded-full object-cover border-2 border-neutral-200"
 									/>
 								{:else}
-									<div class="w-20 h-20 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center">
-										<BookOpen class="w-8 h-8 text-blue-500" />
+									<div class="w-20 h-20 rounded-full bg-primary-100 border-2 border-primary-200 flex items-center justify-center">
+										<BookOpen class="w-8 h-8 text-primary-500" />
 									</div>
 								{/if}
 							</div>
 
 							<!-- Class Header -->
 							<div class="text-center mb-4">
-								<h3 class="text-lg font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">{classItem.name}</h3>
-								<p class="text-sm text-gray-500">Grade {classItem.grade}</p>
-								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 {classItem.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+								<h3 class="text-lg font-semibold text-neutral-900 mb-1 group-hover:text-primary-600 transition-colors">{classItem.name}</h3>
+								<p class="text-sm text-neutral-500">Grade {classItem.grade}</p>
+								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 {classItem.isActive ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'}">
 									{classItem.isActive ? 'Active' : 'Inactive'}
 								</span>
 							</div>
 
 							<!-- Class Stats -->
-							<div class="space-y-3 pt-3 border-t border-gray-100">
+							<div class="space-y-3 pt-3 border-t border-neutral-100">
 								<div class="flex justify-between items-center text-sm">
-									<span class="text-gray-500 flex items-center">
+									<span class="text-neutral-500 flex items-center">
 										<Users class="w-4 h-4 mr-1" />
 										Students
 									</span>
-									<span class="font-semibold text-gray-900">{classItem.students.length} / {classItem.maxStudents}</span>
+									<span class="font-semibold text-neutral-900">{classItem.students.length} / {classItem.maxStudents}</span>
 								</div>
 
 								{#if classItem.organization}
 									<div class="flex justify-between text-sm">
-										<span class="text-gray-500">School:</span>
-										<span class="font-medium text-gray-700 truncate ml-2">{classItem.organization.name}</span>
+										<span class="text-neutral-500">School:</span>
+										<span class="font-medium text-neutral-700 truncate ml-2">{classItem.organization.name}</span>
 									</div>
 								{/if}
 
 								<div class="flex justify-center pt-2">
-									<span class="text-xs text-blue-600 group-hover:text-blue-700 font-medium flex items-center">
+									<span class="text-xs text-primary-600 group-hover:text-primary-700 font-medium flex items-center">
 										View Details
 										<Eye class="ml-1 w-3 h-3" />
 									</span>
@@ -250,14 +250,14 @@
 				/>
 
 				<div>
-					<label for="grade" class="block text-sm font-medium text-gray-700 mb-1">
+					<label for="grade" class="block text-sm font-medium text-neutral-700 mb-1">
 						Grade Level
 					</label>
-					<select 
+					<select
 						id="grade"
 						name="grade"
 						bind:value={$form.grade}
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+						class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
 						required
 					>
 						<option value="">Select grade...</option>
@@ -266,7 +266,7 @@
 						{/each}
 					</select>
 					{#if $errors.grade?.[0]}
-						<p class="mt-1 text-sm text-red-600">{$errors.grade[0]}</p>
+						<p class="mt-1 text-sm text-danger-600">{$errors.grade[0]}</p>
 					{/if}
 				</div>
 
@@ -285,40 +285,40 @@
 
 			<!-- Class Avatar Selection -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-2">
+				<label class="block text-sm font-medium text-neutral-700 mb-2">
 					Class Logo (Optional)
 				</label>
-				
+
 				{#if imagePickerError}
-					<div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-						<p class="text-red-800 text-sm">{imagePickerError}</p>
+					<div class="mb-4 p-3 bg-danger-50 border border-danger-200 rounded-md">
+						<p class="text-danger-800 text-sm">{imagePickerError}</p>
 					</div>
 				{/if}
 
 				{#if imagePickerLoading}
-					<div class="flex justify-center items-center h-32 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+					<div class="flex justify-center items-center h-32 bg-neutral-50 rounded-lg border-2 border-dashed border-neutral-300">
 						<div class="text-center">
-							<div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-							<p class="text-gray-500 text-sm">Loading image picker...</p>
+							<div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto mb-2"></div>
+							<p class="text-neutral-500 text-sm">Loading image picker...</p>
 						</div>
 					</div>
 				{:else if ImagePicker}
-					<ImagePicker 
+					<ImagePicker
 						category="class-avatars"
 						allowUpload={true}
 						onSelect={handleImageSelect}
 						onError={handleImageError}
 					/>
 				{:else}
-					<div class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-						<p class="text-yellow-800 text-sm">Image picker could not be loaded.</p>
+					<div class="p-3 bg-warning-50 border border-warning-200 rounded-md">
+						<p class="text-warning-800 text-sm">Image picker could not be loaded.</p>
 					</div>
 				{/if}
 
 				{#if selectedImages.length > 0}
-					<div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-						<p class="text-green-800 text-sm font-medium">✓ Logo selected</p>
-						<p class="text-green-600 text-xs mt-1">The selected logo will be used for the class.</p>
+					<div class="mt-3 p-3 bg-success-50 border border-success-200 rounded-md">
+						<p class="text-success-800 text-sm font-medium">✓ Logo selected</p>
+						<p class="text-success-600 text-xs mt-1">The selected logo will be used for the class.</p>
 					</div>
 				{/if}
 				
