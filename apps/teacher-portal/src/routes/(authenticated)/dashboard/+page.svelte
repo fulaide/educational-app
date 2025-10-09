@@ -82,19 +82,19 @@
 			<Card variant="outlined" padding="lg">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
-						<BookOpen class="h-8 w-8 text-blue-500" />
+						<BookOpen class="h-8 w-8 text-primary-500" />
 					</div>
 					<div class="ml-5 w-0 flex-1">
 						<dl>
-							<dt class="text-sm font-medium text-gray-500 truncate">Total Classes</dt>
-							<dd class="text-2xl font-bold text-gray-900">{data.totalClasses || 0}</dd>
+							<dt class="text-sm font-medium text-neutral-500 truncate">Total Classes</dt>
+							<dd class="text-2xl font-bold text-neutral-900">{data.totalClasses || 0}</dd>
 						</dl>
 					</div>
 				</div>
 				<div class="mt-4">
 					<button
-						on:click={() => window.location.href = '/classes'}
-						class="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center"
+						onclick={() => window.location.href = '/classes'}
+						class="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center transition-colors"
 					>
 						<Eye class="mr-1 h-4 w-4" />
 						View all classes
@@ -106,19 +106,19 @@
 			<Card variant="outlined" padding="lg">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
-						<Users class="h-8 w-8 text-green-500" />
+						<Users class="h-8 w-8 text-success-500" />
 					</div>
 					<div class="ml-5 w-0 flex-1">
 						<dl>
-							<dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
-							<dd class="text-2xl font-bold text-gray-900">{data.totalStudents || 0}</dd>
+							<dt class="text-sm font-medium text-neutral-500 truncate">Total Students</dt>
+							<dd class="text-2xl font-bold text-neutral-900">{data.totalStudents || 0}</dd>
 						</dl>
 					</div>
 				</div>
 				<div class="mt-4">
 					<button
-						on:click={() => window.location.href = '/students'}
-						class="text-sm font-medium text-green-600 hover:text-green-500 flex items-center"
+						onclick={() => window.location.href = '/students'}
+						class="text-sm font-medium text-success-600 hover:text-success-700 flex items-center transition-colors"
 					>
 						<Eye class="mr-1 h-4 w-4" />
 						Manage students
@@ -130,19 +130,19 @@
 			<Card variant="outlined" padding="lg">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
-						<BarChart3 class="h-8 w-8 text-purple-500" />
+						<BarChart3 class="h-8 w-8 text-secondary-500" />
 					</div>
 					<div class="ml-5 w-0 flex-1">
 						<dl>
-							<dt class="text-sm font-medium text-gray-500 truncate">Quick Actions</dt>
-							<dd class="text-2xl font-bold text-gray-900">Ready</dd>
+							<dt class="text-sm font-medium text-neutral-500 truncate">Quick Actions</dt>
+							<dd class="text-2xl font-bold text-neutral-900">Ready</dd>
 						</dl>
 					</div>
 				</div>
 				<div class="mt-4">
 					<button
-						on:click={() => showQuickActionsDrawer = true}
-						class="text-sm font-medium text-purple-600 hover:text-purple-500 flex items-center"
+						onclick={() => showQuickActionsDrawer = true}
+						class="text-sm font-medium text-secondary-600 hover:text-secondary-700 flex items-center transition-colors"
 					>
 						<Plus class="mr-1 h-4 w-4" />
 						Open actions
