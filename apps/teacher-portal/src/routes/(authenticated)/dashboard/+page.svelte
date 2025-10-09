@@ -57,18 +57,18 @@
 				</div>
 			</div>
 			<div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
-				<Button 
-					variant="solid" 
+				<Button
+					variant="solid"
 					color="primary"
-					on:click={() => showCreateClassDrawer = true}
+					onclick={() => showCreateClassDrawer = true}
 				>
 					<Plus class="-ml-1 mr-2 h-4 w-4" />
 					Create Class
 				</Button>
-				<Button 
-					variant="outline" 
+				<Button
+					variant="outline"
 					color="secondary"
-					on:click={() => showQuickActionsDrawer = true}
+					onclick={() => showQuickActionsDrawer = true}
 				>
 					<BarChart3 class="-ml-1 mr-2 h-4 w-4" />
 					Quick Actions
@@ -303,7 +303,7 @@
 				></textarea>
 			</div>
 			<div class="flex justify-end space-x-3 pt-4">
-				<Button variant="outline" on:click={() => showCreateClassDrawer = false}>
+				<Button variant="outline" onclick={() => showCreateClassDrawer = false}>
 					Cancel
 				</Button>
 				<Button variant="solid" color="primary">
@@ -321,36 +321,36 @@
 		title="Quick Actions"
 	>
 		<div class="space-y-4">
-			<button 
-				on:click={() => window.location.href = '/students/register'}
-				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			<button
+				onclick={() => window.location.href = '/students/register'}
+				class="w-full flex items-center p-4 text-left border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
 			>
-				<Users class="h-6 w-6 text-green-500 mr-3" />
+				<Users class="h-6 w-6 text-success-500 mr-3" />
 				<div>
-					<h3 class="font-medium text-gray-900">Add Students</h3>
-					<p class="text-sm text-gray-500">Register new students to your classes</p>
+					<h3 class="font-medium text-neutral-900">Add Students</h3>
+					<p class="text-sm text-neutral-500">Register new students to your classes</p>
 				</div>
 			</button>
 
-			<button 
-				on:click={() => window.location.href = '/qr-codes'}
-				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			<button
+				onclick={() => window.location.href = '/qr-codes'}
+				class="w-full flex items-center p-4 text-left border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
 			>
-				<BarChart3 class="h-6 w-6 text-blue-500 mr-3" />
+				<BarChart3 class="h-6 w-6 text-primary-500 mr-3" />
 				<div>
-					<h3 class="font-medium text-gray-900">Generate QR Codes</h3>
-					<p class="text-sm text-gray-500">Create QR codes for student login</p>
+					<h3 class="font-medium text-neutral-900">Generate QR Codes</h3>
+					<p class="text-sm text-neutral-500">Create QR codes for student login</p>
 				</div>
 			</button>
 
-			<button 
-				on:click={() => showCreateClassDrawer = true && (showQuickActionsDrawer = false)}
-				class="w-full flex items-center p-4 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+			<button
+				onclick={() => showCreateClassDrawer = true && (showQuickActionsDrawer = false)}
+				class="w-full flex items-center p-4 text-left border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
 			>
-				<BookOpen class="h-6 w-6 text-purple-500 mr-3" />
+				<BookOpen class="h-6 w-6 text-secondary-500 mr-3" />
 				<div>
-					<h3 class="font-medium text-gray-900">Create Class</h3>
-					<p class="text-sm text-gray-500">Set up a new class for your students</p>
+					<h3 class="font-medium text-neutral-900">Create Class</h3>
+					<p class="text-sm text-neutral-500">Set up a new class for your students</p>
 				</div>
 			</button>
 		</div>
