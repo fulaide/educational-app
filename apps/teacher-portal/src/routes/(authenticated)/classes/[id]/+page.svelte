@@ -4,7 +4,7 @@
 	import { setClassStore } from '$lib/stores/class-store.svelte.js';
 	import { t } from '@educational-app/i18n';
 	import { ImagePicker, type ImageAsset } from '@educational-app/media-manager';
-	import { AuthInput, Button, Modal, useNotifications } from '@educational-app/ui';
+	import { AuthInput, Button, Card, Modal, useNotifications } from '@educational-app/ui';
 	import { ArrowLeft, Edit } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -107,53 +107,50 @@
 
 
 	<!-- Header -->
-	<div class="bg-white ">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="flex justify-between items-center h-16">
-				<div class="flex items-center space-x-4">
-					<a href="/classes" class="text-neutral-500 hover:text-neutral-700" aria-label="Back to classes">
-						<ArrowLeft class="h-6 w-6" />
-					</a>
-					<!-- Class Avatar -->
-					{#if classStore.avatarUrl}
-						<div class="flex-shrink-0">
-							<img
-								src={classStore.avatarUrl}
-								alt="{classStore.name} avatar"
-								class="h-12 w-12 rounded-lg object-cover border-2 border-neutral-200"
-							/>
-						</div>
-					{:else}
-						<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center">
-							<span class="text-white font-bold text-lg">{classStore.name.charAt(0)}</span>
-						</div>
-					{/if}
-					<div>
-						<h1 class="text-2xl font-semibold text-neutral-900">{classStore.name}</h1>
-						<p class="text-sm text-neutral-500">{classStore.displayInfo.grade}</p>
-					</div>
-				</div>
-				<div class="flex items-center space-x-3">
-					<Button
-						variant="outline"
-						size="sm"
-						onclick={() => {
-							showEditForm = true;
-							showImagePicker = false;
-						}}
-					>
-						<Edit class="-ml-1 mr-2 h-4 w-4" />
-						{$t('common.edit')} Klasse
-					</Button>
 
+	<div class="">
+		<div class="flex justify-between items-center h-16">
+			<div class="flex items-center space-x-4">
+				<a href="/classes" class="text-neutral-500 hover:text-neutral-700" aria-label="Back to classes">
+					<ArrowLeft class="h-6 w-6" />
+				</a>
+				<!-- Class Avatar -->
+				{#if classStore.avatarUrl}
+					<div class="flex-shrink-0">
+						<img
+							src={classStore.avatarUrl}
+							alt="{classStore.name} avatar"
+							class="h-12 w-12 rounded-lg object-cover border-2 border-neutral-200"
+						/>
+					</div>
+				{:else}
+					<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center">
+						<span class="text-white font-bold text-lg">{classStore.name.charAt(0)}</span>
+					</div>
+				{/if}
+				<div>
+					<h1 class="text-2xl font-semibold text-neutral-900">{classStore.name}</h1>
+					<p class="text-sm text-neutral-500">{classStore.displayInfo.grade}</p>
 				</div>
+			</div>
+			<div class="flex items-center space-x-3">
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={() => {
+						showEditForm = true;
+						showImagePicker = false;
+					}}
+				>
+					<Edit class="-ml-1 mr-2 h-4 w-4" />
+					{$t('common.edit')} Klasse
+				</Button>
+
 			</div>
 		</div>
 	</div>
-
-
-
-	<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+	
+	<div class="pt-8">
 		<!-- Edit Form Modal -->
 		<Modal 
 			bind:open={showEditForm}
@@ -352,7 +349,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Class Info -->
 			<div class="lg:col-span-1">
-				<div class="bg-white shadow rounded-lg p-6">
+				<Card variant="elevated" padding="lg">
 					<h2 class="text-lg font-semibold text-neutral-900 mb-4">Class Details</h2>
 					<dl class="space-y-3">
 						<div>
@@ -386,12 +383,12 @@
 							</div>
 						{/if}
 					</dl>
-				</div>
+				</Card>
 			</div>
 
 			<!-- Students List -->
 			<div class="lg:col-span-2">
-				<div class="bg-white shadow rounded-lg">
+				<Card variant="elevated" padding="none">
 					<div class="px-6 py-4 border-b border-neutral-200 flex justify-between items-center">
 						<h2 class="text-lg font-semibold text-neutral-900">Students ({classStore.studentCount})</h2>
 						<a
@@ -454,7 +451,7 @@
 							{/if}
 						</div>
 					{/if}
-				</div>
+				</Card>
 			</div>
 		</div>
 	</div>
