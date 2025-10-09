@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
-import { v4 as uuid } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -8,17 +7,21 @@ async function main() {
 	console.log('🌱 Seeding authentication users...')
 
 	// Create a test organization first
-	const organization = await prisma.organization.upsert({
-		where: { code: 'TEST_SCHOOL' },
-		update: {},
-		create: {
-			name: 'Test Elementary School',
-			code: 'TEST_SCHOOL',
-			type: 'SCHOOL',
-			isActive: true,
-			settings: {}
-		}
-	})
+	let organization = await prisma.organization.findFirst({
+		where: { name: 'Test Elementary School' }
+	});
+
+	if (!organization) {
+		organization = await prisma.organization.create({
+			data: {
+				name: 'Test Elementary School',
+				type: 'SCHOOL',
+				country: 'US',
+				timezone: 'America/New_York',
+				settings: {}
+			}
+		});
+	}
 
 	// Create test teacher
 	const hashedPassword = await bcryptjs.hash('password123', 10)
@@ -82,43 +85,83 @@ async function main() {
 		}
 	})
 
-	// Create test students with UUIDs
+	// Generate 8-character student code
+	function generateStudentCode(): string {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		let result = '';
+		for (let i = 0; i < 8; i++) {
+			result += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
+		return result;
+	}
+
+	// Create test students with 8-character codes
 	const students = []
 	for (let i = 1; i <= 3; i++) {
-		const studentUuid = uuid()
-		const student = await prisma.user.upsert({
-			where: { uuid: studentUuid },
-			update: {},
-			create: {
-				name: `Test Student ${i}`,
-				role: 'STUDENT',
-				uuid: studentUuid,
-				grade: Math.floor(Math.random() * 6) + 1, // Grades 1-6
-				organizationId: organization.id,
-				isActive: true,
-				settings: {
-					theme: 'light',
-					language: 'de', // German default for students
-					soundEnabled: true,
-					vibrationEnabled: true
+		const studentUuid = generateStudentCode()
+		
+		// Check if student already exists
+		let student = await prisma.user.findUnique({
+			where: { uuid: studentUuid }
+		});
+		
+		if (!student) {
+			student = await prisma.user.create({
+				data: {
+					name: `Test Student ${i}`,
+					role: 'STUDENT',
+					uuid: studentUuid,
+					grade: Math.floor(Math.random() * 6) + 1, // Grades 1-6
+					organizationId: organization.id,
+					isActive: true,
+					isVerified: true,
+					settings: {
+						theme: 'light',
+						language: 'de', // German default for students
+						soundEnabled: true,
+						vibrationEnabled: true
+					}
 				}
-			}
-		})
+			});
+		}
 		students.push(student)
 	}
 
 	// Create a test class and assign users
-	const testClass = await prisma.class.upsert({
-		where: { code: 'TEST_CLASS_1A' },
-		update: {},
-		create: {
+	let testClass = await prisma.class.findFirst({
+		where: { 
 			name: 'Class 1A',
-			code: 'TEST_CLASS_1A',
-			grade: 1,
 			organizationId: organization.id,
-			settings: {}
+			teacherId: teacher.id
 		}
-	})
+	});
+
+	if (!testClass) {
+		testClass = await prisma.class.create({
+			data: {
+				name: 'Class 1A',
+				grade: 1,
+				maxStudents: 30,
+				organizationId: organization.id,
+				teacherId: teacher.id,
+				isActive: true,
+				settings: {}
+			}
+		});
+	}
+
+	// Add the students to the test class
+	if (testClass && students.length > 0) {
+		await prisma.class.update({
+			where: { id: testClass.id },
+			data: {
+				students: {
+					connect: students.map(student => ({ id: student.id }))
+				}
+			}
+		});
+		console.log(`[SEED] Added ${students.length} students to class ${testClass.name}`);
+	}
 
 	console.log('✅ Authentication users seeded successfully!')
 	console.log('\n📋 Test Credentials:')
@@ -129,7 +172,7 @@ async function main() {
 	students.forEach((student, index) => {
 		console.log(`Student ${index + 1}: ${student.uuid}`)
 	})
-	console.log('\n🏫 Organization: ' + organization.name + ' (' + organization.code + ')')
+	console.log('\n🏫 Organization: ' + organization.name + ' (ID: ' + organization.id + ')')
 }
 
 main()

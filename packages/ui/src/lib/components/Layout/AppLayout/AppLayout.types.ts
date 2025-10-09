@@ -35,6 +35,9 @@ export interface LayoutContextValue {
   isTablet: boolean;
   isDesktop: boolean;
   
+  // Mobile configuration
+  showSidebarOnMobile: boolean;
+  
   // Sidebar state and controls
   sidebar: SidebarState & {
     toggle: () => void;
@@ -89,13 +92,23 @@ export interface AppLayoutProps {
    * Custom breakpoint configuration
    */
   breakpoints?: Partial<BreakpointConfig>;
+  
+  /**
+   * Background image URL for the layout wrapper
+   */
+  backgroundImage?: string;
+  
+  /**
+   * Custom background CSS class (default: 'bg-gray-100')
+   */
+  backgroundClass?: string;
 }
 
 export interface NavigationItem {
   id: string;
   label: string;
   href?: string;
-  icon?: string;
+  icon?: string | any; // Support both string icons and Svelte component icons
   badge?: string | number;
   children?: NavigationItem[];
   isActive?: boolean;

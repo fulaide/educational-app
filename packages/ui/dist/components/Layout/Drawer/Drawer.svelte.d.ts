@@ -4,6 +4,6 @@ interface Props extends DrawerProps {
     header?: import('svelte').Snippet;
     footer?: import('svelte').Snippet;
 }
-declare const Drawer: import("svelte").Component<Props, {}, "">;
+declare const Drawer: import("svelte").Component<Props, {}, "isOpen" | "open">;
 type Drawer = ReturnType<typeof Drawer>;
 export default Drawer;

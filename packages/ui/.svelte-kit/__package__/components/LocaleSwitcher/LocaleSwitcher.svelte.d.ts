@@ -1,8 +1,3 @@
-interface Props {
-    class?: string;
-    variant?: 'dropdown' | 'buttons';
-    size?: 'sm' | 'md' | 'lg';
-}
-declare const LocaleSwitcher: import("svelte").Component<Props, {}, "">;
+declare const LocaleSwitcher: import("svelte").Component<Record<string, any>, Record<string, any>, string>;
 type LocaleSwitcher = ReturnType<typeof LocaleSwitcher>;
 export default LocaleSwitcher;

@@ -26,6 +26,7 @@
  * ```
  */
 declare module '$env/static/private' {
+	export const NoDefaultCurrentDirectoryInExePath: string;
 	export const TERM_PROGRAM: string;
 	export const CLAUDE_CODE_ENTRYPOINT: string;
 	export const NODE: string;
@@ -35,6 +36,7 @@ declare module '$env/static/private' {
 	export const TMPDIR: string;
 	export const npm_config_global_prefix: string;
 	export const TERM_PROGRAM_VERSION: string;
+	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const MallocNanoZone: string;
 	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const ZDOTDIR: string;
@@ -57,7 +59,6 @@ declare module '$env/static/private' {
 	export const PAGER: string;
 	export const LSCOLORS: string;
 	export const PATH: string;
-	export const LaunchInstanceID: string;
 	export const npm_package_json: string;
 	export const __CFBundleIdentifier: string;
 	export const USER_ZDOTDIR: string;
@@ -91,7 +92,6 @@ declare module '$env/static/private' {
 	export const GIT_ASKPASS: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const OSLogRateLimit: string;
-	export const SECURITYSESSIONID: string;
 	export const CLAUDECODE: string;
 	export const COLORTERM: string;
 	export const npm_config_prefix: string;
@@ -127,6 +127,7 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
+		NoDefaultCurrentDirectoryInExePath: string;
 		TERM_PROGRAM: string;
 		CLAUDE_CODE_ENTRYPOINT: string;
 		NODE: string;
@@ -136,6 +137,7 @@ declare module '$env/dynamic/private' {
 		TMPDIR: string;
 		npm_config_global_prefix: string;
 		TERM_PROGRAM_VERSION: string;
+		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		MallocNanoZone: string;
 		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		ZDOTDIR: string;
@@ -158,7 +160,6 @@ declare module '$env/dynamic/private' {
 		PAGER: string;
 		LSCOLORS: string;
 		PATH: string;
-		LaunchInstanceID: string;
 		npm_package_json: string;
 		__CFBundleIdentifier: string;
 		USER_ZDOTDIR: string;
@@ -192,7 +193,6 @@ declare module '$env/dynamic/private' {
 		GIT_ASKPASS: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		OSLogRateLimit: string;
-		SECURITYSESSIONID: string;
 		CLAUDECODE: string;
 		COLORTERM: string;
 		npm_config_prefix: string;

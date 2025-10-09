@@ -13,7 +13,8 @@
   }
   
   let {
-    isOpen = false,
+    isOpen = $bindable(false),
+    open = $bindable(false),
     position = 'right',
     size = 'md',
     width,
@@ -42,16 +43,29 @@
     footer
   }: Props = $props();
 
+  // Sync open and isOpen props
+  $effect(() => {
+    if (open !== isOpen) {
+      isOpen = open;
+    }
+  });
+
+  $effect(() => {
+    if (isOpen !== open) {
+      open = isOpen;
+    }
+  });
+
   const layout = getLayoutContext();
-  
+
   let drawerElement: HTMLDivElement;
   let backdropElement: HTMLDivElement;
-  
+
   // Touch gesture state
   let touchData: TouchEventData | null = null;
   let isDragging = $state(false);
   let dragProgress = $state(0);
-  
+
   // Reactive state
   let isMobile = $derived(layout.isMobile);
   

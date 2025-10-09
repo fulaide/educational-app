@@ -4,6 +4,7 @@
 	import type { ImageCategory, ImageAsset, ImagePickerConfig } from '../types.js';
 	import PresetGallery from './PresetGallery.svelte';
 	import CustomUpload from './CustomUpload.svelte';
+	import { t } from '@educational-app/i18n';
 
 	interface Props {
 		category: ImageCategory;
@@ -33,7 +34,7 @@
 	let selectedImages: ImageAsset[] = $state([]);
 	let isUploading = $state(false);
 	let uploadProgress = $state(0);
-	let uploadError = $state(null);
+	let uploadError = $state<string | null>(null);
 	let activeTab = $state<'presets' | 'upload'>('presets');
 	
 	// Load preset images for the category
@@ -99,11 +100,11 @@
 			if (!response.ok) {
 				// Check if it's a redirect (authentication required)
 				if (response.status === 303 || response.status === 302) {
-					throw new Error('Authentication required. Please sign in to upload images.');
+					throw new Error($t('media.image_picker.authentication_required'));
 				}
 				
-				const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
-				throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+				const errorData = await response.json().catch(() => ({ message: $t('media.image_picker.upload_error') }));
+				throw new Error(errorData.message || $t('media.image_picker.upload_error'));
 			}
 
 			const result = await response.json();
@@ -125,7 +126,7 @@
 			
 			onSelect?.(selectedImages);
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+			const errorMessage = error instanceof Error ? error.message : $t('media.image_picker.upload_error');
 			isUploading = false;
 			uploadProgress = 0;
 			uploadError = errorMessage;
@@ -136,7 +137,7 @@
 	// Handle tab switching
 	function switchTab(tab: 'presets' | 'upload') {
 		activeTab = tab;
-		uploadError = null; // Clear any upload errors
+		uploadError = null;
 	}
 </script>
 
@@ -148,7 +149,7 @@
 			class="tab-button {activeTab === 'presets' ? 'active' : ''}"
 			onclick={() => switchTab('presets')}
 		>
-			Choose from Gallery
+			{$t('media.image_picker.tab_gallery')}
 		</button>
 		{#if allowUpload}
 			<button
@@ -156,7 +157,7 @@
 				class="tab-button {activeTab === 'upload' ? 'active' : ''}"
 				onclick={() => switchTab('upload')}
 			>
-				Upload Custom
+				{$t('media.image_picker.tab_upload')}
 			</button>
 		{/if}
 	</div>
@@ -184,7 +185,7 @@
 	<!-- Selected Image Preview -->
 	{#if selectedImages.length > 0}
 		<div class="selected-preview">
-			<h4>Selected Image:</h4>
+			<h4>{$t('media.image_picker.selected_image')}</h4>
 			<div class="preview-image">
 				<img 
 					src={selectedImages[0].url} 

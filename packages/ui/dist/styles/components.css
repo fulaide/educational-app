@@ -1,8 +1,8 @@
 /**
- * Component utility classes using design tokens
- * These classes apply semantic tokens to provide consistent styling
+ * Global Utility Classes
+ * Only truly global, reusable patterns that aren't component-specific
+ * Component-specific styles should live in the component files
  */
-
 
 /* Screen Reader Only - Accessibility */
 .sr-only {
@@ -17,295 +17,38 @@
   border: 0;
 }
 
-/* Form Elements - Using Semantic Tokens */
-.form-label {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text);
-  display: block;
-  margin-bottom: var(--spacing-2);
+/* Safe Area Insets for Mobile (global patterns) */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
 }
 
-.form-input {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-3) var(--spacing-3);
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  color: var(--color-text);
-  width: 100%;
-  appearance: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-border-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Focus ring with primary color */
+.safe-left {
+  padding-left: env(safe-area-inset-left);
 }
 
-.form-input::placeholder {
-  color: var(--color-text-subtle);
+.safe-right {
+  padding-right: env(safe-area-inset-right);
 }
 
-.form-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--color-surface-muted);
+/* Print Utilities (global patterns) */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
 }
 
-.form-input-error {
-  border-color: var(--color-danger-500);
-}
-
-.form-input-error:focus {
-  border-color: var(--color-danger-500);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); /* Error focus ring */
-}
-
-.form-error {
-  font-size: var(--text-body-sm);
-  color: var(--color-text-error);
-  margin-top: var(--spacing-component-xs);
-}
-
-.password-strength {
-  margin-top: var(--spacing-component-sm);
-  font-size: var(--text-caption);
-  color: var(--color-text-tertiary);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-component-xs);
-}
-
-/* Button Elements - Using Semantic Tokens */
-.btn-primary {
-  background: var(--color-primary-500);
-  color: var(--color-text-on-primary);
-  border: 1px solid transparent;
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  box-sizing: border-box;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-600);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-primary:disabled {
-  background: var(--color-interactive-disabled);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  box-sizing: border-box;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--color-surface-hover);
-}
-
-.btn-secondary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-secondary:disabled {
-  background: var(--color-interactive-disabled);
-  border-color: var(--color-interactive-disabled);
-  cursor: not-allowed;
-}
-
-/* Button Size Utilities */
-.btn-sm {
-  padding: var(--button-sm-padding-y) var(--button-sm-padding-x);
-  font-size: var(--button-sm-font-size);
-  font-weight: var(--button-sm-font-weight);
-  cursor: pointer;
-}
-
-.btn-md {
-  padding: var(--button-md-padding-y) var(--button-md-padding-x);
-  font-size: var(--button-md-font-size);
-  font-weight: var(--button-md-font-weight);
-  cursor: pointer;
-}
-
-.btn-lg {
-  padding: var(--button-lg-padding-y) var(--button-lg-padding-x);
-  font-size: var(--button-lg-font-size);
-  font-weight: var(--button-lg-font-weight);
-  cursor: pointer;
-}
-
-.btn-xl {
-  padding: var(--button-xl-padding-y) var(--button-xl-padding-x);
-  font-size: var(--button-xl-font-size);
-  font-weight: var(--button-xl-font-weight);
-  cursor: pointer;
-}
-
-/* Typography Classes */
-.heading-1 {
-  font-size: var(--text-heading-1);
-  font-weight: var(--text-heading-1-weight);
-  line-height: var(--text-heading-1-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.heading-2 {
-  font-size: var(--text-heading-2);
-  font-weight: var(--text-heading-2-weight);
-  line-height: var(--text-heading-2-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-lg);
-}
-
-.heading-3 {
-  font-size: var(--text-heading-3);
-  font-weight: var(--text-heading-3-weight);
-  line-height: var(--text-heading-3-line-height);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-component-sm);
-}
-
-.body-lg {
-  font-size: var(--text-body-lg);
-  font-weight: var(--text-body-lg-weight);
-  line-height: var(--text-body-lg-line-height);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.body {
-  font-size: var(--text-body);
-  font-weight: var(--text-body-weight);
-  line-height: var(--text-body-line-height);
-  margin-bottom: var(--spacing-component-md);
-}
-
-.body-sm {
-  font-size: var(--text-body-sm);
-  font-weight: var(--text-body-sm-weight);
-  line-height: var(--text-body-sm-line-height);
-  margin-bottom: var(--spacing-component-sm);
-}
-
-.caption {
-  font-size: var(--text-caption);
-  font-weight: var(--text-caption-weight);
-  line-height: var(--text-caption-line-height);
-  color: var(--color-text-tertiary);
-  margin-bottom: var(--spacing-component-xs);
-}
-
-/* Text Color Classes */
-.text-primary { color: var(--color-text-primary); }
-.text-secondary { color: var(--color-text-secondary); }
-.text-tertiary { color: var(--color-text-tertiary); }
-.text-brand { color: var(--color-text-brand); }
-.text-success { color: var(--color-text-success); }
-.text-warning { color: var(--color-text-warning); }
-.text-error { color: var(--color-text-error); }
-
-/* Surface Classes */
-.surface-primary { background: var(--color-surface-primary); }
-.surface-secondary { background: var(--color-surface-secondary); }
-.surface-tertiary { background: var(--color-surface-tertiary); }
-.surface-brand { background: var(--color-surface-brand); }
-
-/* Card Component - Using Semantic Tokens */
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-6);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.card-clickable:hover {
-  transform: translateY(-2px);
-}
-
-/* Status Messages */
-.status-success, .status-warning, .status-error, .status-info {
-  padding: var(--spacing-component-md);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-component-md);
-  font-size: var(--text-body-sm);
-}
-
-.status-success {
-  background: var(--color-status-success-bg);
-  color: var(--color-status-success);
-  border: 1px solid var(--color-border-success);
-}
-
-.status-warning {
-  background: var(--color-status-warning-bg);
-  color: var(--color-status-warning);
-  border: 1px solid var(--color-amber-300);
-}
-
-.status-error {
-  background: var(--color-status-error-bg);
-  color: var(--color-status-error);
-  border: 1px solid var(--color-border-error);
-}
-
-.status-info {
-  background: var(--color-status-info-bg);
-  color: var(--color-status-info);
-  border: 1px solid var(--color-blue-300);
-}
-
-/* Auth Components */
-.auth-header {
-  text-align: center;
-  margin-bottom: var(--spacing-component-xl);
-}
-
-.auth-logo {
-  margin: 0 auto var(--spacing-component-lg);
-  height: 3rem;
-  width: 3rem;
-  color: var(--color-interactive-primary);
-}
-
-.auth-form {
-  margin-top: var(--spacing-layout-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-component-lg);
-}
-
-/* Layout utilities */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--spacing-layout-md);
-}
-
-.section {
-  margin-bottom: var(--spacing-layout-lg);
-  padding: var(--spacing-layout-md);
-  background: var(--color-surface-secondary);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border-primary);
-}
+/* Note: All other styles have been moved to component files
+ * - Form styles → AuthInput.svelte, Input.svelte, AuthPasswordInput.svelte
+ * - Typography → Use Tailwind utilities directly
+ * - Buttons → Button.svelte
+ * - Cards → Use Tailwind utilities or component-specific styles
+ * - Status messages → Use Tailwind utilities
+ */

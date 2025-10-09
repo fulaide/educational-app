@@ -1,2 +1,3 @@
 @import '@educational-app/ui/themes/teacher';
+@import '@educational-app/media-manager/styles';
 @import 'tailwindcss';

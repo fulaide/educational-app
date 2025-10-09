@@ -109,6 +109,7 @@ async function main() {
 			prisma.studentAchievement.deleteMany(),
 			prisma.task.deleteMany(),
 			prisma.learningModule.deleteMany(),
+			prisma.parentChild.deleteMany(),
 			prisma.class.deleteMany(),
 			prisma.user.deleteMany(),
 			prisma.achievement.deleteMany(),

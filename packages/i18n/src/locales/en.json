@@ -19,7 +19,10 @@
     "name": "Name",
     "task": "Task",
     "date": "Date",
-    "never": "Never"
+    "never": "Never",
+    "clear": "Clear",
+    "clear_filters": "Clear Filters",
+    "filter_by": "Filter by"
   },
 
   "auth": {
@@ -380,5 +383,37 @@
     "yesterday": "yesterday",
     "this_week": "this week",
     "last_week": "last week"
+  },
+
+  "media": {
+    "image_picker": {
+      "tab_gallery": "Choose from Gallery",
+      "tab_upload": "Upload Custom",
+      "selected_image": "Selected Image:",
+      "drag_drop_hint": "Drop your image here, or click to browse",
+      "browse_files": "Browse Files",
+      "uploading": "Uploading...",
+      "upload_progress": "Upload Progress: {progress}%",
+      "upload_complete": "Upload Complete!",
+      "max_file_size": "Max file size: {size}MB",
+      "accepted_formats": "Accepted formats: {formats}",
+      "file_too_large": "File is too large. Maximum size is {maxSize}MB.",
+      "invalid_file_type": "Invalid file type. Accepted formats: {formats}",
+      "upload_error": "Upload failed. Please try again.",
+      "no_file_selected": "No file selected",
+      "authentication_required": "Authentication required. Please sign in to upload images.",
+      "search_placeholder": "Search images...",
+      "no_images_found": "No images found matching your search.",
+      "preset_images": "Preset Images"
+    },
+    "notifications": {
+      "image_selected": "Image successfully selected!",
+      "image_uploaded": "Image successfully uploaded and selected!",
+      "upload_success": "Upload Successful",
+      "image_selected_title": "Image Selected",
+      "upload_error_title": "Upload Error",
+      "image_removed": "Image successfully removed!",
+      "image_removed_title": "Image Removed"
+    }
   }
 }

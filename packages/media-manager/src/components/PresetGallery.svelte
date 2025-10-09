@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getPresetImages, getPresetImagesByTags } from '../utils/preset-images.js';
 	import type { ImageCategory, PresetImage } from '../types.js';
+	import { t } from '@educational-app/i18n';
 
 	interface Props {
 		category: ImageCategory;
@@ -76,7 +77,7 @@
 		<div class="search-box">
 			<input
 				type="text"
-				placeholder="Search images..."
+				placeholder={$t('media.image_picker.search_placeholder')}
 				bind:value={searchQuery}
 				class="search-input"
 			/>
@@ -84,7 +85,7 @@
 
 		{#if availableTags.length > 0}
 			<div class="tag-filters">
-				<span class="filter-label">Filter by:</span>
+				<span class="filter-label">{$t('common.filter_by')}:</span>
 				{#each availableTags as tag}
 					<button
 						type="button"
@@ -100,7 +101,7 @@
 						class="clear-filters"
 						onclick={clearFilters}
 					>
-						Clear
+						{$t('common.clear')}
 					</button>
 				{/if}
 			</div>
@@ -135,9 +136,9 @@
 				<svg class="no-results-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
 				</svg>
-				<p>No images found matching your criteria.</p>
+				<p>{$t('media.image_picker.no_images_found')}</p>
 				<button type="button" class="clear-filters-btn" onclick={clearFilters}>
-					Clear Filters
+					{$t('common.clear_filters')}
 				</button>
 			</div>
 		{/each}

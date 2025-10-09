@@ -1,0 +1,17 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="32" fill="#059669"/>
+  <circle cx="128" cy="140" r="80" fill="#D97706"/>
+  <circle cx="100" cy="110" r="16" fill="#D97706"/>
+  <circle cx="156" cy="110" r="16" fill="#D97706"/>
+  <circle cx="108" cy="125" r="8" fill="white"/>
+  <circle cx="148" cy="125" r="8" fill="white"/>
+  <circle cx="108" cy="125" r="4" fill="#1F2937"/>
+  <circle cx="148" cy="125" r="4" fill="#1F2937"/>
+  <ellipse cx="128" cy="145" rx="8" ry="6" fill="#1F2937"/>
+  <path d="M120 155 Q128 165 136 155" stroke="#1F2937" stroke-width="2" fill="none"/>
+  <rect x="110" y="170" width="36" height="24" rx="4" fill="#EF4444"/>
+  <line x1="114" y1="178" x2="142" y2="178" stroke="white" stroke-width="1"/>
+  <line x1="114" y1="182" x2="138" y2="182" stroke="white" stroke-width="1"/>
+  <line x1="114" y1="186" x2="140" y2="186" stroke="white" stroke-width="1"/>
+  <text x="128" y="220" text-anchor="middle" fill="white" font-family="Arial" font-size="14" font-weight="bold">Reading Bear</text>
+</svg>

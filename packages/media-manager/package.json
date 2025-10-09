@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "@vercel/blob": "^0.23.4",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@educational-app/i18n": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.3.4",

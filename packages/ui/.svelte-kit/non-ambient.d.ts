@@ -36,6 +36,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/fonts/hello-headline.woff2" | string & {};
+		Asset(): "/fonts/PortadaLt.ttf" | "/fonts/PortadaLt.woff" | "/fonts/PortadaLt.woff2" | "/fonts/hello-headline.woff2" | string & {};
 	}
 }

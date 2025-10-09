@@ -189,21 +189,24 @@ function generateThumbnailUrl(url, size = 256) {
 // src/components/PresetGallery.svelte
 import "svelte/internal/disclose-version";
 import * as $ from "svelte/internal/client";
+import { t } from "@educational-app/i18n";
 function clearFilters(_, searchQuery, selectedTags) {
   $.set(searchQuery, "");
   $.set(selectedTags, [], true);
 }
 var on_click = (__1, toggleTag, tag) => toggleTag($.get(tag));
 var root_2 = $.from_html(`<button type="button"> </button>`);
-var root_3 = $.from_html(`<button type="button" class="clear-filters svelte-1l4d1g0">Clear</button>`);
-var root_1 = $.from_html(`<div class="tag-filters svelte-1l4d1g0"><span class="filter-label svelte-1l4d1g0">Filter by:</span> <!> <!></div>`);
+var root_3 = $.from_html(`<button type="button" class="clear-filters svelte-1l4d1g0"> </button>`);
+var root_1 = $.from_html(`<div class="tag-filters svelte-1l4d1g0"><span class="filter-label svelte-1l4d1g0"> </span> <!> <!></div>`);
 var on_click_1 = (__2, selectPreset, preset) => selectPreset($.get(preset));
 var root_5 = $.from_html(`<span class="preset-tag svelte-1l4d1g0"> </span>`);
 var root_4 = $.from_html(`<button type="button"><img class="preset-image svelte-1l4d1g0" loading="lazy"/> <div class="preset-overlay svelte-1l4d1g0"><div class="preset-tags svelte-1l4d1g0"></div></div></button>`);
-var root_6 = $.from_html(`<div class="no-results svelte-1l4d1g0"><svg class="no-results-icon svelte-1l4d1g0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> <p class="svelte-1l4d1g0">No images found matching your criteria.</p> <button type="button" class="clear-filters-btn svelte-1l4d1g0">Clear Filters</button></div>`);
-var root = $.from_html(`<div class="preset-gallery svelte-1l4d1g0"><div class="controls svelte-1l4d1g0"><div class="search-box svelte-1l4d1g0"><input type="text" placeholder="Search images..." class="search-input svelte-1l4d1g0"/></div> <!></div> <div class="image-grid svelte-1l4d1g0"></div></div>`);
+var root_6 = $.from_html(`<div class="no-results svelte-1l4d1g0"><svg class="no-results-icon svelte-1l4d1g0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> <p class="svelte-1l4d1g0"> </p> <button type="button" class="clear-filters-btn svelte-1l4d1g0"> </button></div>`);
+var root = $.from_html(`<div class="preset-gallery svelte-1l4d1g0"><div class="controls svelte-1l4d1g0"><div class="search-box svelte-1l4d1g0"><input type="text" class="search-input svelte-1l4d1g0"/></div> <!></div> <div class="image-grid svelte-1l4d1g0"></div></div>`);
 function PresetGallery($$anchor, $$props) {
   $.push($$props, true);
+  const [$$stores, $$cleanup] = $.setup_stores();
+  const $t = () => $.store_get(t, "$t", $$stores);
   const allPresets = getPresetImages($$props.category);
   let searchQuery = $.state("");
   let selectedTags = $.state($.proxy([]));
@@ -230,7 +233,7 @@ function PresetGallery($$anchor, $$props) {
   }
   function toggleTag(tag) {
     if ($.get(selectedTags).includes(tag)) {
-      $.set(selectedTags, $.get(selectedTags).filter((t) => t !== tag), true);
+      $.set(selectedTags, $.get(selectedTags).filter((t22) => t22 !== tag), true);
     } else {
       $.set(selectedTags, [...$.get(selectedTags), tag], true);
     }
@@ -245,16 +248,19 @@ function PresetGallery($$anchor, $$props) {
   {
     var consequent_1 = ($$anchor2) => {
       var div_3 = root_1();
-      var node_1 = $.sibling($.child(div_3), 2);
+      var span = $.child(div_3);
+      var text = $.child(span);
+      $.reset(span);
+      var node_1 = $.sibling(span, 2);
       $.each(node_1, 17, () => $.get(availableTags), $.index, ($$anchor3, tag) => {
         var button = root_2();
         button.__click = [on_click, toggleTag, tag];
-        var text = $.child(button, true);
+        var text_1 = $.child(button, true);
         $.reset(button);
         $.template_effect(
           ($0) => {
             $.set_class(button, 1, `tag-filter ${$0 ?? ""}`, "svelte-1l4d1g0");
-            $.set_text(text, $.get(tag));
+            $.set_text(text_1, $.get(tag));
           },
           [
             () => $.get(selectedTags).includes($.get(tag)) ? "active" : ""
@@ -267,6 +273,9 @@ function PresetGallery($$anchor, $$props) {
         var consequent = ($$anchor3) => {
           var button_1 = root_3();
           button_1.__click = [clearFilters, searchQuery, selectedTags];
+          var text_2 = $.child(button_1, true);
+          $.reset(button_1);
+          $.template_effect(($0) => $.set_text(text_2, $0), [() => $t()("common.clear")]);
           $.append($$anchor3, button_1);
         };
         $.if(node_2, ($$render) => {
@@ -274,6 +283,7 @@ function PresetGallery($$anchor, $$props) {
         });
       }
       $.reset(div_3);
+      $.template_effect(($0) => $.set_text(text, `${$0 ?? ""}:`), [() => $t()("common.filter_by")]);
       $.append($$anchor2, div_3);
     };
     $.if(node, ($$render) => {
@@ -294,11 +304,11 @@ function PresetGallery($$anchor, $$props) {
       var div_5 = $.sibling(img, 2);
       var div_6 = $.child(div_5);
       $.each(div_6, 21, () => $.get(preset).tags.slice(0, 3), $.index, ($$anchor3, tag) => {
-        var span = root_5();
-        var text_1 = $.child(span, true);
-        $.reset(span);
-        $.template_effect(() => $.set_text(text_1, $.get(tag)));
-        $.append($$anchor3, span);
+        var span_1 = root_5();
+        var text_3 = $.child(span_1, true);
+        $.reset(span_1);
+        $.template_effect(() => $.set_text(text_3, $.get(tag)));
+        $.append($$anchor3, span_1);
       });
       $.reset(div_6);
       $.reset(div_5);
@@ -313,30 +323,50 @@ function PresetGallery($$anchor, $$props) {
     },
     ($$anchor2) => {
       var div_7 = root_6();
-      var button_3 = $.sibling($.child(div_7), 4);
+      var p = $.sibling($.child(div_7), 2);
+      var text_4 = $.child(p, true);
+      $.reset(p);
+      var button_3 = $.sibling(p, 2);
       button_3.__click = [clearFilters, searchQuery, selectedTags];
+      var text_5 = $.child(button_3, true);
+      $.reset(button_3);
       $.reset(div_7);
+      $.template_effect(
+        ($0, $1) => {
+          $.set_text(text_4, $0);
+          $.set_text(text_5, $1);
+        },
+        [
+          () => $t()("media.image_picker.no_images_found"),
+          () => $t()("common.clear_filters")
+        ]
+      );
       $.append($$anchor2, div_7);
     }
   );
   $.reset(div_4);
   $.reset(div);
+  $.template_effect(($0) => $.set_attribute(input, "placeholder", $0), [() => $t()("media.image_picker.search_placeholder")]);
   $.bind_value(input, () => $.get(searchQuery), ($$value) => $.set(searchQuery, $$value));
   $.append($$anchor, div);
   $.pop();
+  $$cleanup();
 }
 $.delegate(["click"]);
 
 // src/components/CustomUpload.svelte
 import "svelte/internal/disclose-version";
 import * as $2 from "svelte/internal/client";
+import { t as t2 } from "@educational-app/i18n";
 var on_keydown = (e, triggerFileSelect) => e.key === "Enter" || e.key === " " ? triggerFileSelect() : null;
-var root_12 = $2.from_html(`<div class="upload-status svelte-2amyv7"><div class="upload-spinner svelte-2amyv7"><svg class="animate-spin svelte-2amyv7" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div> <div class="upload-text svelte-2amyv7"><p class="upload-title svelte-2amyv7">Uploading...</p> <div class="progress-bar svelte-2amyv7"><div class="progress-fill svelte-2amyv7"></div></div> <p class="upload-percentage svelte-2amyv7"> </p></div></div>`);
-var root_22 = $2.from_html(`<div class="upload-prompt svelte-2amyv7"><div class="upload-icon svelte-2amyv7"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg></div> <div class="upload-text svelte-2amyv7"><p class="upload-title svelte-2amyv7">Drop your image here</p> <p class="upload-subtitle svelte-2amyv7">or <span class="upload-link svelte-2amyv7">click to browse</span></p></div></div>`);
+var root_12 = $2.from_html(`<div class="upload-status svelte-2amyv7"><div class="upload-spinner svelte-2amyv7"><svg class="animate-spin svelte-2amyv7" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div> <div class="upload-text svelte-2amyv7"><p class="upload-title svelte-2amyv7"> </p> <div class="progress-bar svelte-2amyv7"><div class="progress-fill svelte-2amyv7"></div></div> <p class="upload-percentage svelte-2amyv7"> </p></div></div>`);
+var root_22 = $2.from_html(`<div class="upload-prompt svelte-2amyv7"><div class="upload-icon svelte-2amyv7"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg></div> <div class="upload-text svelte-2amyv7"><p class="upload-title svelte-2amyv7"> </p> <p class="upload-subtitle svelte-2amyv7"> </p></div></div>`);
 var root_32 = $2.from_html(`<div class="error-message svelte-2amyv7"><svg class="error-icon svelte-2amyv7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <span> </span></div>`);
 var root2 = $2.from_html(`<div class="custom-upload svelte-2amyv7"><input type="file" style="display: none;"/> <div role="button" tabindex="0"><!></div> <div class="file-requirements svelte-2amyv7"><h4 class="svelte-2amyv7">File Requirements:</h4> <ul class="svelte-2amyv7"><li class="svelte-2amyv7"> </li> <li class="svelte-2amyv7"> </li> <li class="svelte-2amyv7">Recommended dimensions: 512\xD7512px or larger</li></ul></div> <!></div>`);
 function CustomUpload($$anchor, $$props) {
   $2.push($$props, true);
+  const [$$stores, $$cleanup] = $2.setup_stores();
+  const $t = () => $2.store_get(t2, "$t", $$stores);
   let fileInputRef;
   let dragOver = $2.state(false);
   function formatFileSize(bytes) {
@@ -387,22 +417,48 @@ function CustomUpload($$anchor, $$props) {
     var consequent = ($$anchor2) => {
       var div_2 = root_12();
       var div_3 = $2.sibling($2.child(div_2), 2);
-      var div_4 = $2.sibling($2.child(div_3), 2);
+      var p = $2.child(div_3);
+      var text = $2.child(p, true);
+      $2.reset(p);
+      var div_4 = $2.sibling(p, 2);
       var div_5 = $2.child(div_4);
       $2.reset(div_4);
-      var p = $2.sibling(div_4, 2);
-      var text = $2.child(p);
-      $2.reset(p);
+      var p_1 = $2.sibling(div_4, 2);
+      var text_1 = $2.child(p_1);
+      $2.reset(p_1);
       $2.reset(div_3);
       $2.reset(div_2);
-      $2.template_effect(() => {
-        $2.set_style(div_5, `width: ${$$props.uploadProgress ?? ""}%`);
-        $2.set_text(text, `${$$props.uploadProgress ?? ""}%`);
-      });
+      $2.template_effect(
+        ($0) => {
+          $2.set_text(text, $0);
+          $2.set_style(div_5, `width: ${$$props.uploadProgress ?? ""}%`);
+          $2.set_text(text_1, `${$$props.uploadProgress ?? ""}%`);
+        },
+        [() => $t()("media.image_picker.uploading")]
+      );
       $2.append($$anchor2, div_2);
     };
     var alternate = ($$anchor2) => {
       var div_6 = root_22();
+      var div_7 = $2.sibling($2.child(div_6), 2);
+      var p_2 = $2.child(div_7);
+      var text_2 = $2.child(p_2, true);
+      $2.reset(p_2);
+      var p_3 = $2.sibling(p_2, 2);
+      var text_3 = $2.child(p_3, true);
+      $2.reset(p_3);
+      $2.reset(div_7);
+      $2.reset(div_6);
+      $2.template_effect(
+        ($0, $1) => {
+          $2.set_text(text_2, $0);
+          $2.set_text(text_3, $1);
+        },
+        [
+          () => $t()("media.image_picker.drag_drop_hint"),
+          () => $t()("media.image_picker.browse_files")
+        ]
+      );
       $2.append($$anchor2, div_6);
     };
     $2.if(node, ($$render) => {
@@ -411,27 +467,27 @@ function CustomUpload($$anchor, $$props) {
     });
   }
   $2.reset(div_1);
-  var div_7 = $2.sibling(div_1, 2);
-  var ul = $2.sibling($2.child(div_7), 2);
+  var div_8 = $2.sibling(div_1, 2);
+  var ul = $2.sibling($2.child(div_8), 2);
   var li = $2.child(ul);
-  var text_1 = $2.child(li);
+  var text_4 = $2.child(li);
   $2.reset(li);
   var li_1 = $2.sibling(li, 2);
-  var text_2 = $2.child(li_1);
+  var text_5 = $2.child(li_1);
   $2.reset(li_1);
   $2.next(2);
   $2.reset(ul);
-  $2.reset(div_7);
-  var node_1 = $2.sibling(div_7, 2);
+  $2.reset(div_8);
+  var node_1 = $2.sibling(div_8, 2);
   {
     var consequent_1 = ($$anchor2) => {
-      var div_8 = root_32();
-      var span = $2.sibling($2.child(div_8), 2);
-      var text_3 = $2.child(span, true);
+      var div_9 = root_32();
+      var span = $2.sibling($2.child(div_9), 2);
+      var text_6 = $2.child(span, true);
       $2.reset(span);
-      $2.reset(div_8);
-      $2.template_effect(() => $2.set_text(text_3, $$props.uploadError));
-      $2.append($$anchor2, div_8);
+      $2.reset(div_9);
+      $2.template_effect(() => $2.set_text(text_6, $$props.uploadError));
+      $2.append($$anchor2, div_9);
     };
     $2.if(node_1, ($$render) => {
       if ($$props.uploadError) $$render(consequent_1);
@@ -443,8 +499,8 @@ function CustomUpload($$anchor, $$props) {
       $2.set_attribute(input, "accept", $0);
       input.disabled = $$props.isUploading;
       $2.set_class(div_1, 1, `upload-area ${$2.get(dragOver) ? "drag-over" : ""} ${$$props.isUploading ? "uploading" : ""}`, "svelte-2amyv7");
-      $2.set_text(text_1, `Maximum size: ${$1 ?? ""}`);
-      $2.set_text(text_2, `Supported formats: ${$22 ?? ""}`);
+      $2.set_text(text_4, `Maximum size: ${$1 ?? ""}`);
+      $2.set_text(text_5, `Supported formats: ${$22 ?? ""}`);
     },
     [
       () => $$props.acceptedFormats.join(","),
@@ -457,17 +513,21 @@ function CustomUpload($$anchor, $$props) {
   $2.event("drop", div_1, handleDrop);
   $2.append($$anchor, div);
   $2.pop();
+  $$cleanup();
 }
 $2.delegate(["change", "click", "keydown"]);
 
 // src/components/ImagePicker.svelte
+import { t as t3 } from "@educational-app/i18n";
 var on_click2 = (_, switchTab) => switchTab("presets");
 var on_click_12 = (__1, switchTab) => switchTab("upload");
-var root_13 = $3.from_html(`<button type="button">Upload Custom</button>`);
-var root_52 = $3.from_html(`<div class="selected-preview svelte-ikvep"><h4 class="svelte-ikvep">Selected Image:</h4> <div class="preview-image svelte-ikvep"><img class="preview-img svelte-ikvep"/></div></div>`);
-var root3 = $3.from_html(`<div class="image-picker svelte-ikvep"><div class="tab-navigation svelte-ikvep"><button type="button">Choose from Gallery</button> <!></div> <div class="tab-content svelte-ikvep"><!></div> <!></div>`);
+var root_13 = $3.from_html(`<button type="button"> </button>`);
+var root_52 = $3.from_html(`<div class="selected-preview svelte-ikvep"><h4 class="svelte-ikvep"> </h4> <div class="preview-image svelte-ikvep"><img class="preview-img svelte-ikvep"/></div></div>`);
+var root3 = $3.from_html(`<div class="image-picker svelte-ikvep"><div class="tab-navigation svelte-ikvep"><button type="button"> </button> <!></div> <div class="tab-content svelte-ikvep"><!></div> <!></div>`);
 function ImagePicker($$anchor, $$props) {
   $3.push($$props, true);
+  const [$$stores, $$cleanup] = $3.setup_stores();
+  const $t = () => $3.store_get(t3, "$t", $$stores);
   let allowUpload = $3.prop($$props, "allowUpload", 3, true), maxFileSize = $3.prop($$props, "maxFileSize", 3, 5 * 1024 * 1024), acceptedFormats = $3.prop($$props, "acceptedFormats", 19, () => ["image/jpeg", "image/png", "image/webp"]), multiple = $3.prop($$props, "multiple", 3, false);
   let selectedImages = $3.state($3.proxy([]));
   let isUploading = $3.state(false);
@@ -518,10 +578,10 @@ function ImagePicker($$anchor, $$props) {
       });
       if (!response.ok) {
         if (response.status === 303 || response.status === 302) {
-          throw new Error("Authentication required. Please sign in to upload images.");
+          throw new Error($t()("media.image_picker.authentication_required"));
         }
-        const errorData = await response.json().catch(() => ({ message: "Upload failed" }));
-        throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+        const errorData = await response.json().catch(() => ({ message: $t()("media.image_picker.upload_error") }));
+        throw new Error(errorData.message || $t()("media.image_picker.upload_error"));
       }
       const result = await response.json();
       const imageAsset = {
@@ -538,7 +598,7 @@ function ImagePicker($$anchor, $$props) {
       $3.set(uploadError, null);
       $$props.onSelect?.($3.get(selectedImages));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Upload failed";
+      const errorMessage = error instanceof Error ? error.message : $t()("media.image_picker.upload_error");
       $3.set(isUploading, false);
       $3.set(uploadProgress, 0);
       $3.set(uploadError, errorMessage, true);
@@ -553,12 +613,22 @@ function ImagePicker($$anchor, $$props) {
   var div_1 = $3.child(div);
   var button = $3.child(div_1);
   button.__click = [on_click2, switchTab];
+  var text = $3.child(button, true);
+  $3.reset(button);
   var node = $3.sibling(button, 2);
   {
     var consequent = ($$anchor2) => {
       var button_1 = root_13();
       button_1.__click = [on_click_12, switchTab];
-      $3.template_effect(() => $3.set_class(button_1, 1, `tab-button ${$3.get(activeTab) === "upload" ? "active" : ""}`, "svelte-ikvep"));
+      var text_1 = $3.child(button_1, true);
+      $3.reset(button_1);
+      $3.template_effect(
+        ($0) => {
+          $3.set_class(button_1, 1, `tab-button ${$3.get(activeTab) === "upload" ? "active" : ""}`, "svelte-ikvep");
+          $3.set_text(text_1, $0);
+        },
+        [() => $t()("media.image_picker.tab_upload")]
+      );
       $3.append($$anchor2, button_1);
     };
     $3.if(node, ($$render) => {
@@ -624,14 +694,21 @@ function ImagePicker($$anchor, $$props) {
   {
     var consequent_3 = ($$anchor2) => {
       var div_3 = root_52();
-      var div_4 = $3.sibling($3.child(div_3), 2);
+      var h4 = $3.child(div_3);
+      var text_2 = $3.child(h4, true);
+      $3.reset(h4);
+      var div_4 = $3.sibling(h4, 2);
       var img = $3.child(div_4);
       $3.reset(div_4);
       $3.reset(div_3);
-      $3.template_effect(() => {
-        $3.set_attribute(img, "src", $3.get(selectedImages)[0].url);
-        $3.set_attribute(img, "alt", $3.get(selectedImages)[0].alt || "Selected image");
-      });
+      $3.template_effect(
+        ($0) => {
+          $3.set_text(text_2, $0);
+          $3.set_attribute(img, "src", $3.get(selectedImages)[0].url);
+          $3.set_attribute(img, "alt", $3.get(selectedImages)[0].alt || "Selected image");
+        },
+        [() => $t()("media.image_picker.selected_image")]
+      );
       $3.append($$anchor2, div_3);
     };
     $3.if(node_3, ($$render) => {
@@ -639,9 +716,16 @@ function ImagePicker($$anchor, $$props) {
     });
   }
   $3.reset(div);
-  $3.template_effect(() => $3.set_class(button, 1, `tab-button ${$3.get(activeTab) === "presets" ? "active" : ""}`, "svelte-ikvep"));
+  $3.template_effect(
+    ($0) => {
+      $3.set_class(button, 1, `tab-button ${$3.get(activeTab) === "presets" ? "active" : ""}`, "svelte-ikvep");
+      $3.set_text(text, $0);
+    },
+    [() => $t()("media.image_picker.tab_gallery")]
+  );
   $3.append($$anchor, div);
   $3.pop();
+  $$cleanup();
 }
 $3.delegate(["click"]);
 

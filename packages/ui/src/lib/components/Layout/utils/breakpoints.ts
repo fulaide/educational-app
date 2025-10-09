@@ -7,9 +7,9 @@ import type { Breakpoint, BreakpointConfig } from '../AppLayout/AppLayout.types.
 
 export const DEFAULT_BREAKPOINTS: BreakpointConfig = {
   mobile: 0,      // 0px and up
-  tablet: 768,    // 768px and up  
-  desktop: 1024,  // 1024px and up
-  wide: 1440,     // 1440px and up
+  tablet: 768,    // 768px and up (md: in Tailwind)
+  desktop: 1024,  // 1024px and up (lg: in Tailwind)
+  wide: 1440,     // 1440px and up (xl: in Tailwind)
 } as const;
 
 /**
@@ -62,7 +62,7 @@ export function createMediaQuery(
 }
 
 /**
- * Reactive breakpoint store for Svelte (using traditional approach)
+ * Reactive breakpoint store for Svelte with runes support
  */
 export function createBreakpointStore(breakpoints: BreakpointConfig = DEFAULT_BREAKPOINTS) {
   let currentBreakpoint: Breakpoint = 'desktop';
@@ -88,14 +88,27 @@ export function createBreakpointStore(breakpoints: BreakpointConfig = DEFAULT_BR
     }
     
     if (changed) {
-      listeners.forEach(listener => listener());
+      console.log('Breakpoint changed:', { width: currentWidth, breakpoint: currentBreakpoint, isMobile: currentBreakpoint === 'mobile' });
+      // Use setTimeout to ensure listeners are called after current execution
+      setTimeout(() => {
+        listeners.forEach(listener => {
+          try {
+            listener();
+          } catch (error) {
+            console.error('Error in breakpoint listener:', error);
+          }
+        });
+      }, 0);
     }
   }
   
   // Initialize and set up event listener
   if (typeof window !== 'undefined') {
     updateBreakpoint();
-    window.addEventListener('resize', updateBreakpoint, { passive: true });
+    // Use setTimeout to ensure initial call happens after component initialization
+    setTimeout(() => {
+      window.addEventListener('resize', updateBreakpoint, { passive: true });
+    }, 0);
   }
   
   return {
@@ -131,6 +144,10 @@ export function createBreakpointStore(breakpoints: BreakpointConfig = DEFAULT_BR
     subscribe(listener: () => void) {
       listeners.add(listener);
       return () => listeners.delete(listener);
+    },
+    // Force update (useful for debugging)
+    forceUpdate() {
+      updateBreakpoint();
     },
     // Cleanup function for when component is destroyed
     destroy() {

@@ -1,3 +1,6 @@
+// Layout System
+export * from './components/Layout/index.js';
+
 // Base Components
 export * from './components/Button/index.js';
 export * from './components/Input/index.js';

@@ -19,7 +19,10 @@
     "name": "Name",
     "task": "Aufgabe",
     "date": "Datum",
-    "never": "Nie"
+    "never": "Nie",
+    "clear": "Löschen",
+    "clear_filters": "Filter löschen",
+    "filter_by": "Filtern nach"
   },
 
   "auth": {
@@ -368,5 +371,37 @@
     "yesterday": "gestern",
     "this_week": "diese Woche",
     "last_week": "letzte Woche"
+  },
+
+  "media": {
+    "image_picker": {
+      "tab_gallery": "Aus Galerie wählen",
+      "tab_upload": "Eigenes hochladen",
+      "selected_image": "Ausgewähltes Bild:",
+      "drag_drop_hint": "Ziehen Sie Ihr Bild hierher oder klicken Sie zum Durchsuchen",
+      "browse_files": "Dateien durchsuchen",
+      "uploading": "Wird hochgeladen...",
+      "upload_progress": "Upload-Fortschritt: {progress}%",
+      "upload_complete": "Upload abgeschlossen!",
+      "max_file_size": "Max. Dateigröße: {size}MB",
+      "accepted_formats": "Akzeptierte Formate: {formats}",
+      "file_too_large": "Datei ist zu groß. Maximale Größe: {maxSize}MB.",
+      "invalid_file_type": "Ungültiger Dateityp. Akzeptierte Formate: {formats}",
+      "upload_error": "Upload fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "no_file_selected": "Keine Datei ausgewählt",
+      "authentication_required": "Authentifizierung erforderlich. Bitte melden Sie sich an, um Bilder hochzuladen.",
+      "search_placeholder": "Bilder suchen...",
+      "no_images_found": "Keine Bilder gefunden, die Ihrer Suche entsprechen.",
+      "preset_images": "Vorgefertigte Bilder"
+    },
+    "notifications": {
+      "image_selected": "Bild erfolgreich ausgewählt!",
+      "image_uploaded": "Bild erfolgreich hochgeladen und ausgewählt!",
+      "upload_success": "Upload erfolgreich",
+      "image_selected_title": "Bild ausgewählt",
+      "upload_error_title": "Upload-Fehler",
+      "image_removed": "Bild erfolgreich entfernt!",
+      "image_removed_title": "Bild entfernt"
+    }
   }
 }

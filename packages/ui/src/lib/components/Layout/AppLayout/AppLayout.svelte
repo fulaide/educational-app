@@ -25,7 +25,7 @@
   });
 </script>
 
-<div class="wrapper bg-gray-100 mx-auto w-full flex font-family-primary {className}">
+<div class="wrapper bg-primary-50 mx-auto w-full flex font-family-primary {className}">
   {#if children}
     {@render children()}
   {/if}
@@ -38,6 +38,6 @@
   }
 
   :global(html, body) {
-    background-color: var(--color-gray-100);
+    background-color: var(--color-primary-50);
   }
 </style>

@@ -25,38 +25,44 @@
 		children
 	}: Props = $props();
 
-	// Variant styles - using design tokens
+	// Base card styles
+	const baseCardClasses = 'bg-white rounded-lg transition-colors duration-200';
+
+	// Variant styles - using Tailwind utilities
 	const variants = {
-		default: 'card',
-		elevated: 'card',
-		outlined: 'card',
-		soft: 'card'
+		default: 'border border-gray-200',
+		elevated: 'shadow-sm',
+		outlined: 'border border-gray-300',
+		soft: 'bg-gray-50 border border-gray-100'
 	};
 
-	// Padding overrides (card already has default padding)
+	// Padding styles
 	const paddings = {
-		none: '!p-0',
-		sm: '!p-2',
-		md: '', // Use default card padding
-		lg: '!p-6',
-		xl: '!p-8'
+		none: 'p-0',
+		sm: 'p-2',
+		md: 'p-4',
+		lg: 'p-6',
+		xl: 'p-8'
 	};
 
 	const cardClasses = $derived(
 		cn(
-			// Base variant style
+			// Base styles
+			baseCardClasses,
+
+			// Variant style
 			variants[variant],
-			
-			// Padding overrides
+
+			// Padding
 			paddings[padding],
-			
+
 			// Interactive styles
-			{
-				'card-clickable': clickable || hoverable,
-				'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2': clickable,
-				'focus:ring-blue-500': clickable
-			},
-			
+			hoverable && 'hover:shadow-md! hover:border-gray-300',
+			clickable && 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500',
+
+			// Elevated variant hover enhancement (shadow-md -> shadow-xl)
+			variant === 'elevated' && (hoverable || clickable) && 'hover:shadow-lg! hover:border-gray-300',
+
 			// Custom classes
 			className
 		)

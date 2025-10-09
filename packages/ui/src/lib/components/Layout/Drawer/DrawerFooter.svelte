@@ -18,8 +18,9 @@ let footerClasses = $derived.by(() => {
     'px-4',
     'py-3',
     'border-t',
-    'border-border',
-    'bg-background',
+    'border-gray-500/20',
+    'bg-gray-100/20',
+    'backdrop-blur-sm',
     'flex-shrink-0'
   ];
 

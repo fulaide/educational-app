@@ -7,7 +7,21 @@ import type {
 } from '../types/notifications.js'
 
 export class NotificationManager {
-	notifications = $state<Notification[]>([])
+	private _notifications: Notification[] = []
+	private listeners: Set<() => void> = new Set()
+	
+	get notifications() {
+		return this._notifications;
+	}
+	
+	private notify() {
+		this.listeners.forEach(listener => listener());
+	}
+	
+	subscribe(listener: () => void) {
+		this.listeners.add(listener);
+		return () => this.listeners.delete(listener);
+	}
 	
 	private config: NotificationConfig = {
 		defaultDuration: {
@@ -44,8 +58,8 @@ export class NotificationManager {
 		}
 		
 		// Remove oldest notifications if exceeding limit
-		while (this.notifications.length >= this.config.maxNotifications) {
-			const oldest = this.notifications.find(n => !n.persistent)
+		while (this._notifications.length >= this.config.maxNotifications) {
+			const oldest = this._notifications.find(n => !n.persistent)
 			if (oldest) {
 				this.remove(oldest.id)
 			} else {
@@ -53,7 +67,8 @@ export class NotificationManager {
 			}
 		}
 		
-		this.notifications.push(notification)
+		this._notifications.push(notification)
+		this.notify()
 		
 		// Auto-dismiss non-persistent notifications
 		if (!notification.persistent && notification.duration > 0) {
@@ -67,9 +82,10 @@ export class NotificationManager {
 	 * Remove a notification by ID
 	 */
 	remove(id: string): void {
-		const index = this.notifications.findIndex(n => n.id === id)
+		const index = this._notifications.findIndex(n => n.id === id)
 		if (index > -1) {
-			this.notifications.splice(index, 1)
+			this._notifications.splice(index, 1)
+			this.notify()
 		}
 	}
 	
@@ -77,23 +93,26 @@ export class NotificationManager {
 	 * Clear all notifications
 	 */
 	clear(): void {
-		this.notifications.length = 0
+		this._notifications.length = 0
+		this.notify()
 	}
 	
 	/**
 	 * Clear non-persistent notifications only
 	 */
 	clearNonPersistent(): void {
-		this.notifications = this.notifications.filter(n => n.persistent)
+		this._notifications = this._notifications.filter(n => n.persistent)
+		this.notify()
 	}
 	
 	/**
 	 * Update a notification
 	 */
 	update(id: string, updates: Partial<NotificationOptions>): boolean {
-		const notification = this.notifications.find(n => n.id === id)
+		const notification = this._notifications.find(n => n.id === id)
 		if (notification) {
 			Object.assign(notification, updates)
+			this.notify()
 			return true
 		}
 		return false
@@ -103,14 +122,14 @@ export class NotificationManager {
 	 * Check if a notification exists
 	 */
 	exists(id: string): boolean {
-		return this.notifications.some(n => n.id === id)
+		return this._notifications.some(n => n.id === id)
 	}
 	
 	/**
 	 * Get notification count by type
 	 */
 	getCountByType(type: NotificationType): number {
-		return this.notifications.filter(n => n.type === type).length
+		return this._notifications.filter(n => n.type === type).length
 	}
 	
 	// Convenience methods for different notification types

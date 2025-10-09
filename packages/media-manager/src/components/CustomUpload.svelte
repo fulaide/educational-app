@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '@educational-app/i18n';
 	interface Props {
 		maxFileSize: number;
 		acceptedFormats: string[];
@@ -114,7 +115,7 @@
 					</svg>
 				</div>
 				<div class="upload-text">
-					<p class="upload-title">Uploading...</p>
+					<p class="upload-title">{$t('media.image_picker.uploading')}</p>
 					<div class="progress-bar">
 						<div class="progress-fill" style="width: {uploadProgress}%"></div>
 					</div>
@@ -135,8 +136,8 @@
 					</svg>
 				</div>
 				<div class="upload-text">
-					<p class="upload-title">Drop your image here</p>
-					<p class="upload-subtitle">or <span class="upload-link">click to browse</span></p>
+					<p class="upload-title">{$t('media.image_picker.drag_drop_hint')}</p>
+					<p class="upload-subtitle">{$t('media.image_picker.browse_files')}</p>
 				</div>
 			</div>
 		{/if}

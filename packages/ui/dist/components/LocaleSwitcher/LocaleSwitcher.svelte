@@ -171,10 +171,10 @@
 		<Languages class="w-4 h-4 text-primary-600" />
 		
 		<!-- Show full label on desktop, language code on tablet/mobile -->
-		<span class="text-xs text-primary-600 font-medium hidden md:inline-flex">
+		<span class="text-xs text-primary-600 font-medium hidden  { compact ? "" : "md:inline-flex"}">
 			{switchToLabel}
 		</span>
-		<span class="flex items-center justify-center text-xs font-medium text-primary-600 md:hidden">
+		<span class="flex items-center justify-center text-xs font-medium text-primary-600 { compact ? "" : "md:hidden"} ">
 			{targetLocale.toUpperCase()}
 		</span>
 	</button>

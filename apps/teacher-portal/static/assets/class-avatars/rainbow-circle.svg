@@ -1,0 +1,19 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="32" fill="#1F2937"/>
+  <defs>
+    <radialGradient id="rainbow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="16.66%" stop-color="#EF4444"/>
+      <stop offset="33.33%" stop-color="#EC4899"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="66.66%" stop-color="#3B82F6"/>
+      <stop offset="83.33%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </radialGradient>
+  </defs>
+  <circle cx="128" cy="128" r="80" fill="url(#rainbow)"/>
+  <circle cx="128" cy="128" r="60" fill="none" stroke="white" stroke-width="4"/>
+  <circle cx="128" cy="128" r="40" fill="none" stroke="white" stroke-width="3"/>
+  <circle cx="128" cy="128" r="20" fill="white"/>
+  <text x="128" y="220" text-anchor="middle" fill="white" font-family="Arial" font-size="14" font-weight="bold">Rainbow Class</text>
+</svg>

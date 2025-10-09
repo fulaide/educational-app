@@ -1,0 +1,22 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="32" fill="#0F172A"/>
+  <defs>
+    <radialGradient id="starburst" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0%" stop-color="#FEF3C7"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
+  </defs>
+  <!-- Central star -->
+  <path d="M128 40 L135 110 L200 100 L150 140 L180 200 L128 160 L76 200 L106 140 L56 100 L121 110 Z" fill="url(#starburst)"/>
+  <!-- Radiating lines -->
+  <line x1="128" y1="20" x2="128" y2="60" stroke="#FEF3C7" stroke-width="3"/>
+  <line x1="200" y1="60" x2="175" y2="85" stroke="#FEF3C7" stroke-width="2"/>
+  <line x1="220" y1="128" x2="180" y2="128" stroke="#FEF3C7" stroke-width="2"/>
+  <line x1="200" y1="196" x2="175" y2="171" stroke="#FEF3C7" stroke-width="2"/>
+  <line x1="128" y1="236" x2="128" y2="196" stroke="#FEF3C7" stroke-width="3"/>
+  <line x1="56" y1="196" x2="81" y2="171" stroke="#FEF3C7" stroke-width="2"/>
+  <line x1="36" y1="128" x2="76" y2="128" stroke="#FEF3C7" stroke-width="2"/>
+  <line x1="56" y1="60" x2="81" y2="85" stroke="#FEF3C7" stroke-width="2"/>
+  <text x="128" y="250" text-anchor="middle" fill="#FEF3C7" font-family="Arial" font-size="14" font-weight="bold">Star Achievers</text>
+</svg>

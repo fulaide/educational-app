@@ -226,9 +226,13 @@
     <div class="flex-shrink-0 p-2 space-y-4">
       <div class="border-t border-primary-500/40 w-full h-px mb-4"></div>
 
-      <div class="w-12 h-12 bg-primary-300/30 backdrop-blur-3xl rounded border border-primary-500/20 flex items-center justify-center">
-        <span class="text-primary-500 text-xs">Ad</span>
-      </div>
+      {#if adSlot}
+        {@render adSlot()}
+      {:else}
+        <div class="w-12 h-12 bg-primary-300/30 backdrop-blur-3xl rounded border border-primary-500/20 flex items-center justify-center">
+          <span class="text-primary-500 text-xs">Ad</span>
+        </div>
+      {/if}
 
       {#if footer?.user}
         <div class="flex items-center">

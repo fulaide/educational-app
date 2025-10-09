@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { cn } from '../../utils/index.js';
+
 	interface Props {
 		id: string;
 		name: string;
@@ -13,7 +15,7 @@
 		class?: string;
 	}
 
-	let { 
+	let {
 		id,
 		name,
 		label,
@@ -34,17 +36,39 @@
 	const hasUppercase = $derived(/[A-Z]/.test(value));
 	const hasLowercase = $derived(/[a-z]/.test(value));
 	const hasNumber = $derived(/\d/.test(value));
-	
+
 	const strengthChecks = $derived([
 		{ label: 'At least 8 characters', passed: hasMinLength },
 		{ label: 'Uppercase letter', passed: hasUppercase },
 		{ label: 'Lowercase letter', passed: hasLowercase },
 		{ label: 'Number', passed: hasNumber }
 	]);
+
+	// Component-scoped style classes
+	const labelClasses = "block text-sm font-medium text-neutral-900 mb-2";
+
+	const inputClasses = $derived(cn(
+		// Base styles
+		"w-full pr-10 px-3 py-3 bg-surface border rounded-lg",
+		"text-neutral-900 placeholder:text-neutral-400",
+		"transition-colors duration-200",
+		// Focus states
+		"focus:outline-none focus:border-primary-500",
+		"focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary-500)_10%,transparent)]",
+		// Disabled state
+		"disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-neutral-100",
+		// Error state
+		error && "border-danger-500 focus:border-danger-500 focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-danger-500)_10%,transparent)]",
+		!error && "border-neutral-200"
+	));
+
+	const toggleButtonClasses = "absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-primary-600 transition-colors";
+	const errorClasses = "mt-1 text-sm text-danger-600";
+	const strengthContainerClasses = "mt-2 flex flex-col gap-1";
 </script>
 
 <div class={className}>
-	<label for={id} class="form-label">
+	<label for={id} class={labelClasses}>
 		{label}
 	</label>
 	<div class="relative">
@@ -57,11 +81,11 @@
 			{disabled}
 			{placeholder}
 			bind:value
-			class="form-input pr-10 {error ? 'form-input-error' : ''}"
+			class={inputClasses}
 		/>
 		<button
 			type="button"
-			class="absolute inset-y-0 right-0 pr-3 flex items-center text-tertiary hover:text-primary transition-colors"
+			class={toggleButtonClasses}
 			onclick={() => showPassword = !showPassword}
 			disabled={disabled}
 		>
@@ -77,19 +101,20 @@
 			{/if}
 		</button>
 	</div>
-	
+
+
 	{#if showStrength && value}
-		<div class="password-strength">
+		<div class={strengthContainerClasses}>
 			{#each strengthChecks as check}
-				<div class="flex items-center space-x-2">
-					<div class="w-2 h-2 rounded-full {check.passed ? 'bg-green-400' : 'surface-tertiary'}"></div>
-					<span class="caption {check.passed ? 'text-success' : 'text-tertiary'}">{check.label}</span>
+				<div class="flex items-center gap-2">
+					<div class="w-2 h-2 rounded-full {check.passed ? 'bg-success-400' : 'bg-neutral-200'}"></div>
+					<span class="text-xs {check.passed ? 'text-success-600' : 'text-neutral-500'}">{check.label}</span>
 				</div>
 			{/each}
 		</div>
 	{/if}
-	
+
 	{#if error}
-		<p class="form-error">{error}</p>
+		<p class={errorClasses}>{error}</p>
 	{/if}
 </div>
