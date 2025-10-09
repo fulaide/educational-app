@@ -4,7 +4,7 @@
 	import { setClassStore } from '$lib/stores/class-store.svelte.js';
 	import { t } from '@educational-app/i18n';
 	import { ImagePicker, type ImageAsset } from '@educational-app/media-manager';
-	import { AuthInput, Button, Card, Modal, useNotifications } from '@educational-app/ui';
+	import { AuthInput, Button, Card, Drawer, useNotifications } from '@educational-app/ui';
 	import { ArrowLeft, Edit } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -151,15 +151,14 @@
 	</div>
 	
 	<div class="pt-8">
-		<!-- Edit Form Modal -->
-		<Modal 
+		<!-- Edit Form Drawer -->
+		<Drawer
 			bind:open={showEditForm}
 			title="{$t('common.edit')} Klasse"
+			position="right"
 			size="lg"
-			closable={true}
 		>
-
-					<form method="POST" action="?/update" use:formEnhance>
+			<form method="POST" action="?/update" use:formEnhance>
 						<div class="space-y-4">
 							<AuthInput
 								name="name"
@@ -301,8 +300,8 @@
 								</Button>
 							</div>
 						</div>
-					</form>
-		</Modal>
+			</form>
+		</Drawer>
 
 		<!-- Delete Confirmation Modal -->
 		{#if showDeleteConfirm}
