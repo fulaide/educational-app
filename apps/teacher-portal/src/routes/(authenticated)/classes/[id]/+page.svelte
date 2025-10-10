@@ -120,7 +120,7 @@
 						<img
 							src={classStore.avatarUrl}
 							alt="{classStore.name} avatar"
-							class="h-12 w-12 rounded-lg object-cover border-2 border-neutral-200"
+							class="h-12 w-12 rounded-full object-cover border-2 border-neutral-200"
 						/>
 					</div>
 				{:else}
@@ -157,10 +157,11 @@
 			title="{$t('common.edit')} Klasse"
 			position="right"
 			size="lg"
+			padding="lg"
 		>
 			{#snippet children()}
 				<form method="POST" action="?/update" use:formEnhance id="edit-class-form">
-					<div class="px-6 space-y-4">
+					<div class="space-y-4">
 							<AuthInput
 								name="name"
 								label={$t('common.name')}

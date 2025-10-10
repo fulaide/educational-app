@@ -11,6 +11,7 @@ interface Props {
     fullWidth?: boolean;
     rounded?: boolean;
     type?: 'button' | 'submit' | 'reset';
+    form?: string;
     onclick?: () => void;
     class?: string;
     children?: Snippet;

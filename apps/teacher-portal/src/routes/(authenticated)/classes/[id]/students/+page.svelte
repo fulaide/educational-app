@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { AuthButton, AuthInput, Button, Card, Modal, useNotifications } from '@educational-app/ui';
+	import { AuthInput, Button, Card, Drawer, useNotifications } from '@educational-app/ui';
+	import { ArrowLeft, UserPlus, UserSearch } from 'lucide-svelte';
+
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
@@ -172,17 +173,16 @@
 	<title>Manage Students - {classItem.name} - Teacher Portal</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+
 	<!-- Header -->
-	<div class="bg-white shadow-sm border-b">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+	<div class="">
+		<div class="">
 			<div class="flex justify-between items-center h-16">
 				<div class="flex items-center space-x-4">
 					<a href="/classes/{classItem.id}" class="text-gray-500 hover:text-gray-700">
-						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-						</svg>
-					</a>
+						<ArrowLeft class="h-6 w-6" />
+					</a>					
+				
 					<div>
 						<h1 class="text-2xl font-semibold text-gray-900">{classItem.name} Students</h1>
 						<p class="text-sm text-gray-500">
@@ -191,72 +191,71 @@
 					</div>
 				</div>
 				<div class="flex items-center space-x-3">
-					<button 
-						type="button"
-						class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+					
+
+					<Button
+						variant="outline"
+						color="primary"
 						onclick={() => { showAddForm = true; showCreateForm = false; }}
 					>
-						<svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-						</svg>
+						<UserPlus class="-ml-1 mr-1 h-4 w-4" />
 						Add Student
-					</button>
-					<button 
-						type="button"
-						class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+					</Button>
+
+					<Button
+						variant="solid"
+						color="primary"
 						onclick={() => { showCreateForm = true; showAddForm = false; }}
 					>
-						<svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-						</svg>
+						<UserPlus class="-ml-1 mr-1 h-4 w-4" />
 						Create Students
-					</button>
+					</Button>
+					
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-		<!-- Add Student Form -->
-		{#if showAddForm}
-			<div class="bg-white shadow rounded-lg p-6 mb-8">
-				<div class="flex justify-between items-center mb-4">
-					<h2 class="text-lg font-semibold text-gray-900">Add Student to Class</h2>
-					<button 
-						type="button"
-						class="text-gray-400 hover:text-gray-600"
-						onclick={() => showAddForm = false}
-					>
-						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-						</svg>
-					</button>
-				</div>
-
+	<div class="pt-8">
+		<!-- Add Student Drawer -->
+		<Drawer
+			bind:open={showAddForm}
+			title="Add Student to Class"
+			position="right"
+			size="lg"
+			padding="lg"
+		>
+			{#snippet children()}
 				<!-- Mode Switcher -->
-				<div class="flex rounded-lg bg-gray-100 p-1 mb-6">
-					<button 
-						type="button"
-						class="flex-1 rounded-md py-2 px-4 text-sm font-medium transition-colors {addMode === 'existing' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}"
-						onclick={() => addMode = 'existing'}
+				<div class=" rounded-lg  border border-neutral-200 p-1 mb-6 grid gap-1 grid-flow-col">
+					
+
+					<Button
+						variant={addMode === 'existing' ? "soft" : "ghost"}
+						color="primary"
+						onclick={() => addMode = 'existing'} 
 					>
-						🔍 Add Existing Student
-					</button>
-					<button 
-						type="button"
-						class="flex-1 rounded-md py-2 px-4 text-sm font-medium transition-colors {addMode === 'new' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}"
+						<UserSearch class="-ml-1 mr-1 h-4 w-4" />	
+						Add Existing Student
+					</Button>
+
+					<Button
+						variant={addMode === 'new' ? "soft" : "ghost"}
+						color="primary"
 						onclick={() => addMode = 'new'}
 					>
-						✨ Create New Student
-					</button>
+						<UserPlus class="-ml-1 mr-1 h-4 w-4" />	
+						Create New Student
+					</Button>
+
 				</div>
 
 				{#if addMode === 'existing'}
 					<!-- Add Existing Student -->
-					<form method="POST" action="?/addExisting" use:addEnhance>
+					<form method="POST" action="?/addExisting" use:addEnhance id="add-student-form">
 						<input type="hidden" name="mode" value="existing" />
 						<div class="space-y-4">
-							<AuthInput 
+							<AuthInput
 								name="studentCode"
 								label="Student Code"
 								placeholder="Enter 8-character student code"
@@ -268,43 +267,38 @@
 							/>
 
 							{#if availableStudents.length > 0}
-								<div class="bg-blue-50 rounded-lg p-4">
-									<h4 class="text-sm font-medium text-blue-900 mb-2">Available Students (Grade {classItem.grade}):</h4>
-									<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+								<div class="bg-primary-50 rounded-lg p-4">
+									<h4 class="text-sm font-medium text-primary-900 mb-2">Available Students (Grade {classItem.grade}):</h4>
+									<div class="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
 										{#each availableStudents as student}
-											<button 
+											<!-- <button
 												type="button"
-												class="flex items-center p-2 text-left text-sm bg-white rounded border hover:bg-blue-50 transition-colors"
+												class="flex items-center p-2 text-left text-sm bg-white rounded border border-neutral-200 hover:bg-primary-50 hover:border-primary-300 transition-colors"
 												onclick={() => $addData.studentCode = student.uuid}
 											>
-												<span class="font-mono text-xs text-gray-500">{student.uuid}</span>
-												<span class="ml-2 text-gray-900">{student.name || 'Unnamed'}</span>
-											</button>
+												<span class="font-mono text-xs text-neutral-500">{student.uuid}</span>
+												<span class="ml-2 text-neutral-900">{student.name || 'Unnamed'}</span>
+											</button> -->
+
+											<Button
+												variant="ghost"
+												onclick={() => $addData.studentCode = student.uuid}
+											>
+												<span class="font-mono text-xs text-neutral-500">{student.uuid}</span>
+												<span class="ml-2 text-neutral-900">{student.name || 'Unnamed'}</span>
+											</Button>
 										{/each}
 									</div>
 								</div>
 							{/if}
-
-							<div class="flex justify-end space-x-3">
-								<button 
-									type="button"
-									class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-									onclick={() => showAddForm = false}
-								>
-									Cancel
-								</button>
-								<AuthButton type="submit">
-									Add Student
-								</AuthButton>
-							</div>
 						</div>
 					</form>
 				{:else}
 					<!-- Create New Student -->
-					<form method="POST" action="?/addExisting" use:addEnhance>
+					<form method="POST" action="?/addExisting" use:addEnhance id="add-student-form">
 						<input type="hidden" name="mode" value="new" />
 						<div class="space-y-4">
-							<AuthInput 
+							<AuthInput
 								name="studentName"
 								label="Student Name"
 								placeholder="Enter student's full name"
@@ -313,98 +307,114 @@
 								required
 							/>
 
-							<div class="bg-green-50 rounded-lg p-4">
-								<p class="text-sm text-green-700">
-									📝 A new student account will be created with:
+							<div class="bg-neutral-50 rounded-lg p-4">
+								<p class="text-sm text-neutral-700">
+									A new student account will be created with:
 								</p>
-								<ul class="text-sm text-green-600 mt-1 ml-4 list-disc">
+								<ul class="text-sm text-neutral-600 mt-1 ml-4 list-disc">
 									<li>Grade: {classItem.grade}</li>
 									<li>Auto-generated unique student code</li>
 									<li>Automatically added to this class</li>
 								</ul>
 							</div>
-
-							<div class="flex justify-end space-x-3">
-								<button 
-									type="button"
-									class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-									onclick={() => showAddForm = false}
-								>
-									Cancel
-								</button>
-								<AuthButton type="submit">
-									Create & Add Student
-								</AuthButton>
-							</div>
 						</div>
 					</form>
 				{/if}
-			</div>
-		{/if}
+			{/snippet}
 
-		<!-- Create Multiple Students Form -->
-		{#if showCreateForm}
-			<div class="bg-white shadow rounded-lg p-6 mb-8">
-				<div class="flex justify-between items-center mb-4">
-					<h2 class="text-lg font-semibold text-gray-900">Create Multiple Students</h2>
-					<button 
-						type="button"
-						class="text-gray-400 hover:text-gray-600"
-						onclick={() => showCreateForm = false}
+			{#snippet footer()}
+				<div class="flex justify-end w-full space-x-3">
+					<Button
+						variant="outline"
+						onclick={() => showAddForm = false}
 					>
-						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-						</svg>
-					</button>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+						form="add-student-form"
+						variant="solid"
+						color="primary"
+						disabled={$addSubmitting}
+					>
+						{#if $addSubmitting}
+							<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							{addMode === 'new' ? 'Creating...' : 'Adding...'}
+						{:else}
+							{addMode === 'new' ? 'Create & Add Student' : 'Add Student'}
+						{/if}
+					</Button>
 				</div>
+			{/snippet}
+		</Drawer>
 
-				<form method="POST" action="?/createNew" use:createEnhance>
+		<!-- Create Multiple Students Drawer -->
+		<Drawer
+			bind:open={showCreateForm}
+			title="Create Multiple Students"
+			position="right"
+			size="lg"
+			padding="lg"
+		>
+			{#snippet children()}
+				<form method="POST" action="?/createNew" use:createEnhance id="create-students-form">
 					<div class="space-y-4">
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<AuthInput 
-								name="studentCount"
-								label="Number of Students"
-								type="number"
-								placeholder="5"
-								bind:value={$createData.studentCount}
-								error={$createErrors.studentCount?.[0]}
-								min={1}
-								max={Math.min(20, classItem.maxStudents - classItem.students.length)}
-								required
-							/>
+							<div>
+								<label for="studentCount" class="block text-sm font-medium text-neutral-700 mb-1">
+									Number of Students
+								</label>
+								<input
+									id="studentCount"
+									name="studentCount"
+									type="number"
+									placeholder="5"
+									bind:value={$createData.studentCount}
+									class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+									min={1}
+									max={Math.min(20, classItem.maxStudents - classItem.students.length)}
+									required
+								/>
+								{#if $createErrors.studentCount?.[0]}
+									<p class="mt-1 text-sm text-danger-600">{$createErrors.studentCount[0]}</p>
+								{/if}
+							</div>
 
 							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">
+								<label class="block text-sm font-medium text-neutral-700 mb-1">
 									Available Spots
 								</label>
-								<div class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-600">
+								<div class="px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-md text-sm text-neutral-600">
 									{classItem.maxStudents - classItem.students.length} remaining
 								</div>
 							</div>
 						</div>
 
 						<div>
-							<label for="studentNames" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="studentNames" class="block text-sm font-medium text-neutral-700 mb-1">
 								Student Names (Optional)
 							</label>
-							<textarea 
+							<textarea
 								id="studentNames"
 								name="studentNames"
 								bind:value={$createData.studentNames}
-								class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
 								rows={3}
 								placeholder={$createData.studentCount ? generateNamePlaceholders($createData.studentCount) : 'Enter names separated by commas (e.g., John Smith, Jane Doe, Bob Johnson)'}
 							></textarea>
-							<p class="mt-1 text-xs text-gray-500">
+							<p class="mt-1 text-xs text-neutral-500">
 								Leave blank to auto-generate names like "Student 1", "Student 2", etc.
 							</p>
 						</div>
 
-						<div class="bg-blue-50 rounded-lg p-4">
-							<p class="text-sm text-blue-700 mb-2">
-								🎯 <strong>What will happen:</strong>
+						<div class="bg-primary-50 rounded-lg p-4">
+							<p class="text-sm text-primary-700 mb-2">
+								<strong>What will happen:</strong>
 							</p>
-							<ul class="text-sm text-blue-600 ml-4 list-disc space-y-1">
+							<ul class="text-sm text-primary-600 ml-4 list-disc space-y-1">
 								<li>Create {$createData.studentCount || 0} new student accounts</li>
 								<li>Each gets a unique 8-character student code</li>
 								<li>All set to Grade {classItem.grade}</li>
@@ -412,62 +422,81 @@
 								<li>Ready for students to log in immediately</li>
 							</ul>
 						</div>
-
-						<div class="flex justify-end space-x-3">
-							<button 
-								type="button"
-								class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-								onclick={() => showCreateForm = false}
-							>
-								Cancel
-							</button>
-							<AuthButton type="submit">
-								Create {$createData.studentCount || 0} Students
-							</AuthButton>
-						</div>
 					</div>
 				</form>
-			</div>
-		{/if}
+			{/snippet}
+
+			{#snippet footer()}
+				<div class="flex justify-end w-full space-x-3">
+					<Button
+						variant="outline"
+						onclick={() => showCreateForm = false}
+					>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+						form="create-students-form"
+						variant="solid"
+						color="primary"
+						disabled={$createSubmitting}
+					>
+						{#if $createSubmitting}
+							<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							Creating...
+						{:else}
+							Create {$createData.studentCount || 0} Students
+						{/if}
+					</Button>
+				</div>
+			{/snippet}
+		</Drawer>
 
 		<!-- Students List -->
-		<div class="bg-white shadow rounded-lg">
-			<div class="px-6 py-4 border-b border-gray-200">
-				<h2 class="text-lg font-semibold text-gray-900">Class Roster</h2>
+		<Card variant="elevated" padding="none">
+			<div class="px-6 py-4 border-b border-neutral-200">
+				<h2 class="text-lg font-semibold text-neutral-900">Class Students</h2>
 			</div>
 
 			{#if classItem.students.length === 0}
 				<div class="p-12 text-center">
-					<svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-					</svg>
-					<h3 class="text-lg font-medium text-gray-900 mb-2">No students in this class yet</h3>
-					<p class="text-gray-500 mb-6">Add students to start building your class roster.</p>
+					
+					<UserPlus class="mx-auto h-12 w-12 text-neutral-400 mb-4" />
+
+					<h3 class="text-lg font-medium text-neutral-900 mb-2">No students in this class yet</h3>
+					<p class="text-neutral-500 mb-6">Add students to start building your class roster.</p>
 					<div class="flex justify-center space-x-3">
-						<button 
-							type="button"
-							class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-							onclick={() => showAddForm = true}
-						>
-							Add Individual Student
-						</button>
-						<button 
-							type="button"
-							class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-							onclick={() => showCreateForm = true}
-						>
-							Create Multiple Students
-						</button>
+					
+						<Button
+						variant="outline"
+									color="primary"
+									onclick={() => showAddForm = true}
+								>
+									Add Individual Student
+						</Button>
+
+						<Button
+						variant="solid"
+									color="primary"
+									onclick={() => showCreateForm = true}
+								>
+									Create Multiple Students
+						</Button>
+
+
 					</div>
 				</div>
 			{:else}
 				<div class="divide-y divide-gray-200">
 					{#each classItem.students as student}
-						<div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+						<div class="px-6 py-4 flex items-center justify-between hover:bg-neurtal-50">
 							<div class="flex items-center">
 								<!-- Avatar -->
 								<div class="flex-shrink-0 h-10 w-10">
-									<div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+									<div class="h-10 w-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
 										<span class="text-sm font-medium text-white">
 											{getStudentInitials(student.name)}
 										</span>
@@ -477,16 +506,16 @@
 								<!-- Student Info -->
 								<div class="ml-4">
 									<div class="flex items-center space-x-2">
-										<div class="text-sm font-medium text-gray-900">
+										<div class="text-sm font-medium text-neurtal-900">
 											{student.name || 'Unnamed Student'}
 										</div>
 										{#if !student.isActive}
-											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
 												Inactive
 											</span>
 										{/if}
 									</div>
-									<div class="flex items-center space-x-4 text-sm text-gray-500">
+									<div class="flex items-center space-x-4 text-sm text-neurtal-500">
 										<span class="font-mono">{student.uuid}</span>
 										<span>Grade {student.grade}</span>
 										<span>
@@ -502,26 +531,31 @@
 
 							<!-- Actions -->
 							<div class="flex items-center space-x-2">
-								<button 
-									type="button"
-									class="text-blue-600 hover:text-blue-900 text-sm font-medium"
+						
+
+								<Button
+						variant="ghost"
+									color="primary"
 									onclick={() => startEditingStudent(student)}
 								>
 									Edit
-								</button>
-								<button 
-									type="button"
-									class="text-red-600 hover:text-red-900 text-sm font-medium"
+								</Button>
+
+								<Button
+						variant="ghost"
+									color="danger"
 									onclick={() => confirmRemove = student.id}
 								>
 									Remove
-								</button>
+								</Button>
+								
+								
 							</div>
 						</div>
 					{/each}
 				</div>
 			{/if}
-		</div>
+		</Card>
 
 		<!-- Edit Student Modal -->
 		{#if editingStudent}
@@ -666,4 +700,4 @@
 			</div>
 		{/if}
 	</div>
-</div>
+

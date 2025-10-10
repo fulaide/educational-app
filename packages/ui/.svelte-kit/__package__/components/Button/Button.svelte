@@ -15,6 +15,7 @@
 		fullWidth?: boolean;
 		rounded?: boolean;
 		type?: 'button' | 'submit' | 'reset';
+		form?: string;
 		onclick?: () => void;
 		class?: string;
 		children?: Snippet;
@@ -29,6 +30,7 @@
 		fullWidth = false,
 		rounded = false,
 		type = 'button',
+		form,
 		onclick,
 		class: className,
 		children
@@ -116,6 +118,7 @@
 
 <button
 	{type}
+	{form}
 	class={buttonClasses}
 	disabled={isDisabled}
 	onclick={handleClick}

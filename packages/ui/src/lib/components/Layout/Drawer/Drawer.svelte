@@ -34,6 +34,7 @@
     zIndex = 50,
     animationDuration = 300,
     animationEasing = 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+    padding = 'md',
     onOpen,
     onClose,
     onAnimationComplete,
@@ -43,16 +44,21 @@
     footer
   }: Props = $props();
 
-  // Sync open and isOpen props
+  // Use a single internal state that syncs with both bindable props
+  let drawerOpen = $state(open || isOpen);
+
+  // Sync external changes to internal state
   $effect(() => {
-    if (open !== isOpen) {
-      isOpen = open;
-    }
+    drawerOpen = open;
   });
 
+  // Sync internal state back to both bindable props
   $effect(() => {
-    if (isOpen !== open) {
-      open = isOpen;
+    if (drawerOpen !== isOpen) {
+      isOpen = drawerOpen;
+    }
+    if (drawerOpen !== open) {
+      open = drawerOpen;
     }
   });
 
@@ -73,7 +79,7 @@
   const sizeConfig = {
     horizontal: {
       sm: '320px',
-      md: '400px', 
+      md: '400px',
       lg: '500px',
       xl: '600px',
       full: '100vw'
@@ -81,10 +87,19 @@
     vertical: {
       sm: '200px',
       md: '300px',
-      lg: '400px', 
+      lg: '400px',
       xl: '500px',
       full: '100vh'
     }
+  };
+
+  // Padding configurations
+  const paddingConfig = {
+    none: '',
+    sm: 'p-2',
+    md: 'p-4',
+    lg: 'p-6',
+    xl: 'p-8'
   };
   
   // Calculate drawer dimensions
@@ -212,14 +227,15 @@
   
   // Handle escape key
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Escape' && closeOnEscape && isOpen && !persistent) {
+    if (event.key === 'Escape' && closeOnEscape && drawerOpen && !persistent) {
       closeDrawer();
     }
   }
-  
+
   // Close drawer
   function closeDrawer() {
     if (persistent) return;
+    drawerOpen = false;
     onClose?.();
   }
   
@@ -299,11 +315,11 @@
     }
     
     // Determine if should close
-    const shouldClose = 
-      Math.abs(primaryDelta) > swipeThreshold || 
+    const shouldClose =
+      Math.abs(primaryDelta) > swipeThreshold ||
       velocity > swipeVelocity;
-    
-    if (shouldClose && isOpen) {
+
+    if (shouldClose && drawerOpen) {
       closeDrawer();
     }
     
@@ -321,11 +337,11 @@
   
   // Focus management
   function manageFocus() {
-    if (isOpen && drawerElement) {
+    if (drawerOpen && drawerElement) {
       // Focus first interactive element
       const firstFocusable = drawerElement.querySelector('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') as HTMLElement;
       firstFocusable?.focus();
-      
+
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
     } else {
@@ -349,7 +365,7 @@
   });
 </script>
 
-{#if isOpen}
+{#if drawerOpen}
   <!-- Backdrop -->
   {#if showBackdrop}
     <div
@@ -396,7 +412,7 @@
     {/if}
     
     <!-- Content -->
-    <div class="drawer-content flex-1 overflow-y-auto overscroll-contain">
+    <div class="drawer-content flex-1 overflow-y-auto overscroll-contain {paddingConfig[padding]}">
       {#if children}
         {@render children()}
       {/if}
