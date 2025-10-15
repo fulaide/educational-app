@@ -5,7 +5,7 @@
 	import { t } from '@educational-app/i18n';
 	import { ImagePicker, type ImageAsset } from '@educational-app/media-manager';
 	import { AuthInput, Button, Card, Drawer, useNotifications } from '@educational-app/ui';
-	import { ArrowLeft, Edit } from 'lucide-svelte';
+	import { ArrowLeft, Edit, Printer } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
@@ -61,6 +61,7 @@
 	let showEditForm = $state(false);
 	let showDeleteConfirm = $state(false);
 	let showImagePicker = $state(false);
+	let isPrintingQRCodes = $state(false);
 	
 	// Handle image selection from ImagePicker
 	function handleImageSelect(images: ImageAsset[]) {
@@ -99,6 +100,202 @@
 			minute: '2-digit'
 		});
 	}
+
+	async function printAllQRCodes() {
+		isPrintingQRCodes = true;
+
+		// Filter students with active QR codes
+		const studentsWithQR = classStore.students.filter(
+			(s: any) => s.studentQRCodes && s.studentQRCodes.length > 0
+		);
+
+		if (studentsWithQR.length === 0) {
+			notifications.warning('No active QR codes available. Generate QR codes first from the QR Codes page.');
+			isPrintingQRCodes = false;
+			return;
+		}
+
+		try {
+			// Import QRCode library dynamically
+			const QRCode = await import('qrcode');
+
+			// Generate QR codes as data URLs
+			const qrDataPromises = studentsWithQR.map(async (student: any) => {
+				const qrCode = student.studentQRCodes[0];
+				const dataUrl = await QRCode.toDataURL(qrCode.token, {
+					width: 200,
+					margin: 1,
+					errorCorrectionLevel: 'M'
+				});
+				return {
+					id: student.id,
+					name: student.name || 'Unnamed Student',
+					uuid: student.uuid,
+					dataUrl
+				};
+			});
+
+			const qrData = await Promise.all(qrDataPromises);
+
+			// Generate print HTML with QR codes as images
+			const printWindow = window.open('', '_blank');
+			if (!printWindow) {
+				notifications.error('Please allow pop-ups to print QR codes');
+				isPrintingQRCodes = false;
+				return;
+			}
+
+			// Build QR cards HTML with images
+			const qrCardsHtml = qrData.map((student) => {
+				return `
+					<div class="qr-card">
+						<div class="student-name">${student.name}</div>
+						<img src="${student.dataUrl}" class="qr-image" alt="QR Code for ${student.name}" />
+						<div class="instructions">Scan to login</div>
+						<div class="student-code">${student.uuid}</div>
+					</div>
+				`;
+			}).join('');
+
+			const currentDate = new Date().toLocaleDateString();
+			const currentTime = new Date().toLocaleTimeString();
+
+			printWindow.document.write(`
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<title>QR Codes - ${classStore.name}</title>
+					<meta charset="UTF-8">
+					<style>
+						* {
+							margin: 0;
+							padding: 0;
+							box-sizing: border-box;
+						}
+
+						@media print {
+							@page {
+								size: A4;
+								margin: 1cm;
+							}
+							body {
+								margin: 0;
+								print-color-adjust: exact;
+								-webkit-print-color-adjust: exact;
+							}
+						}
+
+						body {
+							font-family: Arial, sans-serif;
+							padding: 20px;
+						}
+
+						.header {
+							text-align: center;
+							margin-bottom: 30px;
+							padding-bottom: 20px;
+							border-bottom: 2px solid #333;
+						}
+
+						.header h1 {
+							font-size: 24px;
+							margin-bottom: 8px;
+							color: #333;
+						}
+
+						.header p {
+							font-size: 14px;
+							color: #666;
+						}
+
+						.grid {
+							display: grid;
+							grid-template-columns: repeat(2, 1fr);
+							gap: 20px;
+							width: 100%;
+						}
+
+						.qr-card {
+							border: 2px dashed #ccc;
+							border-radius: 8px;
+							padding: 20px;
+							text-align: center;
+							break-inside: avoid;
+							page-break-inside: avoid;
+						}
+
+						.student-name {
+							font-weight: bold;
+							font-size: 16px;
+							margin-bottom: 15px;
+							color: #333;
+						}
+
+						.qr-image {
+							display: block;
+							margin: 10px auto;
+							max-width: 200px;
+							height: auto;
+						}
+
+						.instructions {
+							font-size: 12px;
+							color: #666;
+							margin-top: 10px;
+						}
+
+						.student-code {
+							font-family: 'Courier New', monospace;
+							font-size: 11px;
+							color: #999;
+							margin-top: 8px;
+						}
+
+						.footer {
+							margin-top: 30px;
+							padding-top: 20px;
+							border-top: 1px solid #ddd;
+							text-align: center;
+							font-size: 12px;
+							color: #999;
+						}
+					</style>
+				</head>
+				<body>
+					<div class="header">
+						<h1>${classStore.name} - Student QR Codes</h1>
+						<p>${classItem.organization?.name || ''} | Grade ${classStore.grade} | ${studentsWithQR.length} Students</p>
+					</div>
+					<div class="grid">
+						${qrCardsHtml}
+					</div>
+					<div class="footer">
+						<p>Generated on ${currentDate} at ${currentTime}</p>
+					</div>
+					<script>
+						// Trigger print after a short delay to ensure images are loaded
+						setTimeout(() => {
+							window.print();
+						}, 500);
+					<\/script>
+				</body>
+				</html>
+			`);
+
+			printWindow.document.close();
+
+			notifications.success(`Preparing to print ${studentsWithQR.length} QR codes`);
+
+		} catch (error) {
+			console.error('Failed to generate QR codes:', error);
+			notifications.error('Failed to generate QR codes for printing');
+		} finally {
+			// Reset state after a delay
+			setTimeout(() => {
+				isPrintingQRCodes = false;
+			}, 1000);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -134,6 +331,18 @@
 				</div>
 			</div>
 			<div class="flex items-center space-x-3">
+				{#if classStore.studentCount > 0}
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={printAllQRCodes}
+						disabled={isPrintingQRCodes}
+					>
+						<Printer class="-ml-1 mr-2 h-4 w-4" />
+						{isPrintingQRCodes ? 'Preparing...' : 'Print QR Codes'}
+					</Button>
+				{/if}
+
 				<Button
 					variant="outline"
 					size="sm"

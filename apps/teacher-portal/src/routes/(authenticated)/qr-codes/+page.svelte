@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
-	import { enhance } from '$app/forms'
-	import { Button, Card } from '@educational-app/ui'
-	// Layout is now provided by parent authenticated layout
-	import type { PageData, ActionData } from './$types'
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { Button, Card, Drawer, QRCode, useNotifications } from '@educational-app/ui';
+	import { BarChart3, Copy, Plus, Printer, QrCode as QrCodeIcon, RefreshCw } from 'lucide-svelte';
+// Layout is now provided by parent authenticated layout
+	import type { ActionData, PageData } from './$types';
 
 	interface Props {
 		data: PageData;
@@ -12,11 +13,18 @@
 
 	let { data, form }: Props = $props();
 
+	const notifications = useNotifications();
+
 	interface Student {
 		id: string
 		name: string
 		uuid: string
 		email?: string
+		studentQRCodes?: Array<{
+			token: string
+			expiresAt: Date
+			createdAt: Date
+		}>
 		qrCode?: string
 		qrExpiry?: Date
 		lastScanned?: Date
@@ -32,176 +40,71 @@
 		}
 	}
 
-	let classes: ClassData[] = data.classes || []
-	let selectedClass = classes[0] || null
-	let loading = false
-	let expiresInHours = 24
-	let qrSize = 256
-	let showAnalytics = false
+	// Use $derived for reactive data access (maintains reactivity with server data)
+	const classes = $derived(data.classes || [])
+	let selectedClass = $state<ClassData | null>(null)
+	let loading = $state(false)
+	let showAnalytics = $state(false)
+
+	// Initialize selectedClass after classes are set
+	$effect(() => {
+		if (classes.length > 0 && !selectedClass) {
+			selectedClass = classes[0];
+		}
+	})
 
 	// QR Generation options
-	let generationOptions = {
+	let generationOptions = $state({
 		size: 256,
-		expires: 24,
+		expires: 10 * 365 * 24, // No expiry by default (10 years)
 		includeNames: true,
 		format: 'individual' as 'individual' | 'sheet'
-	}
+	})
 
 	// Analytics data from server
-	let analytics = data.analytics || {
-		totalGenerated: 0,
-		totalScanned: 0,
-		activeQRCodes: 0,
+	let analytics = {
+		totalGenerated: data.analytics?.totalGenerated || 0,
+		totalScanned: data.analytics?.totalScanned || 0,
+		activeQRCodes: data.analytics?.activeQRCodes || 0,
 		scanSuccessRate: 0
 	}
 
-	let showQRModal = false
-	let selectedQRData: { qrCode: string; studentName: string; expiresAt: string } | null = null
+	let showQRDrawer = $state(false)
+	let selectedQRData = $state<{ qrCode: string; studentName: string; expiresAt: string } | null>(null)
 
 	// Handle form results using $effect
 	$effect(() => {
 		if (form?.success) {
-			if (form?.qrCode) {
+			const formData = form as any;
+			notifications.success(formData.message || 'QR code generated successfully');
+			if (formData.qrCode) {
 				// Individual QR code generated
 				selectedQRData = {
-					qrCode: form.qrCode,
-					studentName: form.studentName || '',
-					expiresAt: form.expiresAt ? new Date(form.expiresAt).toLocaleString() : ''
+					qrCode: formData.qrCode,
+					studentName: formData.studentName || '',
+					expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toLocaleString() : ''
 				}
-				showQRModal = true
-			} else if (form?.format === 'sheet' && form?.html) {
+				showQRDrawer = true
+			} else if (formData.format === 'sheet' && formData.html) {
 				// Printable sheet generated
 				const printWindow = window.open('', '_blank')
 				if (printWindow) {
-					printWindow.document.write(form.html)
+					printWindow.document.write(formData.html)
 					printWindow.document.close()
 					printWindow.focus()
 					printWindow.print()
 				}
 			}
+			invalidateAll();
+		} else if (form && !form.success) {
+			const formData = form as any;
+			notifications.error(formData.message || 'Operation failed');
 		}
 	})
 
-	async function generateStudentQR(student: Student) {
-		loading = true
-		try {
-			// Mock API call - replace with actual tRPC call
-			await new Promise(resolve => setTimeout(resolve, 1000))
-			
-			// Mock QR generation
-			const qrData = {
-				uuid: student.uuid,
-				studentName: student.name,
-				expires: Date.now() + (expiresInHours * 60 * 60 * 1000)
-			}
-			
-			// Generate mock QR code data URL
-			student.qrCode = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==`
-			student.qrExpiry = new Date(qrData.expires)
-			
-			// Trigger reactivity
-			classes = [...classes]
-		} catch (error) {
-			console.error('Failed to generate QR code:', error)
-		} finally {
-			loading = false
-		}
-	}
-
-	async function generateClassQRs() {
-		loading = true
-		try {
-			// Mock API call
-			await new Promise(resolve => setTimeout(resolve, 2000))
-			
-			// Generate QR codes for all students in selected class
-			for (const student of selectedClass.students) {
-				const qrData = {
-					uuid: student.uuid,
-					studentName: student.name,
-					expires: Date.now() + (generationOptions.expires * 60 * 60 * 1000)
-				}
-				
-				student.qrCode = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==`
-				student.qrExpiry = new Date(qrData.expires)
-			}
-			
-			classes = [...classes]
-		} catch (error) {
-			console.error('Failed to generate class QR codes:', error)
-		} finally {
-			loading = false
-		}
-	}
-
-	async function generatePrintableSheet() {
-		loading = true
-		try {
-			// Mock generating printable sheet
-			await new Promise(resolve => setTimeout(resolve, 1500))
-			
-			// Create printable HTML content
-			const printContent = createPrintableContent()
-			
-			// Open print window
-			const printWindow = window.open('', '_blank')
-			if (printWindow) {
-				printWindow.document.write(printContent)
-				printWindow.document.close()
-				printWindow.focus()
-				printWindow.print()
-			}
-		} catch (error) {
-			console.error('Failed to generate printable sheet:', error)
-		} finally {
-			loading = false
-		}
-	}
-
-	function createPrintableContent(): string {
-		return `
-<!DOCTYPE html>
-<html>
-<head>
-	<title>QR Codes - ${selectedClass.name}</title>
-	<style>
-		@page { size: A4; margin: 1cm; }
-		body { font-family: Arial, sans-serif; }
-		.header { text-align: center; margin-bottom: 20px; }
-		.qr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-		.qr-item { border: 2px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; }
-		.student-name { font-weight: bold; margin-bottom: 10px; }
-		.qr-placeholder { width: 150px; height: 150px; background: #f0f0f0; margin: 10px auto; display: flex; align-items: center; justify-content: center; }
-	</style>
-</head>
-<body>
-	<div class="header">
-		<h1>Student Login QR Codes</h1>
-		<h2>${selectedClass.name}</h2>
-		<p>Generated on ${new Date().toLocaleDateString()}</p>
-	</div>
-	<div class="qr-grid">
-		${selectedClass.students.map(student => `
-			<div class="qr-item">
-				<div class="student-name">${student.name}</div>
-				<div class="qr-placeholder">QR Code</div>
-				<div style="font-size: 12px; color: #666;">
-					Student ID: ${student.uuid.substring(0, 8)}...<br>
-					Expires: ${new Date(Date.now() + generationOptions.expires * 60 * 60 * 1000).toLocaleDateString()}
-				</div>
-			</div>
-		`).join('')}
-	</div>
-	<div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666;">
-		Educational App Platform - QR Authentication System
-	</div>
-</body>
-</html>
-		`
-	}
-
-	function refreshQR(student: Student) {
-		generateStudentQR(student)
+	function refreshQR(_student: Student) {
+		// This will be handled by the form submission
+		notifications.info('Refreshing QR code...');
 	}
 
 	function isQRExpired(expiry?: Date): boolean {
@@ -227,7 +130,7 @@
 </script>
 
 <svelte:head>
-	<title>QR Codes - Educational App</title>
+	<title>QR Codes</title>
 </svelte:head>
 
 <!-- Content is now wrapped by the parent authenticated layout -->
@@ -238,13 +141,11 @@
 				<h1 class="text-2xl font-bold text-gray-900">QR Code Management</h1>
 				<p class="mt-1 text-sm text-gray-500">Generate and manage student authentication QR codes</p>
 			</div>
-			<Button 
+			<Button
 				variant="outline"
 				onclick={() => showAnalytics = !showAnalytics}
 			>
-				<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-				</svg>
+				<BarChart3 class="w-4 h-4 mr-2" />
 				{showAnalytics ? 'Hide' : 'Show'} Analytics
 			</Button>
 		</div>
@@ -295,44 +196,68 @@
 				<div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-3">
 					<!-- Generation Options -->
 					<div class="flex items-center space-x-2">
-						<label class="text-sm text-gray-700">Expires:</label>
+						<label for="expiry-select" class="text-sm text-gray-700">Expires:</label>
 						<select
+							id="expiry-select"
 							bind:value={generationOptions.expires}
 							class="px-2 py-1 border border-gray-300 rounded text-sm"
 						>
-							<option value={1}>1 hour</option>
-							<option value={4}>4 hours</option>
-							<option value={8}>8 hours</option>
+							<option value={10 * 365 * 24}>No expiry</option>
 							<option value={24}>24 hours</option>
 							<option value={72}>3 days</option>
 							<option value={168}>1 week</option>
+							<option value={30 * 24}>1 month</option>
+							<option value={90 * 24}>3 months</option>
 						</select>
 					</div>
 
-				<form method="POST" action="?/generateClassQR" use:enhance>
+				<form method="POST" action="?/generateClassQR" use:enhance={() => {
+					loading = true;
+					return async ({ result, update }) => {
+						loading = false;
+						await update();
+						if (result.type === 'success' && result.data) {
+							const data = result.data as any;
+							notifications.success(data.message || 'QR codes generated for all students');
+							await invalidateAll();
+						} else if (result.type === 'failure' && result.data) {
+							const data = result.data as any;
+							notifications.error(data.error || 'Failed to generate QR codes');
+						}
+					};
+				}}>
 					{#if selectedClass}
 						<input type="hidden" name="classId" value={selectedClass.id} />
 						<input type="hidden" name="format" value="individual" />
 						<input type="hidden" name="expiresInHours" value={generationOptions.expires} />
 						<input type="hidden" name="size" value={generationOptions.size} />
 						<Button
-							type="submit"
-							variant="solid"
-							color="primary"
-							disabled={loading || !selectedClass}
+					type="submit"
+								variant="solid"
+								color="primary"
+								disabled={loading || !selectedClass}
+								loading={loading}
 						>
-							{#if loading}
-								<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-								</svg>
-							{/if}
 							Generate All QR Codes
 						</Button>
 					{/if}
 				</form>
 
-				<form method="POST" action="?/generateClassQR" use:enhance>
+				<form method="POST" action="?/generateClassQR" use:enhance={() => {
+					loading = true;
+					return async ({ result, update }) => {
+						loading = false;
+						await update();
+						if (result.type === 'success' && result.data) {
+							const data = result.data as any;
+							notifications.success(data.message || 'Print sheet generated');
+							await invalidateAll();
+						} else if (result.type === 'failure' && result.data) {
+							const data = result.data as any;
+							notifications.error(data.error || 'Failed to generate print sheet');
+						}
+					};
+				}}>
 					{#if selectedClass}
 						<input type="hidden" name="classId" value={selectedClass.id} />
 						<input type="hidden" name="format" value="sheet" />
@@ -342,10 +267,9 @@
 							type="submit"
 							variant="outline"
 							disabled={loading || !selectedClass}
+							loading={loading}
 						>
-							<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-							</svg>
+							<Printer class="w-4 h-4 mr-2" />
 							Print Sheet
 						</Button>
 					{/if}
@@ -355,6 +279,7 @@
 	</Card>
 
 	<!-- Students QR Codes Grid -->
+	{#if selectedClass}
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 		{#each selectedClass.students as student (student.id)}
 			<Card>
@@ -364,179 +289,227 @@
 						<p class="text-sm text-gray-600">ID: {student.uuid.substring(0, 8)}...</p>
 					</div>
 					<div class="flex space-x-2">
-						<form method="POST" action="?/generateStudentQR" use:enhance>
+						<form method="POST" action="?/generateStudentQR" use:enhance={() => {
+							loading = true;
+							return async ({ result, update }) => {
+								loading = false;
+								await update();
+								if (result.type === 'success' && result.data) {
+									const data = result.data as any;
+									notifications.success(data.message || 'QR code generated');
+									await invalidateAll();
+								} else if (result.type === 'failure' && result.data) {
+									const data = result.data as any;
+									notifications.error(data.error || 'Failed to generate QR code');
+								}
+							};
+						}}>
 							<input type="hidden" name="studentId" value={student.id} />
 							<input type="hidden" name="expiresInHours" value={generationOptions.expires} />
 							<input type="hidden" name="size" value={generationOptions.size} />
-							<button
+							<Button
 								type="submit"
+								variant="ghost"
+								size="sm"
 								disabled={loading}
-								class="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-md"
-								title="Generate QR Code"
+								aria-label="Generate QR Code for {student.name}"
 							>
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-								</svg>
-							</button>
+								<Plus class="w-5 h-5" />
+							</Button>
 						</form>
 						{#if student.qrCode}
-							<button
-								on:click={() => refreshQR(student)}
+							<Button
+								variant="ghost"
+								size="sm"
+								onclick={() => refreshQR(student)}
 								disabled={loading}
-								class="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-md"
-								title="Refresh QR Code"
+								aria-label="Refresh QR Code for {student.name}"
 							>
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-								</svg>
-							</button>
+								<RefreshCw class="w-5 h-5" />
+							</Button>
 						{/if}
 					</div>
 				</div>
 
-					{#if student.qrCode}
-						<div class="text-center">
+					{#if student.studentQRCodes && student.studentQRCodes.length > 0}
+						{@const qrCode = student.studentQRCodes[0]}
+						<div class="text-center flex flex-col justify-items-center">
 							<!-- QR Code Display -->
-							<div class="w-48 h-48 mx-auto mb-4 border-2 border-gray-200 rounded-lg flex items-center justify-center bg-gray-50">
-								<!-- This will be replaced with actual QR code image -->
-								<div class="text-gray-500 text-center">
-									<svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h.01M12 12v4m6-4v4"/>
-									</svg>
-									<div class="text-sm">QR Code</div>
+							<div class="mx-auto mb-4 p-4 bg-white border-2 border-gray-200 rounded-lg inline-block">
+								<QRCode
+									data={qrCode.token}
+									size={180}
+									showActions={false}
+									class="mx-auto [&>div:last-child]:hidden"
+								/>
+							</div>
+
+							<!-- Status Badge -->
+							<div class={`inline-flex place-self-center w-fit px-2.5 py-0.5 rounded-full text-xs font-medium ${isQRExpired(qrCode.expiresAt) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+								{isQRExpired(qrCode.expiresAt) ? 'Expired' : 'Active'}
+							</div>
+
+							<!-- Token with Copy Button -->
+							<div class="mt-3 p-2 bg-gray-50 rounded-md">
+								<div class="flex items-center justify-between gap-2">
+									<code class="text-xs text-gray-600 font-mono truncate flex-1">
+										{qrCode.token.slice(0, 12)}...{qrCode.token.slice(-12)}
+									</code>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={() => {
+											navigator.clipboard.writeText(qrCode.token);
+											notifications.success('Token copied to clipboard');
+										}}
+										class="flex-shrink-0 p-1.5"
+									>
+										<Copy class="w-4 h-4" />
+									</Button>
 								</div>
 							</div>
 
-							<!-- Status -->
-							<div class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isQRExpired(student.qrExpiry) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-								{isQRExpired(student.qrExpiry) ? 'Expired' : 'Active'}
-							</div>
+							<p class="text-sm text-gray-600 mt-2">
+								{#if new Date(qrCode.expiresAt).getFullYear() > new Date().getFullYear() + 5}
+									No expiry
+								{:else if isQRExpired(qrCode.expiresAt)}
+									Expired
+								{:else}
+									Expires in {formatTimeRemaining(qrCode.expiresAt)}
+								{/if}
+							</p>
 
-							{#if student.qrExpiry}
-								<p class="text-sm text-gray-600 mt-2">
-									{isQRExpired(student.qrExpiry) ? 'Expired' : `Expires in ${formatTimeRemaining(student.qrExpiry)}`}
-								</p>
-							{/if}
-
-							{#if student.lastScanned}
-								<p class="text-xs text-gray-500 mt-1">
-									Last used: {student.lastScanned.toLocaleDateString()}
-								</p>
-							{/if}
+							<p class="text-xs text-gray-500 mt-1">
+								Created: {new Date(qrCode.createdAt).toLocaleDateString()}
+							</p>
 						</div>
 					{:else}
 				<div class="text-center py-8">
-					<svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h.01M12 12v4m6-4v4"/>
-					</svg>
+					<QrCodeIcon class="w-12 h-12 mx-auto text-gray-300 mb-4" />
 					<p class="text-gray-600 text-sm">No QR code generated</p>
-					<Button
-						variant="ghost"
-						size="sm"
-						onclick={() => generateStudentQR(student)}
-						disabled={loading}
-					>
-						Generate QR Code
-					</Button>
+					<p class="text-xs text-gray-500 mt-2">Click the + button above to generate</p>
 				</div>
 			{/if}
 		</Card>
 			{/each}
 		</div>
+	{/if}
 
 	<!-- Help Section -->
-	<Card class="mt-8 bg-blue-50">
-		<h3 class="text-lg font-semibold text-blue-900 mb-3">How to Use QR Codes</h3>
-		<div class="text-blue-800 space-y-2">
+	<Card class="mt-8 bg-neutral-50">
+		<h3 class="text-lg font-semibold text-neutral-900 mb-3">How to Use QR Codes</h3>
+		<div class="text-neutral-800 space-y-2">
 			<p class="flex items-start">
-				<span class="inline-block w-6 h-6 bg-blue-200 text-blue-800 rounded-full text-xs font-semibold flex items-center justify-center mr-3 mt-0.5">1</span>
+				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold items-center justify-center mr-3 mt-0.5">1</span>
 				Generate QR codes for individual students or entire classes
 			</p>
 			<p class="flex items-start">
-				<span class="inline-block w-6 h-6 bg-blue-200 text-blue-800 rounded-full text-xs font-semibold flex items-center justify-center mr-3 mt-0.5">2</span>
+				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">2</span>
 				Print QR codes or display them on screen for students to scan
 			</p>
 			<p class="flex items-start">
-				<span class="inline-block w-6 h-6 bg-blue-200 text-blue-800 rounded-full text-xs font-semibold flex items-center justify-center mr-3 mt-0.5">3</span>
+				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">3</span>
 				Students scan QR codes with their mobile app to log in securely
 			</p>
 			<p class="flex items-start">
-				<span class="inline-block w-6 h-6 bg-blue-200 text-blue-800 rounded-full text-xs font-semibold flex items-center justify-center mr-3 mt-0.5">4</span>
+				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">4</span>
 				QR codes expire automatically for security (default: 24 hours)
 			</p>
 		</div>
 	</Card>
 
-		<!-- QR Code Modal -->
-		{#if showQRModal && selectedQRData}
-			<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-				<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-					<div class="mt-3">
-						<div class="flex items-center justify-between mb-4">
-							<h3 class="text-lg font-semibold text-gray-900">QR Code Generated</h3>
-							<button
-								on:click={() => showQRModal = false}
-								class="text-gray-400 hover:text-gray-600"
-							>
-								<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-								</svg>
-							</button>
-						</div>
-						
-						<div class="text-center">
-							<h4 class="text-md font-medium text-gray-900 mb-3">{selectedQRData.studentName}</h4>
-							
-							<!-- QR Code Display -->
-							<div class="mb-4">
-								<img src={selectedQRData.qrCode} alt="QR Code" class="mx-auto border rounded-lg" />
-							</div>
-							
-							<p class="text-sm text-gray-600 mb-4">
-								Expires: {selectedQRData.expiresAt}
-							</p>
-							
-							<div class="flex space-x-3">
-								<Button
-									variant="solid"
-									color="primary"
-									class="flex-1"
-									onclick={() => {
-										// Copy QR data URL to clipboard
-										navigator.clipboard.writeText(selectedQRData.qrCode)
-									}}
-								>
-									Copy QR Code
-								</Button>
-								<Button
-									variant="solid"
-									color="secondary"
-									class="flex-1"
-									onclick={() => {
-										// Print QR code
-										const printWindow = window.open('', '_blank')
-										if (printWindow) {
-											printWindow.document.write(`
-												<!DOCTYPE html>
-												<html>
-												<head><title>QR Code - ${selectedQRData.studentName}</title></head>
-												<body style="text-align: center; font-family: Arial;">
-													<h2>${selectedQRData.studentName}</h2>
-													<img src="${selectedQRData.qrCode}" />
-													<p>Expires: ${selectedQRData.expiresAt}</p>
-												</body>
-												</html>
-											`)
-											printWindow.document.close()
-											printWindow.print()
-										}
-									}}
-								>
-									Print
-								</Button>
-							</div>
-						</div>
-					</div>
-				</div>
+	<!-- QR Code Drawer -->
+<Drawer
+	bind:open={showQRDrawer}
+	title="QR Code Generated"
+	position="right"
+	size="md"
+	padding="lg"
+>
+	{#snippet children()}
+		{#if selectedQRData}
+		<div class="text-center">
+			<h4 class="text-lg font-semibold text-gray-900 mb-6">{selectedQRData.studentName}</h4>
+
+			<!-- QR Code Display -->
+			<div class="mb-6 p-6 bg-white border-2 border-gray-200 rounded-lg inline-block">
+				<QRCode
+					data={selectedQRData.qrCode}
+					size={250}
+					showActions={false}
+					class="mx-auto"
+				/>
 			</div>
+
+			<p class="text-sm text-gray-600 mb-4">
+				<span class="font-medium">Expires:</span> {selectedQRData.expiresAt}
+			</p>
+		</div>
 		{/if}
+	{/snippet}
+
+	{#snippet footer()}
+		{#if selectedQRData}
+		<div class="flex w-full space-x-3">
+			<Button
+				variant="outline"
+				class="flex-1"
+				onclick={() => {
+					if (selectedQRData) {
+						navigator.clipboard.writeText(selectedQRData.qrCode);
+						notifications.success('QR code copied to clipboard');
+					}
+				}}
+			>
+				Copy QR Code
+			</Button>
+			<Button
+				variant="solid"
+				color="primary"
+				class="flex-1"
+				onclick={() => {
+					if (selectedQRData) {
+						const printWindow = window.open('', '_blank')
+						if (printWindow) {
+							printWindow.document.write(`
+								<!DOCTYPE html>
+								<html>
+								<head>
+									<title>QR Code - ${selectedQRData.studentName}</title>
+									<style>
+										body {
+											font-family: Arial, sans-serif;
+											text-align: center;
+											padding: 20px;
+										}
+										h2 { margin-bottom: 20px; }
+										.qr-container {
+											display: inline-block;
+											padding: 20px;
+											border: 2px solid #ddd;
+											border-radius: 8px;
+											margin: 20px 0;
+										}
+									</style>
+								</head>
+								<body>
+									<h2>${selectedQRData.studentName}</h2>
+									<div class="qr-container">
+										<img src="${selectedQRData.qrCode}" width="300" height="300" />
+									</div>
+									<p>Expires: ${selectedQRData.expiresAt}</p>
+								</body>
+								</html>
+							`)
+							printWindow.document.close()
+							printWindow.print()
+						}
+					}
+				}}
+			>
+				Print QR Code
+			</Button>
+		</div>
+		{/if}
+	{/snippet}
+</Drawer>

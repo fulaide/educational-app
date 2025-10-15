@@ -35,7 +35,18 @@ export const load = (async ({ locals, params }) => {
 						grade: true,
 						isActive: true,
 						lastLoginAt: true,
-						createdAt: true
+						createdAt: true,
+						studentQRCodes: {
+							where: {
+								expiresAt: {
+									gt: new Date() // Only non-expired QR codes
+								}
+							},
+							orderBy: {
+								createdAt: 'desc'
+							},
+							take: 1 // Get the most recent active QR code
+						}
 					},
 					orderBy: { name: 'asc' }
 				},

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { AuthInput, Button, Card, Drawer, useNotifications } from '@educational-app/ui';
-	import { ArrowLeft, UserPlus, UserSearch } from 'lucide-svelte';
+	import { AuthInput, Button, Card, ConfirmationDialog, Drawer, QRCode, useNotifications } from '@educational-app/ui';
+	import { ArrowLeft, TriangleAlert, UserPlus, UserSearch, QrCode as QrCodeIcon, Printer, Download } from 'lucide-svelte';
 
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -85,7 +85,7 @@
 		onUpdated({ form }) {
 			if (form.valid && form.message) {
 				notifications.success(form.message);
-				editingStudent = null;
+				showEditForm = false;
 				invalidateAll(); // Refresh page data
 			} else if (form.message) {
 				notifications.error(form.message);
@@ -104,6 +104,7 @@
 			console.log('Remove form onUpdated:', { valid: form.valid, message: form.message, form });
 			if (form.valid && form.message) {
 				notifications.success(form.message);
+				showRemoveDialog = false;
 				confirmRemove = null;
 				invalidateAll(); // Refresh page data
 			} else if (form.message) {
@@ -126,9 +127,12 @@
 	// UI state
 	let showAddForm = $state(false);
 	let showCreateForm = $state(false);
+	let showEditForm = $state(false);
+	let showRemoveDialog = $state(false);
+	let showQRDrawer = $state(false);
 	let addMode: 'existing' | 'new' = $state('existing');
 	let confirmRemove: string | null = $state(null);
-	let editingStudent: string | null = $state(null);
+	let selectedQRData = $state<{ token: string; studentName: string; expiresAt: Date } | null>(null);
 
 	// Initialize form mode
 	$addData.mode = addMode;
@@ -156,16 +160,23 @@
 	}
 
 	function startEditingStudent(student: any) {
-		editingStudent = student.id;
 		$editData.studentId = student.id;
 		$editData.name = student.name || '';
 		$editData.grade = student.grade;
 		$editData.isActive = student.isActive;
+		showEditForm = true;
 	}
 
-	function cancelEdit() {
-		editingStudent = null;
-		editForm.reset();
+	// Handle remove confirmation
+	function handleRemoveStudent() {
+		if (confirmRemove) {
+			$removeData.studentId = confirmRemove;
+			// Submit the form programmatically
+			const removeFormElement = document.getElementById('remove-student-form') as HTMLFormElement;
+			if (removeFormElement) {
+				removeFormElement.requestSubmit();
+			}
+		}
 	}
 </script>
 
@@ -531,10 +542,27 @@
 
 							<!-- Actions -->
 							<div class="flex items-center space-x-2">
-						
+								{#if student.studentQRCodes && student.studentQRCodes.length > 0}
+									<Button
+										variant="ghost"
+										color="primary"
+										onclick={() => {
+											const qrCode = student.studentQRCodes[0];
+											selectedQRData = {
+												token: qrCode.token,
+												studentName: student.name || 'Unnamed Student',
+												expiresAt: qrCode.expiresAt
+											};
+											showQRDrawer = true;
+										}}
+									>
+										<QrCodeIcon class="w-4 h-4 " />
+										
+									</Button>
+								{/if}
 
 								<Button
-						variant="ghost"
+									variant="ghost"
 									color="primary"
 									onclick={() => startEditingStudent(student)}
 								>
@@ -542,14 +570,15 @@
 								</Button>
 
 								<Button
-						variant="ghost"
+									variant="ghost"
 									color="danger"
-									onclick={() => confirmRemove = student.id}
+									onclick={() => {
+										confirmRemove = student.id;
+										showRemoveDialog = true;
+									}}
 								>
 									Remove
 								</Button>
-								
-								
 							</div>
 						</div>
 					{/each}
@@ -557,28 +586,20 @@
 			{/if}
 		</Card>
 
-		<!-- Edit Student Modal -->
-		{#if editingStudent}
-			{@const studentToEdit = classItem.students.find(s => s.id === editingStudent)}
-			<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick={() => cancelEdit()}>
-				<div class="relative top-20 mx-auto p-6 border w-full max-w-md shadow-lg rounded-md bg-white" onclick={(e) => e.stopPropagation()}>
-					<div class="flex justify-between items-center mb-4">
-						<h3 class="text-lg font-semibold text-gray-900">Edit Student</h3>
-						<button 
-							type="button"
-							class="text-gray-400 hover:text-gray-600"
-							onclick={() => cancelEdit()}
-						>
-							<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-							</svg>
-						</button>
-					</div>
-					
-					<form method="POST" action="?/edit" use:editEnhance class="space-y-4">
-						<input type="hidden" name="studentId" bind:value={$editData.studentId} />
-						
-						<AuthInput 
+		<!-- Edit Student Drawer -->
+		<Drawer
+			bind:open={showEditForm}
+			title="Edit Student"
+			position="right"
+			size="md"
+			padding="lg"
+		>
+			{#snippet children()}
+				<form method="POST" action="?/edit" use:editEnhance id="edit-student-form">
+					<input type="hidden" name="studentId" bind:value={$editData.studentId} />
+
+					<div class="space-y-4">
+						<AuthInput
 							name="name"
 							label="Student Name"
 							placeholder="Enter student's full name"
@@ -586,12 +607,13 @@
 							error={$editErrors.name?.[0]}
 							required
 						/>
-						
+
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Grade</label>
-							<select 
-								name="grade" 
-								class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+							<label for="edit-grade" class="block text-sm font-medium text-neutral-700 mb-1">Grade</label>
+							<select
+								id="edit-grade"
+								name="grade"
+								class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
 								bind:value={$editData.grade}
 								required
 							>
@@ -601,103 +623,204 @@
 								<option value={4}>Grade 4</option>
 							</select>
 							{#if $editErrors.grade?.[0]}
-								<p class="mt-1 text-sm text-red-600">{$editErrors.grade[0]}</p>
+								<p class="mt-1 text-sm text-danger-600">{$editErrors.grade[0]}</p>
 							{/if}
 						</div>
-						
+
 						<div class="flex items-center">
-							<input 
-								type="checkbox" 
+							<input
+								type="checkbox"
 								name="isActive"
-								id="isActive"
-								class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+								id="edit-isActive"
+								class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
 								bind:checked={$editData.isActive}
 							/>
-							<label for="isActive" class="ml-2 block text-sm text-gray-900">
+							<label for="edit-isActive" class="ml-2 block text-sm text-neutral-900">
 								Student is active
 							</label>
 						</div>
 						{#if $editErrors.isActive?.[0]}
-							<p class="mt-1 text-sm text-red-600">{$editErrors.isActive[0]}</p>
+							<p class="mt-1 text-sm text-danger-600">{$editErrors.isActive[0]}</p>
 						{/if}
-						
-						<div class="flex justify-end space-x-3 pt-4">
-							<button 
-								type="button"
-								class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-								onclick={() => cancelEdit()}
-							>
-								Cancel
-							</button>
-							<AuthButton type="submit" disabled={$editSubmitting}>
-								{#if $editSubmitting}
-									<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-										<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-										<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-									</svg>
-									Saving...
-								{:else}
-									Save Changes
-								{/if}
-							</AuthButton>
-						</div>
-					</form>
-				</div>
-			</div>
-		{/if}
-
-		<!-- Remove Student Confirmation Modal -->
-		{#if confirmRemove}
-			{@const studentToRemove = classItem.students.find(s => s.id === confirmRemove)}
-			<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick={() => confirmRemove = null}>
-				<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onclick={(e) => e.stopPropagation()}>
-					<div class="text-center">
-						<svg class="mx-auto mb-4 h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-						</svg>
-						<h3 class="mb-2 text-lg font-semibold text-gray-900">Remove Student</h3>
-						<p class="mb-4 text-sm text-gray-500">
-							Remove <strong>"{studentToRemove?.name || 'Student'}"</strong> from this class?
-							<br><span class="text-xs">Note: This only removes them from the class, it doesn't delete their account.</span>
-						</p>
-						<div class="flex justify-center space-x-3">
-							<button 
-								type="button"
-								class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-								onclick={() => confirmRemove = null}
-							>
-								Cancel
-							</button>
-							<form 
-								method="POST" 
-								action="?/remove" 
-								use:removeEnhance
-								onsubmit={() => {
-									console.log('Removing student with ID:', confirmRemove);
-									$removeData.studentId = confirmRemove || '';
-								}}
-							>
-								<input type="hidden" name="studentId" value={confirmRemove || ''} />
-								<button 
-									type="submit"
-									disabled={$removeSubmitting}
-									class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-								>
-									{#if $removeSubmitting}
-										<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-										</svg>
-										Removing...
-									{:else}
-										Remove Student
-									{/if}
-								</button>
-							</form>
-						</div>
 					</div>
+				</form>
+			{/snippet}
+
+			{#snippet footer()}
+				<div class="flex justify-end w-full space-x-3">
+					<Button
+						variant="outline"
+						onclick={() => showEditForm = false}
+					>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+						form="edit-student-form"
+						variant="solid"
+						color="primary"
+						disabled={$editSubmitting}
+					>
+						{#if $editSubmitting}
+							<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							Saving...
+						{:else}
+							Save Changes
+						{/if}
+					</Button>
 				</div>
-			</div>
-		{/if}
+			{/snippet}
+		</Drawer>
+
+		<!-- Remove Student Confirmation Dialog -->
+		<ConfirmationDialog
+			bind:open={showRemoveDialog}
+			title="Remove Student"
+			icon={TriangleAlert}
+			iconColor="danger"
+			confirmLabel="Remove Student"
+			confirmColor="danger"
+			cancelLabel="Cancel"
+			loading={$removeSubmitting}
+			onConfirm={handleRemoveStudent}
+			onCancel={() => {
+				showRemoveDialog = false;
+				confirmRemove = null;
+			}}
+		>
+			{#snippet children()}
+				{@const studentToRemove = classItem.students.find(s => s.id === confirmRemove)}
+				<p class="mb-2">
+					Remove <strong>"{studentToRemove?.name || 'Student'}"</strong> from this class?
+				</p>
+				<p class="text-xs">
+					Note: This only removes them from the class, it doesn't delete their account.
+				</p>
+			{/snippet}
+		</ConfirmationDialog>
+
+		<!-- Hidden form for remove submission -->
+		<form
+			id="remove-student-form"
+			method="POST"
+			action="?/remove"
+			use:removeEnhance
+			class="hidden"
+		>
+			<input type="hidden" name="studentId" bind:value={$removeData.studentId} />
+		</form>
+
+		<!-- QR Code Drawer -->
+		<Drawer
+			bind:open={showQRDrawer}
+			title="Student QR Code"
+			position="right"
+			size="md"
+			padding="lg"
+		>
+			{#snippet children()}
+				{#if selectedQRData}
+					<div class="text-center">
+						<h4 class="text-lg font-semibold text-neutral-900 mb-6">{selectedQRData.studentName}</h4>
+
+						<!-- QR Code Display -->
+						<div class="mb-6 p-6 bg-white border-2 border-neutral-200 rounded-lg inline-block">
+							<QRCode
+								data={selectedQRData.token}
+								size={250}
+								showActions={false}
+								class="mx-auto"
+							/>
+						</div>
+
+						<p class="text-sm text-neutral-600 mb-4">
+							<span class="font-medium">Expires:</span>
+							{#if new Date(selectedQRData.expiresAt).getFullYear() > new Date().getFullYear() + 5}
+								No expiry
+							{:else}
+								{new Date(selectedQRData.expiresAt).toLocaleString()}
+							{/if}
+						</p>
+
+						<p class="text-xs text-neutral-500">
+							Students can scan this QR code to log in to their account.
+						</p>
+					</div>
+				{/if}
+			{/snippet}
+
+			{#snippet footer()}
+				{#if selectedQRData}
+					<div class="flex w-full space-x-3">
+						<Button
+							variant="outline"
+							class="flex-1"
+							onclick={() => {
+								if (selectedQRData) {
+									navigator.clipboard.writeText(selectedQRData.token);
+									notifications.success('QR code token copied to clipboard');
+								}
+							}}
+						>
+							Copy Token
+						</Button>
+						<Button
+							variant="solid"
+							color="primary"
+							class="flex-1"
+							onclick={() => {
+								if (selectedQRData) {
+									const printWindow = window.open('', '_blank');
+									if (printWindow) {
+										printWindow.document.write(`
+											<!DOCTYPE html>
+											<html>
+											<head>
+												<title>QR Code - ${selectedQRData.studentName}</title>
+												<style>
+													body {
+														font-family: Arial, sans-serif;
+														text-align: center;
+														padding: 20px;
+													}
+													h2 { margin-bottom: 20px; }
+													.qr-container {
+														display: inline-block;
+														padding: 20px;
+														border: 2px solid #ddd;
+														border-radius: 8px;
+														margin: 20px 0;
+													}
+												</style>
+											</head>
+											<body>
+												<h2>${selectedQRData.studentName}</h2>
+												<div class="qr-container">
+													<canvas id="qr"></canvas>
+												</div>
+												<p>Student Login QR Code</p>
+												<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+												<script>
+													QRCode.toCanvas(document.getElementById('qr'), '${selectedQRData.token}', { width: 300 });
+													setTimeout(() => window.print(), 500);
+												</script>
+											</body>
+											</html>
+										`);
+										printWindow.document.close();
+									}
+								}
+							}}
+						>
+							<Printer class="w-4 h-4 mr-2" />
+							Print QR Code
+						</Button>
+					</div>
+				{/if}
+			{/snippet}
+		</Drawer>
 	</div>
 
