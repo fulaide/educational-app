@@ -70,11 +70,12 @@ model Organization {
   country   String           @db.Char(2)
   timezone  String
   settings  Json
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  classes   Class[]
-  rewards   Reward[]
-  users     User[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  classes        Class[]
+  rewards        Reward[]
+  users          User[]
+  vocabularyWords VocabularyWord[]
 
   @@map("organizations")
 }
@@ -114,8 +115,12 @@ model User {
   syncOperations     SyncOperation[]
   createdTasks       Task[]               @relation("CreatedBy")
   userSessions       UserSession[]
-  organization       Organization?        @relation(fields: [organizationId], references: [id])
-  studentClasses     Class[]              @relation("StudentClasses")
+  organization         Organization?          @relation(fields: [organizationId], references: [id])
+  studentClasses       Class[]                @relation("StudentClasses")
+  createdVocabulary    VocabularyWord[]       @relation("VocabularyCreator")
+  vocabularyProgress   VocabularyProgress[]
+  vocabularySessions   VocabularySession[]
+  vocabularyAttempts   VocabularyAttempt[]
 
   @@map("users")
 }
@@ -399,4 +404,137 @@ enum Platform {
 enum AvatarType {
   PRESET
   CUSTOM
+}
+
+enum VocabularyCategory {
+  ANIMALS
+  COLORS
+  NUMBERS
+  FAMILY
+  OBJECTS
+  FOOD
+  CLOTHING
+  BODY_PARTS
+  WEATHER
+  TIME
+  PLACES
+  ACTIONS
+}
+
+enum MasteryLevel {
+  NOT_LEARNED
+  LEARNING
+  FAMILIAR
+  MASTERED
+}
+
+enum ExerciseType {
+  MATCHING
+  MULTIPLE_CHOICE
+  SPELLING
+  AUDIO
+  PICTURE
+  SENTENCE_BUILDING
+  DRAG_DROP
+  FILL_BLANK
+}
+
+// Vocabulary Word Model
+model VocabularyWord {
+  id                   String                 @id @default(cuid())
+  organizationId       String
+  word                 String                 // Primary word in target language
+  translation          String                 // English translation
+  phonetic             String?                // IPA pronunciation
+  audioUrl             String?
+  imageUrl             String?
+  category             VocabularyCategory
+  difficulty           Difficulty
+  frequency            Int                    @default(5) // 1-10 usage frequency
+  tags                 String[]               @default([])
+  translations         Json                   @default("{}") // Full i18n support
+  examples             Json                   @default("[]") // Usage examples
+  language             String                 @default("de") @db.Char(2) // ISO 639-1 code
+  languageSpecificData Json                   @default("{}") // Language-specific metadata
+  isActive             Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            String
+  organization         Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator              User                   @relation("VocabularyCreator", fields: [createdBy], references: [id])
+  progress             VocabularyProgress[]
+  attempts             VocabularyAttempt[]
+
+  @@index([organizationId])
+  @@index([category])
+  @@index([difficulty])
+  @@index([language])
+  @@map("vocabulary_words")
+}
+
+// Student Vocabulary Progress (Spaced Repetition)
+model VocabularyProgress {
+  id              String        @id @default(cuid())
+  studentId       String
+  wordId          String
+  masteryLevel    MasteryLevel  @default(NOT_LEARNED)
+  correctAttempts Int           @default(0)
+  totalAttempts   Int           @default(0)
+  lastSeen        DateTime?
+  nextReview      DateTime?
+  streakCount     Int           @default(0)
+  interval        Int           @default(1) // days until next review
+  easeFactor      Float         @default(2.5) // difficulty multiplier (1.3-2.5)
+  repetitions     Int           @default(0)
+  lapseCount      Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  student         User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  word            VocabularyWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, wordId])
+  @@index([studentId])
+  @@index([nextReview])
+  @@map("vocabulary_progress")
+}
+
+// Vocabulary Learning Session
+model VocabularySession {
+  id               String               @id @default(cuid())
+  studentId        String
+  category         VocabularyCategory?
+  difficulty       Difficulty?
+  wordsToReview    String[]             @default([]) // word IDs
+  wordsCompleted   String[]             @default([])
+  sessionType      String               @default("MIXED") // REVIEW, NEW_WORDS, MIXED
+  startedAt        DateTime             @default(now())
+  completedAt      DateTime?
+  totalTimeSpent   Int                  @default(0) // seconds
+  averageAccuracy  Float                @default(0.0)
+  student          User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  attempts         VocabularyAttempt[]
+
+  @@index([studentId])
+  @@map("vocabulary_sessions")
+}
+
+// Vocabulary Attempt within Session
+model VocabularyAttempt {
+  id           String            @id @default(cuid())
+  sessionId    String
+  wordId       String
+  studentId    String
+  exerciseType String            // RECOGNITION, RECALL, SPELLING, AUDIO
+  isCorrect    Boolean
+  responseTime Int               // milliseconds
+  hintsUsed    Int               @default(0)
+  attemptedAt  DateTime          @default(now())
+  session      VocabularySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  word         VocabularyWord    @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  student      User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([wordId])
+  @@index([studentId])
+  @@map("vocabulary_attempts")
 }

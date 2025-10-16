@@ -2,6 +2,7 @@ export { LearningService } from './LearningService'
 export { VocabularyService } from './VocabularyService'
 export { ProgressService } from './ProgressService'
 export { AchievementService } from './AchievementService'
+export { LanguageProviderRegistry, languageProviderRegistry } from './LanguageProviderRegistry'
 
 // Create centralized service instances for easy app-wide access
 export const learningService = new LearningService()
