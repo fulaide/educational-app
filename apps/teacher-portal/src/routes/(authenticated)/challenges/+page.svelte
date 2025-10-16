@@ -34,15 +34,16 @@
 	const viewDetailsText = $derived($t('challenges.view_details'));
 
 	// Reactive challenge counts
-	const totalChallenges = $derived(data.challenges.length);
+	const challenges = $derived(data.challenges || []);
+	const totalChallenges = $derived(challenges.length);
 	const totalStudents = $derived(
-		data.challenges.reduce((sum, c) => sum + c.stats.totalStudents, 0)
+		challenges.reduce((sum, c) => sum + c.stats.totalStudents, 0)
 	);
 	const avgCompletionRate = $derived(
-		data.challenges.length > 0
+		challenges.length > 0
 			? Math.round(
-					data.challenges.reduce((sum, c) => sum + c.stats.completionRate, 0) /
-						data.challenges.length
+					challenges.reduce((sum, c) => sum + c.stats.completionRate, 0) /
+						challenges.length
 				)
 			: 0
 	);
@@ -53,7 +54,7 @@
 
 	// Filtered challenges
 	const filteredChallenges = $derived.by(() => {
-		let filtered = data.challenges;
+		let filtered = challenges;
 
 		// Search filter
 		if (searchQuery.trim()) {

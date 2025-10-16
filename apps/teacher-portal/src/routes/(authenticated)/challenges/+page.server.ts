@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { requireRole } from '$lib/auth/auth-helpers.server';
 import type { PageServerLoad } from './$types';
 
@@ -6,6 +6,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const session = await requireRole(locals, 'TEACHER');
 
 	try {
+		console.log('[Challenges] Loading challenges for user:', session.user.id);
 		// Fetch teacher's challenges with assignment counts
 		const challenges = await locals.prisma.vocabularyChallenge.findMany({
 			where: {
@@ -123,11 +124,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 			})
 		);
 
+		console.log('[Challenges] Loaded', challengesWithStats.length, 'challenges');
+
 		return {
 			challenges: challengesWithStats
 		};
-	} catch (error) {
-		console.error('Error loading challenges:', error);
-		return fail(500, { message: 'Failed to load challenges' });
+	} catch (err) {
+		console.error('[Challenges] Error loading challenges:', err);
+		throw error(500, {
+			message: 'Failed to load challenges. Please try again.'
+		});
 	}
 };

@@ -1,4 +1,4 @@
-import { Home, Users, BookOpen, BarChart3, Settings, LogOut, GraduationCap, UserPlus } from 'lucide-svelte';
+import { Home, Users, BookOpen, BarChart3, Settings, LogOut, GraduationCap, UserPlus, Trophy } from 'lucide-svelte';
 
 export interface NavigationItem {
 	id: string;
@@ -50,6 +50,13 @@ export function createTeacherNavigation(
 					icon: Users,
 					badge: badges?.students,
 					isActive: currentPath.startsWith('/students')
+				},
+				{
+					id: 'challenges',
+					label: 'Challenges',
+					href: '/challenges',
+					icon: Trophy,
+					isActive: currentPath.startsWith('/challenges')
 				},
 				{
 					id: 'qr-codes',
@@ -143,6 +150,7 @@ export function getPageTitle(currentPath: string): string {
 		'/dashboard': 'Dashboard',
 		'/classes': 'My Classes',
 		'/students': 'Students',
+		'/challenges': 'Challenges',
 		'/qr-codes': 'QR Codes',
 		'/settings': 'Settings',
 		'/profile': 'Profile'
@@ -154,6 +162,9 @@ export function getPageTitle(currentPath: string): string {
 	}
 	if (currentPath.startsWith('/students/')) {
 		return 'Student Management';
+	}
+	if (currentPath.startsWith('/challenges/')) {
+		return 'Challenge Details';
 	}
 
 	return pathMap[currentPath] || 'Teacher Portal';
