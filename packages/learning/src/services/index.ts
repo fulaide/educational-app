@@ -4,16 +4,25 @@ export { ProgressService } from './ProgressService'
 export { AchievementService } from './AchievementService'
 export { LanguageProviderRegistry, languageProviderRegistry } from './LanguageProviderRegistry'
 
+// Import German provider for default initialization
+import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'
+
+// Register German provider by default
+languageProviderRegistry.registerConstructor('de', GermanLanguageProvider)
+
 // Create centralized service instances for easy app-wide access
 export const learningService = new LearningService()
-export const vocabularyService = new VocabularyService()
+export const vocabularyService = new VocabularyService('/api/vocabulary', languageProviderRegistry)
 export const progressService = new ProgressService()
 export const achievementService = new AchievementService()
 
 // Service factory for custom API endpoints
-export const createServices = (baseUrl: string) => ({
+export const createServices = (baseUrl: string, withProviders = true) => ({
   learning: new LearningService(`${baseUrl}/learning`),
-  vocabulary: new VocabularyService(`${baseUrl}/vocabulary`),
+  vocabulary: new VocabularyService(
+    `${baseUrl}/vocabulary`,
+    withProviders ? languageProviderRegistry : undefined
+  ),
   progress: new ProgressService(`${baseUrl}/progress`),
   achievement: new AchievementService(`${baseUrl}/achievements`)
 })

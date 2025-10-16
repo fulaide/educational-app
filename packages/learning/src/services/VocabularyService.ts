@@ -1,18 +1,38 @@
-import type { 
-  VocabularyWord, 
+import type {
+  VocabularyWord,
   VocabularyProgress,
   VocabularySession,
   VocabularyAttempt,
   MasteryLevel,
   VocabularyCategory
 } from '../types'
+import type {
+  Exercise,
+  ExerciseType,
+  MultipleChoiceExerciseContent,
+  FillBlankExerciseContent,
+  SpellingExerciseContent
+} from '../types/Exercise'
+import type {
+  LanguageCode,
+  DistractorType,
+  DistractorOptions,
+  Distractor,
+  PerformanceData,
+  DifficultyAdjustment,
+  WeakAreas
+} from '../types/LanguageProvider'
+import type { DifficultyLevel } from '../types/Module'
+import type { LanguageProviderRegistry } from './LanguageProviderRegistry'
 import { GERMAN_VOCABULARY } from '../data/german-vocabulary'
 
 export class VocabularyService {
   private apiBase: string
+  private providerRegistry: LanguageProviderRegistry | null
 
-  constructor(apiBase = '/api/vocabulary') {
+  constructor(apiBase = '/api/vocabulary', providerRegistry?: LanguageProviderRegistry) {
     this.apiBase = apiBase
+    this.providerRegistry = providerRegistry || null
   }
 
   /**
@@ -179,14 +199,384 @@ export class VocabularyService {
       const response = await fetch(`${this.apiBase}/session/${sessionId}/complete`, {
         method: 'POST'
       })
-      
+
       if (!response.ok) throw new Error('Failed to complete vocabulary session')
-      
+
       return await response.json()
     } catch (error) {
       console.error('Error completing vocabulary session:', error)
       return this.getMockSessionResults(sessionId)
     }
+  }
+
+  // ========== Language Provider Integration Methods ==========
+
+  /**
+   * Generate distractors for a vocabulary word using language providers
+   */
+  async generateDistractors(
+    word: VocabularyWord,
+    options: DistractorOptions
+  ): Promise<Distractor[]> {
+    if (!this.providerRegistry) {
+      throw new Error('Language provider registry not configured')
+    }
+
+    try {
+      const language = (word.language || 'de') as LanguageCode
+      const provider = this.providerRegistry.getWithFallback(language)
+
+      return await provider.generateDistractors(word, options)
+    } catch (error) {
+      console.error('Error generating distractors:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate an exercise for a vocabulary word
+   */
+  async generateExercise(
+    wordId: string,
+    exerciseType: ExerciseType,
+    options: {
+      language?: LanguageCode
+      distractorTypes?: DistractorType[]
+      distractorCount?: number
+      difficulty?: DifficultyLevel
+      allWords?: VocabularyWord[]
+    } = {}
+  ): Promise<Exercise> {
+    try {
+      // Fetch the target word
+      const response = await fetch(`${this.apiBase}/words/${wordId}`)
+      if (!response.ok) throw new Error('Failed to fetch word')
+
+      const word: VocabularyWord = await response.json()
+
+      // Generate exercise based on type
+      switch (exerciseType) {
+        case 'MULTIPLE_CHOICE':
+          return await this.generateMultipleChoiceExercise(word, options)
+        case 'FILL_BLANK':
+          return await this.generateFillBlankExercise(word, options)
+        case 'SPELLING':
+          return await this.generateSpellingExercise(word, options)
+        default:
+          throw new Error(`Exercise type ${exerciseType} not yet implemented`)
+      }
+    } catch (error) {
+      console.error('Error generating exercise:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Adapt challenge difficulty based on student performance
+   */
+  async adaptDifficulty(
+    wordId: string,
+    performance: PerformanceData,
+    historicalData?: PerformanceData[]
+  ): Promise<DifficultyAdjustment> {
+    if (!this.providerRegistry) {
+      throw new Error('Language provider registry not configured')
+    }
+
+    try {
+      const response = await fetch(`${this.apiBase}/words/${wordId}`)
+      if (!response.ok) throw new Error('Failed to fetch word')
+
+      const word: VocabularyWord = await response.json()
+      const language = (word.language || 'de') as LanguageCode
+      const provider = this.providerRegistry.getWithFallback(language)
+
+      return provider.adaptDifficulty(word, performance, historicalData)
+    } catch (error) {
+      console.error('Error adapting difficulty:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Identify student's weak areas based on recent attempts
+   */
+  async identifyWeakAreas(
+    studentId: string,
+    language: LanguageCode = 'de',
+    limit = 50
+  ): Promise<WeakAreas> {
+    if (!this.providerRegistry) {
+      throw new Error('Language provider registry not configured')
+    }
+
+    try {
+      // Fetch recent attempts
+      const response = await fetch(
+        `${this.apiBase}/attempts/${studentId}?limit=${limit}&language=${language}`
+      )
+
+      if (!response.ok) throw new Error('Failed to fetch attempts')
+
+      const attempts: Array<{
+        word: VocabularyWord
+        performance: PerformanceData
+      }> = await response.json()
+
+      const provider = this.providerRegistry.getWithFallback(language)
+      return provider.identifyWeakAreas(studentId, attempts)
+    } catch (error) {
+      console.error('Error identifying weak areas:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Analyze a student's mistake
+   */
+  async analyzeMistake(
+    wordId: string,
+    studentAnswer: string
+  ): Promise<{
+    mistakeTypes: string[]
+    suggestions: string[]
+  }> {
+    if (!this.providerRegistry) {
+      throw new Error('Language provider registry not configured')
+    }
+
+    try {
+      const response = await fetch(`${this.apiBase}/words/${wordId}`)
+      if (!response.ok) throw new Error('Failed to fetch word')
+
+      const word: VocabularyWord = await response.json()
+      const language = (word.language || 'de') as LanguageCode
+      const provider = this.providerRegistry.getWithFallback(language)
+
+      const mistakeTypes = provider.analyzeMistake(word, studentAnswer)
+
+      // Generate suggestions based on mistake types
+      const suggestions = this.generateSuggestions(mistakeTypes, word.word, studentAnswer)
+
+      return { mistakeTypes, suggestions }
+    } catch (error) {
+      console.error('Error analyzing mistake:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get common mistakes for a word
+   */
+  async getCommonMistakes(wordId: string): Promise<Array<{
+    mistake: string
+    mistakeType: string
+    frequency: number
+  }>> {
+    if (!this.providerRegistry) {
+      throw new Error('Language provider registry not configured')
+    }
+
+    try {
+      const response = await fetch(`${this.apiBase}/words/${wordId}`)
+      if (!response.ok) throw new Error('Failed to fetch word')
+
+      const word: VocabularyWord = await response.json()
+      const language = (word.language || 'de') as LanguageCode
+      const provider = this.providerRegistry.getWithFallback(language)
+
+      return provider.getCommonMistakes(word)
+    } catch (error) {
+      console.error('Error getting common mistakes:', error)
+      throw error
+    }
+  }
+
+  // ========== Exercise Generation Helpers ==========
+
+  /**
+   * Generate multiple choice exercise
+   */
+  private async generateMultipleChoiceExercise(
+    word: VocabularyWord,
+    options: {
+      distractorTypes?: DistractorType[]
+      distractorCount?: number
+      difficulty?: DifficultyLevel
+      allWords?: VocabularyWord[]
+    }
+  ): Promise<Exercise> {
+    const distractorTypes = options.distractorTypes || ['SEMANTIC', 'PHONETIC']
+    const distractorCount = options.distractorCount || 3
+
+    // Generate distractors using language provider
+    const distractors = await this.generateDistractors(word, {
+      count: distractorCount,
+      types: distractorTypes,
+      difficulty: options.difficulty || word.difficulty,
+      category: word.category
+    })
+
+    // Build multiple choice content
+    const content: MultipleChoiceExerciseContent = {
+      type: 'MULTIPLE_CHOICE',
+      question: {
+        type: 'TEXT',
+        content: `What is the correct translation for "${word.word}"?`
+      },
+      options: [
+        {
+          id: 'correct',
+          content: { type: 'TEXT', content: word.translation },
+          isCorrect: true
+        },
+        ...distractors.map((d, i) => ({
+          id: `distractor-${i}`,
+          content: { type: 'TEXT', content: d.word },
+          isCorrect: false
+        }))
+      ],
+      allowMultiple: false,
+      shuffleOptions: true
+    }
+
+    return {
+      id: `exercise-${word.id}-${Date.now()}`,
+      moduleId: 'vocabulary',
+      type: 'MULTIPLE_CHOICE',
+      title: `Translate: ${word.word}`,
+      instructions: 'Select the correct translation',
+      content,
+      pointsValue: 10,
+      order: 0,
+      translations: {},
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  }
+
+  /**
+   * Generate fill-in-the-blank exercise
+   */
+  private async generateFillBlankExercise(
+    word: VocabularyWord,
+    options: {
+      difficulty?: DifficultyLevel
+    }
+  ): Promise<Exercise> {
+    const examples = (word.examples as any)?.german || []
+    const exampleText = examples[0] || `Das ist ein ${word.word}.`
+
+    // Create blank by replacing the target word
+    const textWithBlank = exampleText.replace(word.word, '{blank}')
+
+    const content: FillBlankExerciseContent = {
+      type: 'FILL_BLANK',
+      text: textWithBlank,
+      blanks: [
+        {
+          id: 'blank-1',
+          correctAnswers: [word.word, word.word.toLowerCase()],
+          position: 0
+        }
+      ],
+      caseSensitive: false
+    }
+
+    return {
+      id: `exercise-${word.id}-${Date.now()}`,
+      moduleId: 'vocabulary',
+      type: 'FILL_BLANK',
+      title: `Complete the sentence`,
+      instructions: 'Fill in the blank with the correct word',
+      content,
+      pointsValue: 10,
+      order: 0,
+      translations: {},
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  }
+
+  /**
+   * Generate spelling exercise
+   */
+  private async generateSpellingExercise(
+    word: VocabularyWord,
+    options: {
+      difficulty?: DifficultyLevel
+    }
+  ): Promise<Exercise> {
+    const content: SpellingExerciseContent = {
+      type: 'SPELLING',
+      prompt: {
+        type: 'TEXT',
+        content: `How do you spell: ${word.translation}?`
+      },
+      correctAnswer: word.word,
+      caseSensitive: true,
+      allowPartialCredit: false
+    }
+
+    return {
+      id: `exercise-${word.id}-${Date.now()}`,
+      moduleId: 'vocabulary',
+      type: 'SPELLING',
+      title: `Spell: ${word.translation}`,
+      instructions: 'Type the correct spelling',
+      content,
+      pointsValue: 15,
+      order: 0,
+      translations: {},
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  }
+
+  /**
+   * Generate suggestions based on mistake types
+   */
+  private generateSuggestions(
+    mistakeTypes: string[],
+    correctWord: string,
+    studentAnswer: string
+  ): string[] {
+    const suggestions: string[] = []
+
+    for (const mistakeType of mistakeTypes) {
+      switch (mistakeType) {
+        case 'ARTICLE_ERROR':
+          suggestions.push('Remember to use the correct article (der/die/das)')
+          break
+        case 'PLURAL_ERROR':
+          suggestions.push('Check the plural formation rules for this word')
+          break
+        case 'PHONETIC_CONFUSION':
+          suggestions.push('Pay attention to similar-sounding letters (ä/a, ö/o, ü/u)')
+          break
+        case 'SPELLING_ERROR':
+          suggestions.push(`The correct spelling is: ${correctWord}`)
+          break
+        case 'GRAMMAR_ERROR':
+          suggestions.push('Review German grammar rules for this word type')
+          break
+        case 'VISUAL_CONFUSION':
+          suggestions.push('Watch out for visually similar letters (b/d, m/n)')
+          break
+        case 'SEMANTIC_CONFUSION':
+          suggestions.push('Make sure you understand the meaning of the word')
+          break
+      }
+    }
+
+    if (suggestions.length === 0) {
+      suggestions.push(`The correct answer is: ${correctWord}`)
+    }
+
+    return suggestions
   }
 
   // Mock data methods for development/offline use
