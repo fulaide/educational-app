@@ -537,11 +537,37 @@ model VocabularyAttempt {
   session      VocabularySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   word         VocabularyWord    @relation(fields: [wordId], references: [id], onDelete: Cascade)
   student      User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  mistakes     VocabularyMistake[]
 
   @@index([sessionId])
   @@index([wordId])
   @@index([studentId])
   @@map("vocabulary_attempts")
+}
+
+// Vocabulary Mistake Tracking (for pattern analysis)
+model VocabularyMistake {
+  id             String            @id @default(cuid())
+  attemptId      String
+  studentId      String
+  wordId         String
+  mistakeType    String            // ARTICLE_ERROR, UMLAUT_ERROR, PHONETIC_CONFUSION, etc.
+  correctAnswer  String
+  studentAnswer  String
+  severity       Float             @default(0.5) // 0-1 scale (how severe the mistake was)
+  exerciseType   String            // Context of the mistake
+  responseTime   Int               // milliseconds
+  hintsUsed      Int               @default(0)
+  languageCode   String            @default("de") @db.Char(2)
+  metadata       Json              @default("{}") // Additional context (e.g., article confusion details)
+  createdAt      DateTime          @default(now())
+  attempt        VocabularyAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([wordId])
+  @@index([mistakeType])
+  @@index([createdAt])
+  @@map("vocabulary_mistakes")
 }
 
 // Vocabulary Challenge Model
