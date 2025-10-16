@@ -7,7 +7,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	try {
 		console.log('[Challenges] Loading challenges for user:', session.user.id);
-		// Fetch teacher's challenges with assignment counts
+
+		// Fetch teacher's challenges with basic counts only
 		const challenges = await locals.prisma.vocabularyChallenge.findMany({
 			where: {
 				createdBy: session.user.id,
@@ -19,14 +20,26 @@ export const load: PageServerLoad = async ({ locals }) => {
 						exercises: true,
 						assignments: true
 					}
-				},
-				assignments: {
+				}
+			},
+			orderBy: {
+				createdAt: 'desc'
+			}
+		});
+
+		console.log('[Challenges] Found', challenges.length, 'challenges');
+
+		// Calculate statistics for each challenge
+		const challengesWithStats = await Promise.all(
+			challenges.map(async (challenge) => {
+				console.log('[Challenges] Processing challenge:', challenge.id);
+
+				// Get all assignments for this challenge
+				const assignments = await locals.prisma.challengeAssignment.findMany({
+					where: {
+						challengeId: challenge.id
+					},
 					include: {
-						_count: {
-							select: {
-								attempts: true
-							}
-						},
 						class: {
 							select: {
 								id: true,
@@ -41,24 +54,22 @@ export const load: PageServerLoad = async ({ locals }) => {
 						student: {
 							select: {
 								id: true,
-								name: true,
-								uuid: true
+								name: true
+							}
+						},
+						_count: {
+							select: {
+								attempts: true
 							}
 						}
 					}
-				}
-			},
-			orderBy: {
-				createdAt: 'desc'
-			}
-		});
+				});
 
-		// Calculate statistics for each challenge
-		const challengesWithStats = await Promise.all(
-			challenges.map(async (challenge) => {
+				console.log('[Challenges] Found', assignments.length, 'assignments for challenge', challenge.id);
+
 				// Count total students assigned
-				const classAssignments = challenge.assignments.filter(a => a.assignedToClass);
-				const individualAssignments = challenge.assignments.filter(a => a.assignedToStudent);
+				const classAssignments = assignments.filter(a => a.assignedToClass);
+				const individualAssignments = assignments.filter(a => a.assignedToStudent);
 
 				const totalStudentsFromClasses = classAssignments.reduce(
 					(sum, assignment) => sum + (assignment.class?._count.students || 0),
@@ -67,7 +78,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				const totalStudents = totalStudentsFromClasses + individualAssignments.length;
 
 				// Count completion attempts
-				const totalAttempts = challenge.assignments.reduce(
+				const totalAttempts = assignments.reduce(
 					(sum, assignment) => sum + assignment._count.attempts,
 					0
 				);
