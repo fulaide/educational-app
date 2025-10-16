@@ -121,6 +121,10 @@ model User {
   vocabularyProgress   VocabularyProgress[]
   vocabularySessions   VocabularySession[]
   vocabularyAttempts   VocabularyAttempt[]
+  createdChallenges    VocabularyChallenge[]  @relation("ChallengeCreator")
+  assignedChallenges   ChallengeAssignment[]  @relation("AssignedChallenges")
+  studentAssignments   ChallengeAssignment[]  @relation("StudentAssignments")
+  challengeAttempts    ChallengeAttempt[]     @relation("ChallengeAttempts")
 
   @@map("users")
 }
@@ -142,6 +146,7 @@ model Class {
   teacher        User            @relation("TeacherClasses", fields: [teacherId], references: [id])
   qrCodes        StudentQRCode[]
   students       User[]          @relation("StudentClasses")
+  challengeAssignments ChallengeAssignment[]
 
   @@map("classes")
 }
@@ -537,4 +542,92 @@ model VocabularyAttempt {
   @@index([wordId])
   @@index([studentId])
   @@map("vocabulary_attempts")
+}
+
+// Vocabulary Challenge Model
+model VocabularyChallenge {
+  id              String                      @id @default(cuid())
+  organizationId  String
+  title           String
+  description     String?
+  exerciseType    ExerciseType
+  difficulty      Difficulty
+  timeLimit       Int?                        // seconds per word
+  attemptsAllowed Int                         @default(3)
+  enableHints     Boolean                     @default(true)
+  enableExplanations Boolean                  @default(true)
+  isActive        Boolean                     @default(true)
+  createdBy       String
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  creator         User                        @relation("ChallengeCreator", fields: [createdBy], references: [id])
+  exercises       ChallengeExercise[]
+  assignments     ChallengeAssignment[]
+
+  @@index([organizationId])
+  @@index([createdBy])
+  @@map("vocabulary_challenges")
+}
+
+// Individual Exercise within a Challenge
+model ChallengeExercise {
+  id           String              @id @default(cuid())
+  challengeId  String
+  wordId       String
+  order        Int                 // Order within challenge
+  question     Json                // Question data (text, audio, image)
+  correctAnswer String
+  distractors  Json                // Array of distractors with metadata
+  hints        String[]            @default([])
+  explanation  String?
+  createdAt    DateTime            @default(now())
+  challenge    VocabularyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId])
+  @@index([wordId])
+  @@map("challenge_exercises")
+}
+
+// Challenge Assignment to Classes/Students
+model ChallengeAssignment {
+  id              String               @id @default(cuid())
+  challengeId     String
+  assignedBy      String
+  assignedToClass String?
+  assignedToStudent String?
+  availableFrom   DateTime?
+  availableUntil  DateTime?
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  challenge       VocabularyChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  assignedByUser  User                 @relation("AssignedChallenges", fields: [assignedBy], references: [id])
+  class           Class?               @relation(fields: [assignedToClass], references: [id])
+  student         User?                @relation("StudentAssignments", fields: [assignedToStudent], references: [id])
+  attempts        ChallengeAttempt[]
+
+  @@index([challengeId])
+  @@index([assignedToClass])
+  @@index([assignedToStudent])
+  @@map("challenge_assignments")
+}
+
+// Student Challenge Attempt
+model ChallengeAttempt {
+  id           String              @id @default(cuid())
+  assignmentId String
+  studentId    String
+  startedAt    DateTime            @default(now())
+  completedAt  DateTime?
+  score        Int?
+  totalPoints  Int
+  timeSpent    Int                 @default(0) // seconds
+  responses    Json                // Array of exercise responses
+  isComplete   Boolean             @default(false)
+  assignment   ChallengeAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      User                @relation("ChallengeAttempts", fields: [studentId], references: [id])
+
+  @@index([assignmentId])
+  @@index([studentId])
+  @@map("challenge_attempts")
 }
