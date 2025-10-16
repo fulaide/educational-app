@@ -1,8 +1,9 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { zfd } from 'zod-form-data';
 import { z } from 'zod';
 import { db } from '@educational-app/database';
 import { generateUUID } from '$lib/utils/uuid';
+import { requireRole } from '$lib/auth/auth-helpers.server';
 import type { Actions, PageServerLoad } from './$types';
 
 const studentRegistrationSchema = zfd.formData({
@@ -12,26 +13,17 @@ const studentRegistrationSchema = zfd.formData({
 });
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const auth = await locals.auth();
-	
-	if (!auth?.user || auth.user.role !== 'TEACHER') {
-		throw redirect(302, '/auth/signin');
-	}
+	const session = await requireRole(locals, 'TEACHER');
 
 	return {
-		user: auth.user
+		user: session.user
 	};
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
-		const auth = await locals.auth();
-		
-		if (!auth?.user || auth.user.role !== 'TEACHER') {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
-		const teacherId = auth.user.id;
+		const session = await requireRole(locals, 'TEACHER');
+		const teacherId = session.user.id;
 		
 		try {
 			const formData = await request.formData();
@@ -53,7 +45,7 @@ export const actions: Actions = {
 					name,
 					uuid,
 					grade,
-					organizationId: auth.user.organizationId,
+					organizationId: session.user.organizationId,
 					isActive: true,
 					isVerified: true, // Students don't need email verification
 					settings: JSON.stringify({

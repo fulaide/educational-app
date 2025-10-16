@@ -14,6 +14,8 @@
 	} from '@educational-app/ui';
 	import type { ActionData, PageData } from './$types';
 
+	import { Lightbulb } from 'lucide-svelte';
+
 	import { PUBLIC_APP_NAME } from '$env/static/public';
 
 	interface Props {
@@ -51,85 +53,131 @@
 </svelte:head>
 
 <AuthPageContainer>
-	<LocaleSwitcher variant="buttons" size="sm" />
+	
 
-	<AuthHeader 
-		title={pageTitle}
-		subtitle={pageSubtitle}
-	/>
 
-	{#if data.passwordReset}
-		<AuthSuccess message={$t('auth.messages.password_reset_success_text')} />
-	{/if}
 
-	<AuthForm 
-		onSubmit={(isLoading) => loading = isLoading}
-		onResult={async ({ result, update }) => {
-			if (result.type === 'failure') {
-				await update();
-			} else if (result.type === 'redirect') {
-				await update();
-			}
-		}}
-	>
-		{#if form?.error}
-			<AuthError error={form.error}>
-				{#if form?.needsVerification && form?.email}
-					<a 
-						href="/auth/resend-verification?email={encodeURIComponent(form.email)}" 
-						class="font-medium text-red-700 hover:text-red-800 underline"
-					>
-						{$t('auth.messages.resend_verification')}
-					</a>
+		<div class="flex flex-col gap-8 px-6 max-w-lg order-2 lg:order-1">
+
+				<figure class="w-full flex justify-center ">
+					<img src="/assets/teaser/intro.svg" alt="class graphic">
+				</figure>
+
+				<div class="flex flex-col">
+					<div class="flex gap-4 items-center mb-2">
+						<Lightbulb  class="w-6 h-6 text-white "/>
+						<h4 class="text-xl text-white">Spark your imagagination</h4>
+					</div>
+					<p class="text-primary-50 text-lg pl-10">Dive into a world of unexpected wonders and new found motivation to learn with fun.</p>
+				</div>
+				
+				<div class="flex flex-col">
+					<div class="flex gap-4 items-center mb-2">
+						<Lightbulb  class="w-6 h-6 text-white "/>
+						<h4 class="text-xl text-white">Spark your imagagination</h4>
+					</div>
+					<p class="text-primary-50 text-lg pl-10">Dive into a world of unexpected wonders and new found motivation to learn with fun.</p>
+				</div>
+
+				<div class="flex flex-col">
+					<div class="flex gap-4 items-center mb-2">
+						<Lightbulb  class="w-6 h-6 text-white "/>
+						<h4 class="text-xl text-white">Spark your imagagination</h4>
+					</div>
+					<p class="text-primary-50 text-lg pl-10">Dive into a world of unexpected wonders and new found motivation to learn with fun.</p>
+				</div>
+	
+		</div>
+	
+
+		<div class="rounded-2xl flex flex-col gap-2 p-8 bg-white border border-neutral-200 min-w-lg order-1 lg:order-2 ">
+
+			<LocaleSwitcher variant="buttons" size="sm" />
+			
+			<AuthHeader 
+				title={pageTitle}
+				subtitle={pageSubtitle}
+			/>
+
+			{#if data.passwordReset}
+				<AuthSuccess message={$t('auth.messages.password_reset_success_text')} />
+			{/if}
+
+			<AuthForm 
+				onSubmit={(isLoading) => loading = isLoading}
+				onResult={async ({ result, update }) => {
+					if (result.type === 'failure') {
+						await update();
+					} else if (result.type === 'redirect') {
+						await update();
+					}
+				}}
+				class="grid grid-cols-1 auto-rows-max gap-4 w-full"
+			>
+				{#if form?.error}
+					<AuthError error={form.error}>
+						{#if form?.needsVerification && form?.email}
+							<a 
+								href="/auth/resend-verification?email={encodeURIComponent(form.email)}" 
+								class="font-medium text-red-700 hover:text-red-800 underline"
+							>
+								{$t('auth.messages.resend_verification')}
+							</a>
+						{/if}
+					</AuthError>
 				{/if}
-			</AuthError>
-		{/if}
-		
-		<input type="hidden" name="callbackUrl" value={data?.callbackUrl || '/dashboard'} />
+				
+				<input type="hidden" name="callbackUrl" value={data?.callbackUrl || '/dashboard'} />
 
-		<AuthInput
-			id="email"
-			name="email"
-			type="email"
-			label={emailLabel}
-			placeholder={emailPlaceholder}
-			bind:value={email}
-			required
-			disabled={loading}
-		/>
+				<AuthInput
+					id="email"
+					name="email"
+					type="email"
+					label={emailLabel}
+					placeholder={emailPlaceholder}
+					bind:value={email}
+					required
+					disabled={loading}
+				/>
 
-		<AuthPasswordInput
-			id="password"
-			name="password"
-			label={passwordLabel}
-			placeholder={passwordPlaceholder}
-			bind:value={password}
-			required
-			disabled={loading}
-		/>
+				<AuthPasswordInput
+					id="password"
+					name="password"
+					label={passwordLabel}
+					placeholder={passwordPlaceholder}
+					bind:value={password}
+					required
+					disabled={loading}
+				/>
 
-		<AuthLinks links={[
-			{ 
-				href: '/auth/forgot-password', 
-				text: forgotPasswordText,
-				align: 'left'
-			}
-		]} />
+				<AuthLinks links={[
+					{ 
+						href: '/auth/forgot-password', 
+						text: forgotPasswordText,
+						align: 'left'
+					}
+				]} />
 
-		<AuthButton 
-			{loading}
-			loadingText={submittingText}
-		>
-			{submitText}
-		</AuthButton>
+				<AuthButton 
+					{loading}
+					loadingText={submittingText}
+				>
+					{submitText}
+				</AuthButton>
 
-		<AuthLinks links={[
-			{
-				href: '/auth/register',
-				text: createAccountText,
-				prefix: needAccountText,
-				align: 'center'
-			}
-		]} />
-	</AuthForm>
-</AuthPageContainer>
+				<AuthLinks links={[
+					{
+						href: '/auth/register',
+						text: createAccountText,
+						prefix: needAccountText,
+						align: 'center'
+					}
+				]} />
+			</AuthForm>
+
+		</div>
+
+	
+
+</AuthPageContainer> 
+	

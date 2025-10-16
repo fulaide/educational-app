@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
-	import { Drawer, AuthInput, Button, Card, useNotifications } from '@educational-app/ui';
+	import { invalidateAll } from '$app/navigation';
 	import { t } from '@educational-app/i18n';
+	import type { ImageAsset } from '@educational-app/media-manager';
+	import { AuthInput, Button, Card, Drawer, useNotifications } from '@educational-app/ui';
+	import { BookOpen, Plus, Users } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { BookOpen, Plus, Eye, Users } from 'lucide-svelte';
 	import type { PageData } from './$types';
-	import type { ImageAsset } from '@educational-app/media-manager';
-	import { invalidateAll } from '$app/navigation';
 
 	// Get notification context
 	const notifications = useNotifications();
@@ -221,7 +220,7 @@
 								<div class="flex justify-center pt-2">
 									<span class="text-xs text-primary-600 group-hover:text-primary-700 font-medium flex items-center">
 										View Details
-										<Eye class="ml-1 w-3 h-3" />
+										<Users class="ml-1 w-3 h-3" />
 									</span>
 								</div>
 							</div>

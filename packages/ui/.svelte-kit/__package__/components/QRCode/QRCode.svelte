@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { cn } from '../../utils/index.js';
-	import { Copy, Download, QrCode } from 'lucide-svelte';
+	import { Button } from '@educational-app/ui';
+	import { QrCode } from 'lucide-svelte';
+	import QRCodeLib from 'qrcode';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -28,58 +30,24 @@
 	let canvas: HTMLCanvasElement;
 	let qrCodeGenerated = $state(false);
 
-	// QR Code generation function (simplified - in real implementation you'd use a library like qrcode)
-	function generateQRCode() {
+	// QR Code generation function using the qrcode library
+	async function generateQRCode() {
 		if (!canvas || !data) return;
 
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		// Clear canvas
-		ctx.clearRect(0, 0, size, size);
-
-		// For demo purposes, create a simple grid pattern
-		// In real implementation, use a proper QR code library
-		const gridSize = 20;
-		const cellSize = size / gridSize;
-
-		// Simple hash-based pattern generation (demo only)
-		let hash = 0;
-		for (let i = 0; i < data.length; i++) {
-			const char = data.charCodeAt(i);
-			hash = ((hash << 5) - hash) + char;
-			hash = hash & hash; // Convert to 32-bit integer
+		try {
+			await QRCodeLib.toCanvas(canvas, data, {
+				width: size,
+				margin: 1,
+				color: {
+					dark: fgColor,
+					light: bgColor
+				},
+				errorCorrectionLevel: level
+			});
+			qrCodeGenerated = true;
+		} catch (err) {
+			console.error('Failed to generate QR code:', err);
 		}
-
-		ctx.fillStyle = bgColor;
-		ctx.fillRect(0, 0, size, size);
-
-		ctx.fillStyle = fgColor;
-
-		// Create a pattern based on the data hash
-		for (let row = 0; row < gridSize; row++) {
-			for (let col = 0; col < gridSize; col++) {
-				const cellHash = hash + row * gridSize + col;
-				if (cellHash % 3 === 0) {
-					ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-				}
-			}
-		}
-
-		// Add corner markers (simplified)
-		const markerSize = cellSize * 3;
-		ctx.fillRect(0, 0, markerSize, markerSize);
-		ctx.fillRect(size - markerSize, 0, markerSize, markerSize);
-		ctx.fillRect(0, size - markerSize, markerSize, markerSize);
-
-		// Add white squares inside corners
-		ctx.fillStyle = bgColor;
-		const innerSize = cellSize;
-		ctx.fillRect(innerSize, innerSize, innerSize, innerSize);
-		ctx.fillRect(size - markerSize + innerSize, innerSize, innerSize, innerSize);
-		ctx.fillRect(innerSize, size - markerSize + innerSize, innerSize, innerSize);
-
-		qrCodeGenerated = true;
 	}
 
 	async function copyToClipboard() {
@@ -123,7 +91,7 @@
 			bind:this={canvas}
 			width={size}
 			height={size}
-			class="rounded-lg border-2 border-gray-200 shadow-sm"
+			class="rounded-lg border-2 border-gray-200 "
 		/>
 
 		{#if !qrCodeGenerated}
@@ -135,29 +103,31 @@
 
 	{#if showActions && qrCodeGenerated}
 		<div class="flex gap-2">
-			<button
-				type="button"
-				class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+			
+
+			<Button
+	variant="outline"
+				class="flex-1"
 				onclick={copyToClipboard}
 			>
-				<Copy class="w-4 h-4" />
-				Copy Data
-			</button>
+				Copy
+			</Button>
 
-			<button
-				type="button"
-				class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+			<Button 
+				variant="soft"
+				class="flex-1"
 				onclick={downloadQRCode}
 			>
-				<Download class="w-4 h-4" />
 				Download
-			</button>
+			</Button>
+
+
 		</div>
 	{/if}
 
-	<div class="text-xs text-gray-500 text-center max-w-xs break-all">
+	<!-- <div class="text-xs text-gray-500 text-center max-w-xs break-all">
 		{data.slice(0, 50)}{data.length > 50 ? '...' : ''}
-	</div>
+	</div> -->
 </div>
 
 <!-- Note: In production, replace the generateQRCode function with a proper QR code library -->

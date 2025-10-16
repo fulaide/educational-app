@@ -208,7 +208,7 @@
 													<img
 														src={classItem.avatarUrl}
 														alt="{classItem.name} Logo"
-														class="h-10 w-10 rounded-lg object-cover border-2 border-neutral-200"
+														class="h-10 w-10 rounded-full object-cover border-2 border-neutral-200"
 													/>
 												{:else}
 													<div class="h-10 w-10 rounded-lg bg-primary-100 flex items-center justify-center border-2 border-primary-200">

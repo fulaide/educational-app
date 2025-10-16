@@ -1,15 +1,11 @@
-import { fail, redirect } from '@sveltejs/kit';
-import { z } from 'zod';
+import { fail } from '@sveltejs/kit';
 import { db } from '@educational-app/database';
 import { randomBytes } from 'crypto';
+import { requireRole } from '$lib/auth/auth-helpers.server';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const auth = await locals.auth();
-	
-	if (!auth?.user || auth.user.role !== 'TEACHER') {
-		throw redirect(302, '/auth/signin');
-	}
+	const session = await requireRole(locals, 'TEACHER');
 
 	// Get all students created by this teacher or in their classes
 	const students = await db.user.findMany({
@@ -17,12 +13,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 			role: 'STUDENT',
 			OR: [
 				{
-					organizationId: auth.user.organizationId
+					organizationId: session.user.organizationId
 				},
 				{
 					studentClasses: {
 						some: {
-							teacherId: auth.user.id
+							teacherId: session.user.id
 						}
 					}
 				}
@@ -66,11 +62,7 @@ function generateQRToken(): string {
 
 export const actions: Actions = {
 	generateQR: async ({ request, locals }) => {
-		const auth = await locals.auth();
-		
-		if (!auth?.user || auth.user.role !== 'TEACHER') {
-			return fail(401, { error: 'Unauthorized' });
-		}
+		const session = await requireRole(locals, 'TEACHER');
 
 		try {
 			const formData = await request.formData();
@@ -87,12 +79,12 @@ export const actions: Actions = {
 					role: 'STUDENT',
 					OR: [
 						{
-							organizationId: auth.user.organizationId
+							organizationId: session.user.organizationId
 						},
 						{
 							studentClasses: {
 								some: {
-									teacherId: auth.user.id
+									teacherId: session.user.id
 								}
 							}
 						}
@@ -126,13 +118,16 @@ export const actions: Actions = {
 					studentId: studentId,
 					token: token,
 					expiresAt: expiresAt,
-					createdBy: auth.user.id
+					createdBy: session.user.id
 				}
 			});
 
 			console.log(`Generated QR code for student ${studentId}, expires at ${expiresAt}`);
 
-			return { success: true, qrCode };
+			return {
+				success: true,
+				message: 'QR code generated successfully'
+			};
 
 		} catch (error) {
 			console.error('QR code generation error:', error);
@@ -141,11 +136,7 @@ export const actions: Actions = {
 	},
 
 	generateBulkQR: async ({ request, locals }) => {
-		const auth = await locals.auth();
-		
-		if (!auth?.user || auth.user.role !== 'TEACHER') {
-			return fail(401, { error: 'Unauthorized' });
-		}
+		const session = await requireRole(locals, 'TEACHER');
 
 		try {
 			const formData = await request.formData();
@@ -164,12 +155,12 @@ export const actions: Actions = {
 					role: 'STUDENT',
 					OR: [
 						{
-							organizationId: auth.user.organizationId
+							organizationId: session.user.organizationId
 						},
 						{
 							studentClasses: {
 								some: {
-									teacherId: auth.user.id
+									teacherId: session.user.id
 								}
 							}
 						}
@@ -202,7 +193,7 @@ export const actions: Actions = {
 				studentId: studentId,
 				token: generateQRToken(),
 				expiresAt: expiresAt,
-				createdBy: auth.user.id
+				createdBy: session.user.id
 			}));
 
 			await db.studentQRCode.createMany({
@@ -211,9 +202,9 @@ export const actions: Actions = {
 
 			console.log(`Generated ${qrCodesToCreate.length} QR codes for bulk operation`);
 
-			return { 
-				success: true, 
-				generatedCount: qrCodesToCreate.length 
+			return {
+				success: true,
+				message: `Successfully generated ${qrCodesToCreate.length} QR codes`
 			};
 
 		} catch (error) {
