@@ -5,6 +5,13 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await requireRole(locals, 'TEACHER');
 
+	console.log('[Challenges] locals.prisma exists:', !!locals.prisma);
+	console.log('[Challenges] locals.prisma.vocabularyChallenge exists:', !!locals.prisma?.vocabularyChallenge);
+
+	if (!locals.prisma) {
+		throw error(500, 'Database connection not available');
+	}
+
 	try {
 		console.log('[Challenges] Loading challenges for user:', session.user.id);
 

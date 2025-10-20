@@ -1,7 +1,9 @@
 import type { Handle } from '@sveltejs/kit'
-import { prisma } from '@educational-app/database'
+import { prisma as db } from '@educational-app/database'
 import jwt from 'jsonwebtoken'
 import { autoCleanupSessions } from '$lib/server/session-cleanup'
+
+console.log('[HOOKS] Prisma client loaded:', !!db)
 
 // Define UserRole enum for our custom authentication system
 const UserRole = {
@@ -14,7 +16,8 @@ const UserRole = {
 // Role-based access control middleware
 const authorizationHandle: Handle = async ({ event, resolve }) => {
 	// Add Prisma client to event.locals so it's available in all routes
-	event.locals.prisma = prisma;
+	event.locals.prisma = db;
+	console.log('[HOOKS] Set event.locals.prisma:', !!event.locals.prisma);
 
 	const url = new URL(event.request.url)
 	const pathname = url.pathname
