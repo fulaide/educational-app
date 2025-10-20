@@ -3,6 +3,8 @@ export { VocabularyService } from './VocabularyService'
 export { ProgressService } from './ProgressService'
 export { AchievementService } from './AchievementService'
 export { LanguageProviderRegistry, languageProviderRegistry } from './LanguageProviderRegistry'
+export { TypingEngine } from './TypingEngine'
+export type { CharacterState, WordState, TypingState, TypingMetrics, ErrorPosition } from './TypingEngine'
 
 // Import German provider for default initialization
 import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'

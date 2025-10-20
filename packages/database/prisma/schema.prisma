@@ -125,6 +125,10 @@ model User {
   assignedChallenges   ChallengeAssignment[]  @relation("AssignedChallenges")
   studentAssignments   ChallengeAssignment[]  @relation("StudentAssignments")
   challengeAttempts    ChallengeAttempt[]     @relation("ChallengeAttempts")
+  createdTypingChallenges TypingChallenge[]   @relation("TypingChallengeCreator")
+  typingAssignments    TypingChallengeAssignment[] @relation("TypingAssignments")
+  studentTypingAssignments TypingChallengeAssignment[] @relation("StudentTypingAssignments")
+  typingAttempts       TypingAttempt[]        @relation("TypingAttempts")
 
   @@map("users")
 }
@@ -147,6 +151,7 @@ model Class {
   qrCodes        StudentQRCode[]
   students       User[]          @relation("StudentClasses")
   challengeAssignments ChallengeAssignment[]
+  typingChallengeAssignments TypingChallengeAssignment[]
 
   @@map("classes")
 }
@@ -656,4 +661,149 @@ model ChallengeAttempt {
   @@index([assignmentId])
   @@index([studentId])
   @@map("challenge_attempts")
+}
+
+// ============================================
+// TYPING CHALLENGE MODELS
+// ============================================
+
+enum TypingTheme {
+  STORY        // Geschichten
+  POEM         // Gedichte
+  EDUCATIONAL  // Wissenstexte
+  RHYME        // Reime
+  CUSTOM       // Custom teacher-created
+}
+
+enum ErrorHandlingMode {
+  BLOCKING         // Block progression on errors (Beginner)
+  HIGHLIGHTING     // Highlight errors but allow continuation (Intermediate)
+  SPEED_FOCUSED    // Speed-focused, minimal blocking (Advanced)
+}
+
+enum TimerMode {
+  PER_WORD   // Timer per word with bonus time
+  GLOBAL     // Global session timer
+  DISABLED   // No timer (for early learners)
+}
+
+// Typing Challenge Configuration
+model TypingChallenge {
+  id              String                        @id @default(cuid())
+  title           String
+  description     String?
+  gradeLevel      Int                           // 1-4
+  theme           TypingTheme
+  difficulty      Difficulty
+  errorHandling   ErrorHandlingMode             @default(BLOCKING)
+  timerMode       TimerMode                     @default(PER_WORD)
+  baseTimePerWord Int                           @default(7000) // milliseconds
+  enableHints     Boolean                       @default(true)
+  enableSounds    Boolean                       @default(true)
+  showKeyboard    Boolean                       @default(true)
+  createdBy       String
+  isActive        Boolean                       @default(true)
+  createdAt       DateTime                      @default(now())
+  updatedAt       DateTime                      @updatedAt
+  creator         User                          @relation("TypingChallengeCreator", fields: [createdBy], references: [id])
+  texts           TypingText[]
+  assignments     TypingChallengeAssignment[]
+
+  @@index([gradeLevel])
+  @@index([createdBy])
+  @@index([theme])
+  @@map("typing_challenges")
+}
+
+// Text snippets for typing practice
+model TypingText {
+  id              String           @id @default(cuid())
+  challengeId     String
+  content         String           @db.Text
+  wordCount       Int
+  characterCount  Int
+  difficulty      Float            @default(0.5) // 0.0-1.0 based on complexity
+  hasUmlauts      Boolean          @default(false)
+  hasNumbers      Boolean          @default(false)
+  hasPunctuation  Boolean          @default(false)
+  hasUppercase    Boolean          @default(false)
+  orderIndex      Int              @default(0)
+  metadata        Json             @default("{}") // Additional text metadata
+  createdAt       DateTime         @default(now())
+  challenge       TypingChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  attempts        TypingAttempt[]
+
+  @@index([challengeId])
+  @@map("typing_texts")
+}
+
+// Student typing attempt with detailed analytics
+model TypingAttempt {
+  id                    String           @id @default(cuid())
+  textId                String
+  studentId             String
+  challengeId           String
+
+  // Performance metrics
+  wordsTyped            Int
+  charactersTyped       Int
+  correctCharacters     Int
+  incorrectCharacters   Int
+  totalTimeMs           Int
+  averageWPM            Float
+  accuracy              Float            // 0-100%
+
+  // Error analysis
+  uppercaseErrors       Int              @default(0)
+  umlautErrors          Int              @default(0)
+  specialCharErrors     Int              @default(0)
+  wrongKeyErrors        Int              @default(0)
+  timeoutErrors         Int              @default(0)
+
+  // Detailed error tracking
+  errorPositions        Json             @default("[]") // Array of { position, expected, actual, timestamp }
+  wordTimings           Json             @default("[]") // Array of { word, timeMs, errors }
+
+  // Hint usage
+  hintsUsed             Int              @default(0)
+  level1Hints           Int              @default(0) // Keyboard zone hints
+  level2Hints           Int              @default(0) // Finger position hints
+  level3Hints           Int              @default(0) // Direct key highlights
+
+  // Gamification
+  xpEarned              Int
+  achievementsUnlocked  String[]         @default([])
+
+  isComplete            Boolean          @default(false)
+  completedAt           DateTime?
+  createdAt             DateTime         @default(now())
+  text                  TypingText       @relation(fields: [textId], references: [id])
+  student               User             @relation("TypingAttempts", fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([textId])
+  @@index([challengeId])
+  @@index([createdAt])
+  @@map("typing_attempts")
+}
+
+// Assignment of typing challenges to classes or individual students
+model TypingChallengeAssignment {
+  id                String           @id @default(cuid())
+  challengeId       String
+  assignedToClass   String?
+  assignedToStudent String?
+  assignedBy        String
+  dueDate           DateTime?
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  challenge         TypingChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  class             Class?           @relation(fields: [assignedToClass], references: [id])
+  student           User?            @relation("StudentTypingAssignments", fields: [assignedToStudent], references: [id])
+  assigner          User             @relation("TypingAssignments", fields: [assignedBy], references: [id])
+
+  @@index([challengeId])
+  @@index([assignedToClass])
+  @@index([assignedToStudent])
+  @@map("typing_challenge_assignments")
 }
