@@ -1,4 +1,4 @@
-import { Home, Users, BookOpen, BarChart3, Settings, LogOut, GraduationCap, UserPlus, Trophy } from 'lucide-svelte';
+import { Home, Users, BookOpen, BarChart3, Settings, LogOut, GraduationCap, UserPlus, Trophy, Keyboard } from 'lucide-svelte';
 
 export interface NavigationItem {
 	id: string;
@@ -56,7 +56,14 @@ export function createTeacherNavigation(
 					label: 'Challenges',
 					href: '/challenges',
 					icon: Trophy,
-					isActive: currentPath.startsWith('/challenges')
+					isActive: currentPath.startsWith('/challenges') && !currentPath.startsWith('/challenges/typing')
+				},
+				{
+					id: 'typing-challenges',
+					label: 'Typing',
+					href: '/typing-challenges',
+					icon: Keyboard,
+					isActive: currentPath.startsWith('/typing-challenges')
 				},
 				{
 					id: 'qr-codes',
@@ -151,6 +158,7 @@ export function getPageTitle(currentPath: string): string {
 		'/classes': 'My Classes',
 		'/students': 'Students',
 		'/challenges': 'Challenges',
+		'/typing-challenges': 'Typing Challenges',
 		'/qr-codes': 'QR Codes',
 		'/settings': 'Settings',
 		'/profile': 'Profile'
@@ -165,6 +173,9 @@ export function getPageTitle(currentPath: string): string {
 	}
 	if (currentPath.startsWith('/challenges/')) {
 		return 'Challenge Details';
+	}
+	if (currentPath.startsWith('/typing-challenges/')) {
+		return 'Typing Challenge Details';
 	}
 
 	return pathMap[currentPath] || 'Teacher Portal';
