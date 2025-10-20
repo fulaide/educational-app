@@ -90,7 +90,7 @@ const authorizationHandle: Handle = async ({ event, resolve }) => {
 	}
 
 	// Define protected routes
-	const teacherRoutes = ['/dashboard', '/students', '/classes', '/assessments']
+	const teacherRoutes = ['/dashboard', '/students', '/classes', '/assessments', '/challenges', '/typing-challenges', '/qr-codes']
 	const parentRoutes = ['/parent-dashboard', '/children', '/progress']
 	const adminRoutes = ['/admin']
 
