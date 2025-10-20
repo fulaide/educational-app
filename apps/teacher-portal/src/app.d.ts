@@ -1,9 +1,12 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
+import type { PrismaClient } from '@educational-app/database'
+
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
+			prisma: PrismaClient
 			user?: {
 				id: string
 				email?: string

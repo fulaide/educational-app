@@ -13,9 +13,12 @@ const UserRole = {
 
 // Role-based access control middleware
 const authorizationHandle: Handle = async ({ event, resolve }) => {
+	// Add Prisma client to event.locals so it's available in all routes
+	event.locals.prisma = prisma;
+
 	const url = new URL(event.request.url)
 	const pathname = url.pathname
-	
+
 	console.log(`[AUTH] Processing: ${event.request.method} ${pathname}`)
 
 	// Perform periodic session cleanup (temporarily disabled due to Prisma client issues)
