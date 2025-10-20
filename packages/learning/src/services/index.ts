@@ -1,7 +1,3 @@
-// Import dependencies first
-import { languageProviderRegistry as registry } from './LanguageProviderRegistry'
-import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'
-
 // Export services
 export { LearningService } from './LearningService'
 export { VocabularyService } from './VocabularyService'
@@ -13,12 +9,20 @@ export type { CharacterState, WordState, TypingState, TypingMetrics, ErrorPositi
 export { HintSystem } from './HintSystem'
 export type { HintLevel, HintState, HintSystemOptions } from './HintSystem'
 
+// Import after exports to avoid circular dependency issues
+import { LearningService } from './LearningService'
+import { VocabularyService } from './VocabularyService'
+import { ProgressService } from './ProgressService'
+import { AchievementService } from './AchievementService'
+import { languageProviderRegistry } from './LanguageProviderRegistry'
+import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'
+
 // Register German provider by default
-registry.registerConstructor('de', GermanLanguageProvider)
+languageProviderRegistry.registerConstructor('de', GermanLanguageProvider)
 
 // Create centralized service instances for easy app-wide access
 export const learningService = new LearningService()
-export const vocabularyService = new VocabularyService('/api/vocabulary', registry)
+export const vocabularyService = new VocabularyService('/api/vocabulary', languageProviderRegistry)
 export const progressService = new ProgressService()
 export const achievementService = new AchievementService()
 
@@ -27,7 +31,7 @@ export const createServices = (baseUrl: string, withProviders = true) => ({
   learning: new LearningService(`${baseUrl}/learning`),
   vocabulary: new VocabularyService(
     `${baseUrl}/vocabulary`,
-    withProviders ? registry : undefined
+    withProviders ? languageProviderRegistry : undefined
   ),
   progress: new ProgressService(`${baseUrl}/progress`),
   achievement: new AchievementService(`${baseUrl}/achievements`)
