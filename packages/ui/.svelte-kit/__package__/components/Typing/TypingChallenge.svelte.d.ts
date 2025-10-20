@@ -4,6 +4,8 @@ interface Props {
     timeLimit?: number;
     bonusTime?: number;
     enableSounds?: boolean;
+    enableHints?: boolean;
+    showKeyboard?: boolean;
     onComplete?: (metrics: TypingMetrics, xp: number, achievements: string[]) => void;
     class?: string;
 }

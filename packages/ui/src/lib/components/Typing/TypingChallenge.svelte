@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cn } from '$lib/utils/index.js';
-	import { TypingEngine } from '@educational-app/learning';
+	import { TypingEngine, HintSystem } from '@educational-app/learning';
 	import type { TypingMetrics } from '@educational-app/learning';
 	import TextDisplay from './TextDisplay.svelte';
 	import TimerBar from './TimerBar.svelte';
 	import ResultsScreen from './ResultsScreen.svelte';
+	import VirtualKeyboard from './VirtualKeyboard.svelte';
 	import { Card } from '$lib/index.js';
 
 	interface Props {
@@ -13,6 +14,8 @@
 		timeLimit?: number; // milliseconds per word (0 = no timer)
 		bonusTime?: number; // bonus time for fast completion
 		enableSounds?: boolean;
+		enableHints?: boolean;
+		showKeyboard?: boolean;
 		onComplete?: (metrics: TypingMetrics, xp: number, achievements: string[]) => void;
 		class?: string;
 	}
@@ -22,21 +25,34 @@
 		timeLimit = 7000,
 		bonusTime = 2000,
 		enableSounds = true,
+		enableHints = true,
+		showKeyboard = true,
 		onComplete,
 		class: className
 	}: Props = $props();
 
 	let engine = $state(new TypingEngine(text));
+	let hintSystem = $state(new HintSystem({ enabled: enableHints }));
 	let timerBar = $state<any>(null);
 	let showResults = $state(false);
 	let metrics = $state<TypingMetrics | null>(null);
 	let xpEarned = $state(0);
 	let achievements = $state<string[]>([]);
+	let pressedKey = $state<string | null>(null);
 
 	// Get typing state
 	const state = $derived(engine.getState());
 	const currentWord = $derived(engine.getCurrentWord());
+	const currentChar = $derived(engine.getCurrentChar());
 	const isComplete = $derived(engine.isComplete());
+	const hintState = $derived(hintSystem.getState());
+
+	// Update hint system when current character changes
+	$effect(() => {
+		if (currentChar) {
+			hintSystem.setCurrentChar(currentChar.char);
+		}
+	});
 
 	// Start timer when component mounts
 	onMount(() => {
@@ -64,6 +80,10 @@
 			timerBar.start();
 		}
 
+		// Visual feedback for key press
+		pressedKey = event.key;
+		setTimeout(() => { pressedKey = null; }, 200);
+
 		// Handle backspace
 		if (event.key === 'Backspace') {
 			const didDelete = engine.handleBackspace();
@@ -76,6 +96,15 @@
 		// Handle character input
 		if (event.key.length === 1) {
 			const result = engine.processInput(event.key);
+
+			// Update hint system
+			if (enableHints) {
+				if (result.isCorrect) {
+					hintSystem.recordCorrect();
+				} else {
+					hintSystem.recordError();
+				}
+			}
 
 			// Play sound feedback
 			if (enableSounds) {
@@ -175,10 +204,12 @@
 	 */
 	function handleRestart() {
 		engine.reset();
+		hintSystem.reset();
 		showResults = false;
 		metrics = null;
 		xpEarned = 0;
 		achievements = [];
+		pressedKey = null;
 
 		if (timerBar) {
 			timerBar.reset();
@@ -232,6 +263,40 @@
 			windowSize={5}
 		/>
 
+		<!-- Virtual Keyboard -->
+		{#if showKeyboard}
+			<VirtualKeyboard
+				currentChar={currentChar?.char}
+				{pressedKey}
+				showFingerGuide={true}
+				highlightZone={hintState.level >= 1 ? hintState.zone : null}
+				highlightKey={hintState.level >= 3 ? hintState.key : null}
+				class="mt-8"
+			/>
+		{/if}
+
+		<!-- Hint Message -->
+		{#if enableHints && hintState.level > 0 && hintState.message}
+			<Card variant="outlined" padding="md" class="mt-4 bg-info-50 border-info-200">
+				<div class="flex items-center gap-3">
+					<div class="flex-shrink-0">
+						{#if hintState.level === 1}
+							<span class="text-2xl">👈</span>
+						{:else if hintState.level === 2}
+							<span class="text-2xl">☝️</span>
+						{:else if hintState.level === 3}
+							<span class="text-2xl">💡</span>
+						{/if}
+					</div>
+					<div class="flex-1">
+						<p class="text-sm font-medium text-info-800">
+							Hint Level {hintState.level}: {hintState.message}
+						</p>
+					</div>
+				</div>
+			</Card>
+		{/if}
+
 		<!-- Stats Display -->
 		<Card variant="outlined" padding="md" class="mt-6">
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -263,6 +328,9 @@
 			<p>Type the words as they appear. Press Backspace to correct mistakes.</p>
 			{#if timeLimit > 0 && bonusTime > 0}
 				<p class="mt-1 text-success-600">Complete words quickly to earn bonus time!</p>
+			{/if}
+			{#if enableHints}
+				<p class="mt-1 text-info-600">Make mistakes? Watch for hints to help you!</p>
 			{/if}
 		</div>
 	</div>

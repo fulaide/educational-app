@@ -26,6 +26,7 @@ export { default as TypingChallenge } from './components/Typing/TypingChallenge.
 export { default as TextDisplay } from './components/Typing/TextDisplay.svelte';
 export { default as TimerBar } from './components/Typing/TimerBar.svelte';
 export { default as ResultsScreen } from './components/Typing/ResultsScreen.svelte';
+export { default as VirtualKeyboard } from './components/Typing/VirtualKeyboard.svelte';
 
 // Theme System
 export * from './theme/index.js';
