@@ -1,3 +1,8 @@
+// Import dependencies first
+import { languageProviderRegistry as registry } from './LanguageProviderRegistry'
+import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'
+
+// Export services
 export { LearningService } from './LearningService'
 export { VocabularyService } from './VocabularyService'
 export { ProgressService } from './ProgressService'
@@ -8,15 +13,12 @@ export type { CharacterState, WordState, TypingState, TypingMetrics, ErrorPositi
 export { HintSystem } from './HintSystem'
 export type { HintLevel, HintState, HintSystemOptions } from './HintSystem'
 
-// Import German provider for default initialization
-import { GermanLanguageProvider } from '../providers/german/GermanLanguageProvider'
-
 // Register German provider by default
-languageProviderRegistry.registerConstructor('de', GermanLanguageProvider)
+registry.registerConstructor('de', GermanLanguageProvider)
 
 // Create centralized service instances for easy app-wide access
 export const learningService = new LearningService()
-export const vocabularyService = new VocabularyService('/api/vocabulary', languageProviderRegistry)
+export const vocabularyService = new VocabularyService('/api/vocabulary', registry)
 export const progressService = new ProgressService()
 export const achievementService = new AchievementService()
 
@@ -25,7 +27,7 @@ export const createServices = (baseUrl: string, withProviders = true) => ({
   learning: new LearningService(`${baseUrl}/learning`),
   vocabulary: new VocabularyService(
     `${baseUrl}/vocabulary`,
-    withProviders ? languageProviderRegistry : undefined
+    withProviders ? registry : undefined
   ),
   progress: new ProgressService(`${baseUrl}/progress`),
   achievement: new AchievementService(`${baseUrl}/achievements`)
