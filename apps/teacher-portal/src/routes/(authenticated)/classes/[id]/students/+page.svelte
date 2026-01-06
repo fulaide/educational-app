@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { AuthInput, Button, Card, ConfirmationDialog, Drawer, QRCode, useNotifications } from '@educational-app/ui';
+	import { AuthInput, Button, Card, Drawer, QRCode, useNotifications } from '@educational-app/ui';
 	import { ArrowLeft, TriangleAlert, UserPlus, UserSearch, QrCode as QrCodeIcon, Printer, Download } from 'lucide-svelte';
 
 	import { superForm } from 'sveltekit-superforms';
@@ -104,7 +104,7 @@
 			console.log('Remove form onUpdated:', { valid: form.valid, message: form.message, form });
 			if (form.valid && form.message) {
 				notifications.success(form.message);
-				showRemoveDialog = false;
+				showRemoveDrawer = false;
 				confirmRemove = null;
 				invalidateAll(); // Refresh page data
 			} else if (form.message) {
@@ -128,14 +128,11 @@
 	let showAddForm = $state(false);
 	let showCreateForm = $state(false);
 	let showEditForm = $state(false);
-	let showRemoveDialog = $state(false);
+	let showRemoveDrawer = $state(false);
 	let showQRDrawer = $state(false);
 	let addMode: 'existing' | 'new' = $state('existing');
 	let confirmRemove: string | null = $state(null);
 	let selectedQRData = $state<{ token: string; studentName: string; expiresAt: Date } | null>(null);
-
-	// Initialize form mode
-	$addData.mode = addMode;
 
 	// Watch mode changes
 	$effect(() => {
@@ -167,17 +164,6 @@
 		showEditForm = true;
 	}
 
-	// Handle remove confirmation
-	function handleRemoveStudent() {
-		if (confirmRemove) {
-			$removeData.studentId = confirmRemove;
-			// Submit the form programmatically
-			const removeFormElement = document.getElementById('remove-student-form') as HTMLFormElement;
-			if (removeFormElement) {
-				removeFormElement.requestSubmit();
-			}
-		}
-	}
 </script>
 
 <svelte:head>
@@ -306,8 +292,7 @@
 					</form>
 				{:else}
 					<!-- Create New Student -->
-					<form method="POST" action="?/addExisting" use:addEnhance id="add-student-form">
-						<input type="hidden" name="mode" value="new" />
+					<form method="POST" action="?/createSingleStudent" use:addEnhance id="add-student-form">
 						<div class="space-y-4">
 							<AuthInput
 								name="studentName"
@@ -395,9 +380,9 @@
 							</div>
 
 							<div>
-								<label class="block text-sm font-medium text-neutral-700 mb-1">
+								<div class="block text-sm font-medium text-neutral-700 mb-1">
 									Available Spots
-								</label>
+								</div>
 								<div class="px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-md text-sm text-neutral-600">
 									{classItem.maxStudents - classItem.students.length} remaining
 								</div>
@@ -574,7 +559,8 @@
 									color="danger"
 									onclick={() => {
 										confirmRemove = student.id;
-										showRemoveDialog = true;
+										$removeData.studentId = student.id;
+										showRemoveDrawer = true;
 									}}
 								>
 									Remove
@@ -675,43 +661,68 @@
 			{/snippet}
 		</Drawer>
 
-		<!-- Remove Student Confirmation Dialog -->
-		<ConfirmationDialog
-			bind:open={showRemoveDialog}
+		<!-- Remove Student Drawer -->
+		<Drawer
+			bind:open={showRemoveDrawer}
 			title="Remove Student"
-			icon={TriangleAlert}
-			iconColor="danger"
-			confirmLabel="Remove Student"
-			confirmColor="danger"
-			cancelLabel="Cancel"
-			loading={$removeSubmitting}
-			onConfirm={handleRemoveStudent}
-			onCancel={() => {
-				showRemoveDialog = false;
-				confirmRemove = null;
-			}}
+			position="right"
+			size="md"
+			padding="lg"
 		>
 			{#snippet children()}
 				{@const studentToRemove = classItem.students.find(s => s.id === confirmRemove)}
-				<p class="mb-2">
-					Remove <strong>"{studentToRemove?.name || 'Student'}"</strong> from this class?
-				</p>
-				<p class="text-xs">
-					Note: This only removes them from the class, it doesn't delete their account.
-				</p>
-			{/snippet}
-		</ConfirmationDialog>
 
-		<!-- Hidden form for remove submission -->
-		<form
-			id="remove-student-form"
-			method="POST"
-			action="?/remove"
-			use:removeEnhance
-			class="hidden"
-		>
-			<input type="hidden" name="studentId" bind:value={$removeData.studentId} />
-		</form>
+				<div class="mb-6">
+					<div class="flex items-center justify-center mb-4">
+						<div class="w-12 h-12 bg-danger-100 rounded-full flex items-center justify-center">
+							<TriangleAlert class="w-6 h-6 text-danger-600" />
+						</div>
+					</div>
+
+					<p class="text-center mb-2 text-neutral-900">
+						Remove <strong>"{studentToRemove?.name || 'Student'}"</strong> from this class?
+					</p>
+					<p class="text-center text-sm text-neutral-600">
+						Note: This only removes them from the class, it doesn't delete their account.
+					</p>
+				</div>
+
+				<form method="POST" action="?/remove" use:removeEnhance id="remove-student-form">
+					<input type="hidden" name="studentId" bind:value={$removeData.studentId} />
+				</form>
+			{/snippet}
+
+			{#snippet footer()}
+				<div class="flex justify-end w-full space-x-3">
+					<Button
+						variant="outline"
+						onclick={() => {
+							showRemoveDrawer = false;
+							confirmRemove = null;
+						}}
+					>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+						form="remove-student-form"
+						variant="solid"
+						color="danger"
+						disabled={$removeSubmitting}
+					>
+						{#if $removeSubmitting}
+							<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							Removing...
+						{:else}
+							Remove Student
+						{/if}
+					</Button>
+				</div>
+			{/snippet}
+		</Drawer>
 
 		<!-- QR Code Drawer -->
 		<Drawer

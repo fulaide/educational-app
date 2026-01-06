@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { t } from '@educational-app/i18n';
-	import { Button, Card, Input } from '@educational-app/ui';
+	import { Button, Card, Input, notifications, Badge } from '@educational-app/ui';
 	import {
 		Plus,
 		Keyboard,
@@ -9,9 +9,15 @@
 		Eye,
 		Clock,
 		Zap,
-		Trophy
+		Trophy,
+		Play,
+		Lightbulb,
+		Languages
 	} from 'lucide-svelte';
 	import type { PageData } from './$types';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -19,19 +25,28 @@
 
 	let { data }: Props = $props();
 
+	// Check for success notifications
+	onMount(() => {
+		const createdId = $page.url.searchParams.get('created');
+		const deleted = $page.url.searchParams.get('deleted');
+
+		if (createdId) {
+			notifications.success('Typing challenge created successfully!');
+			goto('/typing-challenges', { replaceState: true });
+		} else if (deleted) {
+			notifications.success('Typing challenge deleted successfully!');
+			goto('/typing-challenges', { replaceState: true });
+		}
+	});
+
 	// Filter and sort state
 	let searchQuery = $state('');
-	let sortBy = $state<'recent' | 'words' | 'texts'>('recent');
+	let gradeFilter = $state<number | 'all'>('all');
+	let themeFilter = $state<string>('all');
+	let sortBy = $state<'recent' | 'words'>('recent');
 
 	// Reactive challenges
 	const challenges = $derived(data.challenges || []);
-	const totalChallenges = $derived(challenges.length);
-	const totalTexts = $derived(
-		challenges.reduce((sum, c) => sum + c.stats.textCount, 0)
-	);
-	const totalWords = $derived(
-		challenges.reduce((sum, c) => sum + c.stats.totalWords, 0)
-	);
 
 	// Filtered challenges
 	const filteredChallenges = $derived.by(() => {
@@ -47,6 +62,16 @@
 			);
 		}
 
+		// Grade filter
+		if (gradeFilter !== 'all') {
+			filtered = filtered.filter((c) => c.gradeLevel === gradeFilter);
+		}
+
+		// Theme filter
+		if (themeFilter !== 'all') {
+			filtered = filtered.filter((c) => c.theme === themeFilter);
+		}
+
 		// Sort
 		switch (sortBy) {
 			case 'recent':
@@ -57,11 +82,6 @@
 			case 'words':
 				filtered = [...filtered].sort(
 					(a, b) => b.stats.totalWords - a.stats.totalWords
-				);
-				break;
-			case 'texts':
-				filtered = [...filtered].sort(
-					(a, b) => b.stats.textCount - a.stats.textCount
 				);
 				break;
 		}
@@ -119,6 +139,7 @@
 </div>
 
 <!-- Stats Cards -->
+{#if challenges}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 	<Card variant="elevated" padding="lg">
 		<div class="flex items-center">
@@ -127,19 +148,7 @@
 			</div>
 			<div class="ml-4">
 				<p class="text-sm font-medium text-neutral-500">Total Challenges</p>
-				<p class="text-2xl font-bold text-neutral-900">{totalChallenges}</p>
-			</div>
-		</div>
-	</Card>
-
-	<Card variant="elevated" padding="lg">
-		<div class="flex items-center">
-			<div class="flex-shrink-0 p-3 bg-secondary-50 rounded-lg">
-				<FileText class="h-6 w-6 text-secondary-600" />
-			</div>
-			<div class="ml-4">
-				<p class="text-sm font-medium text-neutral-500">Total Texts</p>
-				<p class="text-2xl font-bold text-neutral-900">{totalTexts}</p>
+				<p class="text-2xl font-bold text-neutral-900">{challenges.length}</p>
 			</div>
 		</div>
 	</Card>
@@ -151,11 +160,28 @@
 			</div>
 			<div class="ml-4">
 				<p class="text-sm font-medium text-neutral-500">Total Words</p>
-				<p class="text-2xl font-bold text-neutral-900">{totalWords}</p>
+				<p class="text-2xl font-bold text-neutral-900">
+					{challenges.reduce((sum, c) => sum + (c.stats?.totalWords ?? 0), 0)}
+				</p>
+			</div>
+		</div>
+	</Card>
+
+	<Card variant="elevated" padding="lg">
+		<div class="flex items-center">
+			<div class="flex-shrink-0 p-3 bg-secondary-50 rounded-lg">
+				<Users class="h-6 w-6 text-secondary-600" />
+			</div>
+			<div class="ml-4">
+				<p class="text-sm font-medium text-neutral-500">Total Assignments</p>
+				<p class="text-2xl font-bold text-neutral-900">
+					{challenges.reduce((sum, c) => sum + (c.stats?.assignmentCount ?? 0), 0)}
+				</p>
 			</div>
 		</div>
 	</Card>
 </div>
+{/if}
 
 <!-- Filters and Search -->
 <div class="flex flex-col sm:flex-row gap-4 mb-6">
@@ -168,12 +194,34 @@
 	</div>
 	<div class="flex gap-2">
 		<select
+			bind:value={gradeFilter}
+			class="px-4 py-2 border border-neutral-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+		>
+			<option value="all">All Grades</option>
+			<option value={1}>Grade 1</option>
+			<option value={2}>Grade 2</option>
+			<option value={3}>Grade 3</option>
+			<option value={4}>Grade 4</option>
+		</select>
+
+		<select
+			bind:value={themeFilter}
+			class="px-4 py-2 border border-neutral-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+		>
+			<option value="all">All Themes</option>
+			<option value="STORY">Story</option>
+			<option value="POEM">Poem</option>
+			<option value="EDUCATIONAL">Educational</option>
+			<option value="RHYME">Rhyme</option>
+			<option value="CUSTOM">Custom</option>
+		</select>
+
+		<select
 			bind:value={sortBy}
 			class="px-4 py-2 border border-neutral-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
 		>
 			<option value="recent">Most Recent</option>
 			<option value="words">Most Words</option>
-			<option value="texts">Most Texts</option>
 		</select>
 	</div>
 </div>
@@ -231,16 +279,7 @@
 				</div>
 
 				<!-- Stats -->
-				<div class="grid grid-cols-2 gap-4 mb-4 py-4 border-t border-b border-neutral-100">
-					<div>
-						<div class="flex items-center text-neutral-500 text-xs mb-1">
-							<FileText class="w-3 h-3 mr-1" />
-							Texts
-						</div>
-						<p class="text-lg font-semibold text-neutral-900">
-							{challenge.stats.textCount}
-						</p>
-					</div>
+				<div class="grid grid-cols-3 gap-4 mb-4 py-4 border-t border-b border-neutral-100">
 					<div>
 						<div class="flex items-center text-neutral-500 text-xs mb-1">
 							<Zap class="w-3 h-3 mr-1" />
@@ -248,15 +287,6 @@
 						</div>
 						<p class="text-lg font-semibold text-neutral-900">
 							{challenge.stats.totalWords}
-						</p>
-					</div>
-					<div>
-						<div class="flex items-center text-neutral-500 text-xs mb-1">
-							<Users class="w-3 h-3 mr-1" />
-							Assigned
-						</div>
-						<p class="text-lg font-semibold text-neutral-900">
-							{challenge.stats.assignmentCount}
 						</p>
 					</div>
 					<div>
@@ -269,29 +299,51 @@
 							 challenge.timerMode === 'GLOBAL' ? 'Global' : 'Off'}
 						</p>
 					</div>
+					<div>
+						<div class="flex items-center text-neutral-500 text-xs mb-1">
+							<Users class="w-3 h-3 mr-1" />
+							Assigned
+						</div>
+						<p class="text-lg font-semibold text-neutral-900">
+							{challenge.stats.assignmentCount}
+						</p>
+					</div>
 				</div>
 
 				<!-- Features -->
 				<div class="flex flex-wrap gap-2 mb-4">
 					{#if challenge.enableHints}
-						<span class="inline-flex items-center px-2 py-1 bg-info-50 text-info-700 text-xs rounded">
-							💡 Hints
-						</span>
+						<Badge variant="neutral">
+							<Lightbulb class="w-3 h-3" />
+							Hints
+						</Badge>
 					{/if}
 					{#if challenge.showKeyboard}
-						<span class="inline-flex items-center px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded">
-							⌨️ Keyboard
-						</span>
+						<Badge variant="neutral">
+							<Keyboard class="w-3 h-3" />
+							Keyboard
+						</Badge>
 					{/if}
 					{#if challenge.stats.hasUmlauts}
-						<span class="inline-flex items-center px-2 py-1 bg-secondary-50 text-secondary-700 text-xs rounded">
-							Ä Umlauts
-						</span>
+						<Badge variant="neutral">
+							<Languages class="w-3 h-3" />
+							Umlauts
+						</Badge>
 					{/if}
 				</div>
 
 				<!-- Actions -->
 				<div class="flex gap-2">
+				<Button
+					variant="soft"
+					color="secondary"
+					class="flex-1"
+					onclick={() => (window.location.href = `/typing-challenges/${challenge.id}/preview`)}
+				>
+					<Play class="w-4 h-4 mr-2" />
+					Preview
+				</Button>
+
 					<Button
 						variant="soft"
 						color="primary"
@@ -299,7 +351,7 @@
 						onclick={() => (window.location.href = `/typing-challenges/${challenge.id}`)}
 					>
 						<Eye class="w-4 h-4 mr-2" />
-						View Details
+						Details
 					</Button>
 				</div>
 

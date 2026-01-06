@@ -8,6 +8,7 @@ export * from './components/Card/index.js';
 export * from './components/Modal/index.js';
 export * from './components/Dialog/index.js';
 export * from './components/LocaleSwitcher/index.js';
+export * from './components/Badge/index.js';
 
 // Auth Components
 export * from './components/Auth/index.js';

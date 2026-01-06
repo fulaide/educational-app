@@ -7,17 +7,18 @@ import type {
 } from '../types/notifications.js'
 
 export class NotificationManager {
-	private _notifications: Notification[] = []
+	// Use Svelte 5 $state rune for reactivity
+	private _notifications = $state<Notification[]>([])
 	private listeners: Set<() => void> = new Set()
-	
+
 	get notifications() {
 		return this._notifications;
 	}
-	
+
 	private notify() {
 		this.listeners.forEach(listener => listener());
 	}
-	
+
 	subscribe(listener: () => void) {
 		this.listeners.add(listener);
 		return () => this.listeners.delete(listener);
@@ -93,7 +94,7 @@ export class NotificationManager {
 	 * Clear all notifications
 	 */
 	clear(): void {
-		this._notifications.length = 0
+		this._notifications = []
 		this.notify()
 	}
 	
@@ -202,3 +203,7 @@ export function getNotificationContext(): NotificationManager {
 export function useNotifications() {
 	return getNotificationContext()
 }
+
+// Global singleton instance for use without context
+// This allows pages and components to use notifications without setting up context
+export const notifications = new NotificationManager()

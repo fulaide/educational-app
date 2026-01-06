@@ -12,7 +12,7 @@ const createTypingChallengeSchema = z.object({
 	difficulty: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
 	errorHandling: z.enum(['BLOCKING', 'HIGHLIGHTING', 'SPEED_FOCUSED']),
 	timerMode: z.enum(['PER_WORD', 'GLOBAL', 'DISABLED']),
-	baseTimePerWord: z.coerce.number().min(3000).max(20000), // 3-20 seconds
+	baseTimePerWord: z.coerce.number().min(3000).max(20000).nullable().optional(), // 3-20 seconds, nullable when timer disabled
 	enableHints: z.boolean().default(true),
 	enableSounds: z.boolean().default(true),
 	showKeyboard: z.boolean().default(true),
@@ -20,6 +20,15 @@ const createTypingChallengeSchema = z.object({
 		content: z.string().min(10, 'Text must be at least 10 characters'),
 		orderIndex: z.number()
 	})).min(1, 'At least one text snippet is required')
+}).refine((data) => {
+	// Require baseTimePerWord when timer mode needs it
+	if (data.timerMode === 'PER_WORD' && !data.baseTimePerWord) {
+		return false;
+	}
+	return true;
+}, {
+	message: 'Time per word is required when using per-word timer mode',
+	path: ['baseTimePerWord']
 });
 
 // Validation schema for adding text
@@ -46,6 +55,9 @@ export const actions: Actions = {
 			const textsJson = formData.get('texts') as string;
 			const texts = textsJson ? JSON.parse(textsJson) : [];
 
+			const timerMode = formData.get('timerMode');
+			const baseTimePerWordValue = formData.get('baseTimePerWord');
+
 			const data = {
 				title: formData.get('title'),
 				description: formData.get('description') || undefined,
@@ -53,8 +65,11 @@ export const actions: Actions = {
 				theme: formData.get('theme'),
 				difficulty: formData.get('difficulty'),
 				errorHandling: formData.get('errorHandling'),
-				timerMode: formData.get('timerMode'),
-				baseTimePerWord: formData.get('baseTimePerWord'),
+				timerMode,
+				// Only include baseTimePerWord if timer mode requires it
+				baseTimePerWord: (timerMode === 'DISABLED' || timerMode === 'GLOBAL')
+					? null
+					: baseTimePerWordValue,
 				enableHints: formData.get('enableHints') === 'true',
 				enableSounds: formData.get('enableSounds') === 'true',
 				showKeyboard: formData.get('showKeyboard') === 'true',
@@ -83,7 +98,9 @@ export const actions: Actions = {
 					difficulty: validated.difficulty,
 					errorHandling: validated.errorHandling,
 					timerMode: validated.timerMode,
-					baseTimePerWord: validated.baseTimePerWord,
+					// Use provided value, or default to 7000 if PER_WORD mode but no value, or 0 if disabled/global
+					baseTimePerWord: validated.baseTimePerWord ??
+						(validated.timerMode === 'PER_WORD' ? 7000 : 0),
 					enableHints: validated.enableHints,
 					enableSounds: validated.enableSounds,
 					showKeyboard: validated.showKeyboard,
@@ -118,8 +135,14 @@ export const actions: Actions = {
 
 			console.log('[Typing Challenge] Created:', challenge.id);
 
-			return redirect(303, `/typing-challenges/${challenge.id}`);
+			// Redirect to the detail page with success parameter
+			throw redirect(303, `/typing-challenges/${challenge.id}?created=true`);
 		} catch (error) {
+			// Re-throw redirect errors
+			if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
+				throw error;
+			}
+
 			console.error('[Typing Challenge] Create error:', error);
 			return fail(500, {
 				message: 'Failed to create typing challenge. Please try again.'

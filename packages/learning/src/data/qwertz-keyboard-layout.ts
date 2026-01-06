@@ -104,7 +104,7 @@ export const qwertzLayout: KeyRow[] = [
   // Space bar row
   {
     keys: [
-      { key: ' ', label: 'Space', finger: 'thumb', zone: 'center', width: 6, isSpecial: true }
+      { key: ' ', label: 'Leertaste', finger: 'thumb', zone: 'center', width: 6, isSpecial: true }
     ],
     offset: 3
   }

@@ -53,8 +53,9 @@ export interface ConfirmationDialogProps {
 
 	/**
 	 * Callback when confirm button is clicked
+	 * Can be async
 	 */
-	onConfirm: () => void;
+	onConfirm: () => void | Promise<void>;
 
 	/**
 	 * Callback when cancel button is clicked or backdrop is clicked

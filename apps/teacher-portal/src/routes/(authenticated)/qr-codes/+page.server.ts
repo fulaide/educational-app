@@ -15,6 +15,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	try {
 		// Get teacher's classes and students with their QR codes
+		const now = new Date();
+		console.log('[QR-CODES] Loading page, current time:', now.toISOString());
+
 		const teacherClasses = await prisma.class.findMany({
 			where: {
 				teacherId: session.user.id
@@ -29,7 +32,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 						studentQRCodes: {
 							where: {
 								expiresAt: {
-									gt: new Date() // Only non-expired QR codes
+									gt: now // Only non-expired QR codes
 								}
 							},
 							orderBy: {
@@ -48,18 +51,117 @@ export const load: PageServerLoad = async ({ locals }) => {
 			}
 		})
 
+		// Debug: Log what we got
+		console.log('[QR-CODES] Found', teacherClasses.length, 'classes');
+		teacherClasses.forEach(cls => {
+			console.log(`[QR-CODES] Class "${cls.name}":`, cls.students.length, 'students');
+			cls.students.forEach(student => {
+				console.log(`  - Student "${student.name}":`, student.studentQRCodes.length, 'QR codes');
+				if (student.studentQRCodes.length > 0) {
+					const qr = student.studentQRCodes[0];
+					console.log(`    Token: ${qr.token.substring(0, 12)}..., Expires: ${qr.expiresAt.toISOString()}`);
+				}
+			});
+		});
+
+		// Auto-generate QR codes for students who don't have one
+		const studentsWithoutQR: string[] = [];
+		for (const cls of teacherClasses) {
+			for (const student of cls.students) {
+				if (!student.studentQRCodes || student.studentQRCodes.length === 0) {
+					console.log(`Student ${student.name} (${student.id}) needs QR code`);
+					studentsWithoutQR.push(student.id);
+				}
+			}
+		}
+
+		console.log(`Found ${studentsWithoutQR.length} students without active QR codes`);
+
+		// Generate QR codes for students without one (10 year expiry = effectively permanent)
+		if (studentsWithoutQR.length > 0) {
+			const expiresAt = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000); // 10 years
+
+			const qrCodesToCreate = studentsWithoutQR.map(studentId => ({
+				studentId: studentId,
+				token: generateQRToken(),
+				expiresAt: expiresAt,
+				createdBy: session.user.id
+			}));
+
+			await prisma.studentQRCode.createMany({
+				data: qrCodesToCreate
+			});
+
+			console.log(`Auto-generated ${qrCodesToCreate.length} QR codes for students without codes`);
+
+			// Reload classes to get the newly created QR codes
+			const updatedClasses = await prisma.class.findMany({
+				where: {
+					teacherId: session.user.id
+				},
+				include: {
+					students: {
+						select: {
+							id: true,
+							name: true,
+							uuid: true,
+							email: true,
+							studentQRCodes: {
+								where: {
+									expiresAt: {
+										gt: new Date()
+									}
+								},
+								orderBy: {
+									createdAt: 'desc'
+								},
+								take: 1
+							}
+						}
+					},
+					organization: {
+						select: {
+							id: true,
+							name: true
+						}
+					}
+				}
+			});
+
+			// Return updated data
+			const totalStudents = updatedClasses.reduce((sum, cls) => sum + cls.students.length, 0)
+			const activeQRCodes = updatedClasses.reduce((sum, cls) =>
+				sum + cls.students.filter(s => s.studentQRCodes.length > 0).length, 0
+			)
+
+			return {
+				user: session.user,
+				classes: updatedClasses,
+				analytics: {
+					totalStudents,
+					totalClasses: updatedClasses.length,
+					totalGenerated: activeQRCodes,
+					totalScanned: 0,
+					activeQRCodes: activeQRCodes
+				}
+			}
+		}
+
 		// Get QR code analytics
 		const totalStudents = teacherClasses.reduce((sum, cls) => sum + cls.students.length, 0)
-		
+		const activeQRCodes = teacherClasses.reduce((sum, cls) =>
+			sum + cls.students.filter(s => s.studentQRCodes.length > 0).length, 0
+		)
+
 		return {
 			user: session.user,
 			classes: teacherClasses,
 			analytics: {
 				totalStudents,
 				totalClasses: teacherClasses.length,
-				totalGenerated: 0, // Will be updated with actual tracking
+				totalGenerated: activeQRCodes,
 				totalScanned: 0,
-				activeQRCodes: 0
+				activeQRCodes: activeQRCodes
 			}
 		}
 	} catch (err) {

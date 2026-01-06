@@ -5,6 +5,7 @@ export * from './components/Card/index.js';
 export * from './components/Modal/index.js';
 export * from './components/Dialog/index.js';
 export * from './components/LocaleSwitcher/index.js';
+export * from './components/Badge/index.js';
 export * from './components/Auth/index.js';
 export * from './components/ProgressBar/index.js';
 export * from './components/AchievementBadge/index.js';

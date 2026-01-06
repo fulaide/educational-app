@@ -444,6 +444,79 @@ If UI component styles are missing:
 
 **No safelist workarounds needed!** The preset handles everything.
 
+## UI Component Library Usage
+
+### **CRITICAL: Always Check UI Package First**
+
+Before creating any new UI component or custom dialog/modal, **ALWAYS** check if a component already exists in the `@educational-app/ui` package:
+
+1. **Search the UI package first:**
+   ```bash
+   ls packages/ui/src/lib/components/
+   # or
+   grep -r "ComponentName" packages/ui/src/lib/
+   ```
+
+2. **Check available components:**
+   - `Button` - All button variants (solid, outline, ghost, soft)
+   - `Card` - Container cards with variants
+   - `Input` - Form inputs with validation
+   - `Modal` - Generic modal component
+   - **`ConfirmationDialog`** - Pre-built confirmation dialogs with icon, title, message, and actions
+   - `Badge` - Status badges
+   - `ProgressBar` - Progress indicators
+   - `Toast/Notifications` - Toast notification system
+   - And more...
+
+3. **Read the component code:**
+   ```bash
+   cat packages/ui/src/lib/components/Dialog/ConfirmationDialog.svelte
+   ```
+
+4. **Use existing components instead of creating custom HTML:**
+   - ✅ CORRECT: `<ConfirmationDialog ...props />`
+   - ❌ WRONG: Creating custom `<div class="modal">...</div>` when `ConfirmationDialog` exists
+
+**Example: Using ConfirmationDialog**
+
+```svelte
+<script>
+  import { ConfirmationDialog } from '@educational-app/ui';
+  import { Trash2 } from 'lucide-svelte';
+
+  let showDialog = $state(false);
+  let deleting = $state(false);
+
+  async function handleConfirm() {
+    deleting = true;
+    // Your deletion logic here
+    deleting = false;
+  }
+</script>
+
+<ConfirmationDialog
+  bind:open={showDialog}
+  title="Delete Item?"
+  icon={Trash2}
+  iconColor="danger"
+  confirmLabel="Delete"
+  confirmColor="danger"
+  loading={deleting}
+  onConfirm={handleConfirm}
+  onCancel={() => showDialog = false}
+>
+  <p>Are you sure? This cannot be undone.</p>
+</ConfirmationDialog>
+```
+
+**Benefits:**
+- ✅ Consistent UI/UX across the app
+- ✅ Proper accessibility built-in
+- ✅ Loading states handled correctly
+- ✅ Keyboard navigation (Escape to close)
+- ✅ No duplicate code
+- ✅ Easier maintenance
+
 ## Component Styling Standards
 
 ### **Philosophy: Pure Tailwind Utility-First with Component-Scoped Patterns**

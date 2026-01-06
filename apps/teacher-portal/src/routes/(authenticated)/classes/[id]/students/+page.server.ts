@@ -5,7 +5,13 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { prisma } from '@educational-app/database';
 import { requireRole } from '$lib/auth/auth-helpers.server';
-import { generateUUID } from '$lib/utils/uuid';
+import { generateStudentCode } from '$lib/utils/uuid';
+import { randomBytes } from 'crypto';
+
+// Helper function to generate QR token
+function generateQRToken(): string {
+	return randomBytes(32).toString('hex');
+}
 
 // Schema for adding individual student
 const addStudentSchema = z.object({
@@ -19,6 +25,11 @@ const addStudentSchema = z.object({
 const createStudentsSchema = z.object({
 	studentCount: z.number().int().min(1, 'Must create at least 1 student').max(20, 'Maximum 20 students at once'),
 	studentNames: z.string().optional() // Comma-separated names
+});
+
+// Schema for creating a single new student
+const createSingleStudentSchema = z.object({
+	studentName: z.string().min(1, 'Student name is required').max(100, 'Name too long')
 });
 
 // Schema for removing student
@@ -249,7 +260,7 @@ export const actions: Actions = {
 			// Generate students
 			const studentsToCreate = [];
 			for (let i = 0; i < studentCount; i++) {
-				const uuid = generateUUID();
+				const uuid = generateStudentCode(); // Use 8-character code
 				const name = names[i] || `Student ${classItem.students.length + i + 1}`;
 
 				studentsToCreate.push({
@@ -289,6 +300,19 @@ export const actions: Actions = {
 					}
 				});
 
+				// Auto-generate QR codes for all new students (10 year expiry)
+				const expiresAt = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+				const qrCodesToCreate = createdStudents.map(student => ({
+					studentId: student.id,
+					token: generateQRToken(),
+					expiresAt: expiresAt,
+					createdBy: session.user.id
+				}));
+
+				await tx.studentQRCode.createMany({
+					data: qrCodesToCreate
+				});
+
 				return createdStudents;
 			});
 
@@ -298,6 +322,93 @@ export const actions: Actions = {
 		} catch (err) {
 			console.error('Failed to create students:', err);
 			return message(form, 'Failed to create students. Please try again.', {
+				status: 500
+			});
+		}
+	},
+
+	// Create a single new student
+	createSingleStudent: async ({ request, locals, params }) => {
+		const session = await requireRole(locals, 'TEACHER');
+		const classId = params.id;
+
+		const form = await superValidate(request, zod(createSingleStudentSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		try {
+			// Verify teacher owns the class
+			const classItem = await prisma.class.findUnique({
+				where: { id: classId, teacherId: session.user.id },
+				include: { students: true }
+			});
+
+			if (!classItem) {
+				throw error(404, 'Class not found');
+			}
+
+			// Check if class is at capacity
+			if (classItem.students.length >= classItem.maxStudents) {
+				return message(form, `Class is at maximum capacity (${classItem.maxStudents} students)`, {
+					status: 400
+				});
+			}
+
+			const { studentName } = form.data;
+			const uuid = generateStudentCode(); // Use 8-character code
+
+			// Create student in a transaction
+			const newStudent = await prisma.$transaction(async (tx) => {
+				// Create student
+				const student = await tx.user.create({
+					data: {
+						role: 'STUDENT',
+						name: studentName,
+						uuid,
+						grade: classItem.grade,
+						organizationId: session.user.organizationId!,
+						isActive: true,
+						isVerified: true,
+						settings: JSON.stringify({
+							createdBy: session.user.id,
+							createdForClass: classId,
+							createdAt: new Date().toISOString()
+						})
+					}
+				});
+
+				// Add student to the class
+				await tx.class.update({
+					where: { id: classId },
+					data: {
+						students: {
+							connect: { id: student.id }
+						}
+					}
+				});
+
+				// Auto-generate QR code for the new student (10 year expiry)
+				const expiresAt = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+				await tx.studentQRCode.create({
+					data: {
+						studentId: student.id,
+						token: generateQRToken(),
+						expiresAt: expiresAt,
+						createdBy: session.user.id
+					}
+				});
+
+				return student;
+			});
+
+			console.log(`[CLASSES] Created new student ${newStudent.name} (${newStudent.uuid}) for class ${classItem.name}`);
+
+			return message(form, `Successfully created ${newStudent.name} and added to the class!`);
+		} catch (err) {
+			console.error('Failed to create student:', err);
+			return message(form, 'Failed to create student. Please try again.', {
 				status: 500
 			});
 		}

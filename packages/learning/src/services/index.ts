@@ -6,6 +6,7 @@ export { AchievementService } from './AchievementService'
 export { LanguageProviderRegistry, languageProviderRegistry } from './LanguageProviderRegistry'
 export { TypingEngine } from './TypingEngine'
 export type { CharacterState, WordState, TypingState, TypingMetrics, ErrorPosition } from './TypingEngine'
+export { ReactiveTypingEngine } from './TypingEngine.svelte'
 export { HintSystem } from './HintSystem'
 export type { HintLevel, HintState, HintSystemOptions } from './HintSystem'
 

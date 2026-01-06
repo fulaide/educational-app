@@ -10,6 +10,10 @@
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
+		"./utils": {
+			"types": "./dist/utils/index.d.ts",
+			"default": "./dist/utils/index.js"
+		},
 		"./styles": "./dist/styles.css",
 		"./themes/student": "./dist/themes/student.css",
 		"./themes/teacher": "./dist/themes/teacher.css",

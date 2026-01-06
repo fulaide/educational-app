@@ -6,7 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/server/index.ts",
-    "./client": "./src/client/index.ts",
+    "./client": "./src/client.ts",
     "./src/email-service": "./src/email-service.ts"
   },
   "dependencies": {

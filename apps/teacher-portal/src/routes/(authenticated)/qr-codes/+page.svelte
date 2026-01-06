@@ -42,14 +42,38 @@
 
 	// Use $derived for reactive data access (maintains reactivity with server data)
 	const classes = $derived(data.classes || [])
-	let selectedClass = $state<ClassData | null>(null)
+	let selectedClassId = $state<string | null>(null)
 	let loading = $state(false)
 	let showAnalytics = $state(false)
 
-	// Initialize selectedClass after classes are set
+	// Compute selectedClass reactively based on selectedClassId
+	const selectedClass = $derived(
+		selectedClassId
+			? classes.find(c => c.id === selectedClassId) || null
+			: classes.length > 0 ? classes[0] : null
+	)
+
+	// Debug: Log when selectedClass changes
 	$effect(() => {
-		if (classes.length > 0 && !selectedClass) {
-			selectedClass = classes[0];
+		console.log('[QR-CODES] Effect running, selectedClass:', selectedClass?.name || 'null', 'selectedClassId:', selectedClassId);
+		if (selectedClass) {
+			console.log('[QR-CODES] Selected class:', selectedClass.name, '- Students:', selectedClass.students.length);
+			selectedClass.students.forEach(student => {
+				console.log(`[QR-CODES] Student "${student.name}":`, {
+					hasQRCodes: !!student.studentQRCodes,
+					qrCodesLength: student.studentQRCodes?.length || 0,
+					qrCodeData: student.studentQRCodes?.[0]
+				});
+			});
+		} else {
+			console.log('[QR-CODES] No class selected yet');
+		}
+	})
+
+	// Initialize selectedClassId when classes load
+	$effect(() => {
+		if (classes.length > 0 && !selectedClassId) {
+			selectedClassId = classes[0].id;
 		}
 	})
 
@@ -72,43 +96,25 @@
 	let showQRDrawer = $state(false)
 	let selectedQRData = $state<{ qrCode: string; studentName: string; expiresAt: string } | null>(null)
 
-	// Handle form results using $effect
-	$effect(() => {
-		if (form?.success) {
-			const formData = form as any;
-			notifications.success(formData.message || 'QR code generated successfully');
-			if (formData.qrCode) {
-				// Individual QR code generated
-				selectedQRData = {
-					qrCode: formData.qrCode,
-					studentName: formData.studentName || '',
-					expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toLocaleString() : ''
-				}
-				showQRDrawer = true
-			} else if (formData.format === 'sheet' && formData.html) {
-				// Printable sheet generated
-				const printWindow = window.open('', '_blank')
-				if (printWindow) {
-					printWindow.document.write(formData.html)
-					printWindow.document.close()
-					printWindow.focus()
-					printWindow.print()
-				}
-			}
-			invalidateAll();
-		} else if (form && !form.success) {
-			const formData = form as any;
-			notifications.error(formData.message || 'Operation failed');
-		}
-	})
+	// Note: Form result handling moved to enhance callbacks to prevent infinite loops
 
 	function refreshQR(_student: Student) {
 		// This will be handled by the form submission
 		notifications.info('Refreshing QR code...');
 	}
 
-	function isQRExpired(expiry?: Date): boolean {
-		return expiry ? Date.now() > expiry.getTime() : false
+	function isQRExpired(expiry?: Date | string): boolean {
+		if (!expiry) return false;
+
+		try {
+			const expiryTime = expiry instanceof Date ? expiry.getTime() : new Date(expiry).getTime();
+			const isExpired = Date.now() > expiryTime;
+			console.log('[QR-CODES] isQRExpired check:', { expiry, expiryTime, now: Date.now(), isExpired });
+			return isExpired;
+		} catch (error) {
+			console.error('[QR-CODES] Error checking expiry:', error, expiry);
+			return false;
+		}
 	}
 
 	function formatTimeRemaining(expiry?: Date): string {
@@ -184,11 +190,11 @@
 					</label>
 					<select
 						id="class-select"
-						bind:value={selectedClass}
+						bind:value={selectedClassId}
 						class="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
 					>
 						{#each classes as cls}
-							<option value={cls}>{cls.name} ({cls.students.length} students)</option>
+							<option value={cls.id}>{cls.name} ({cls.students.length} students)</option>
 						{/each}
 					</select>
 				</div>
@@ -219,6 +225,17 @@
 						if (result.type === 'success' && result.data) {
 							const data = result.data as any;
 							notifications.success(data.message || 'QR codes generated for all students');
+
+							// Handle individual QR code (if generated for single student)
+							if (data.qrCode && data.studentName) {
+								selectedQRData = {
+									qrCode: data.qrCode,
+									studentName: data.studentName,
+									expiresAt: data.expiresAt ? new Date(data.expiresAt).toLocaleString() : ''
+								};
+								showQRDrawer = true;
+							}
+
 							await invalidateAll();
 						} else if (result.type === 'failure' && result.data) {
 							const data = result.data as any;
@@ -251,6 +268,18 @@
 						if (result.type === 'success' && result.data) {
 							const data = result.data as any;
 							notifications.success(data.message || 'Print sheet generated');
+
+							// Handle print sheet
+							if (data.format === 'sheet' && data.html) {
+								const printWindow = window.open('', '_blank');
+								if (printWindow) {
+									printWindow.document.write(data.html);
+									printWindow.document.close();
+									printWindow.focus();
+									printWindow.print();
+								}
+							}
+
 							await invalidateAll();
 						} else if (result.type === 'failure' && result.data) {
 							const data = result.data as any;
@@ -286,7 +315,7 @@
 				<div class="flex items-center justify-between mb-4">
 					<div>
 						<h3 class="text-lg font-semibold text-gray-900">{student.name}</h3>
-						<p class="text-sm text-gray-600">ID: {student.uuid.substring(0, 8)}...</p>
+						<p class="text-sm text-gray-600">Login codes shown below</p>
 					</div>
 					<div class="flex space-x-2">
 						<form method="POST" action="?/generateStudentQR" use:enhance={() => {
@@ -297,6 +326,17 @@
 								if (result.type === 'success' && result.data) {
 									const data = result.data as any;
 									notifications.success(data.message || 'QR code generated');
+
+									// Handle individual QR code drawer
+									if (data.qrCode && data.studentName) {
+										selectedQRData = {
+											qrCode: data.qrCode,
+											studentName: data.studentName,
+											expiresAt: data.expiresAt ? new Date(data.expiresAt).toLocaleString() : ''
+										};
+										showQRDrawer = true;
+									}
+
 									await invalidateAll();
 								} else if (result.type === 'failure' && result.data) {
 									const data = result.data as any;
@@ -317,7 +357,7 @@
 								<Plus class="w-5 h-5" />
 							</Button>
 						</form>
-						{#if student.qrCode}
+						{#if student.studentQRCodes && student.studentQRCodes.length > 0}
 							<Button
 								variant="ghost"
 								size="sm"
@@ -335,12 +375,11 @@
 						{@const qrCode = student.studentQRCodes[0]}
 						<div class="text-center flex flex-col justify-items-center">
 							<!-- QR Code Display -->
-							<div class="mx-auto mb-4 p-4 bg-white border-2 border-gray-200 rounded-lg inline-block">
+							<div class="mx-auto mb-4">
 								<QRCode
 									data={qrCode.token}
 									size={180}
 									showActions={false}
-									class="mx-auto [&>div:last-child]:hidden"
 								/>
 							</div>
 
@@ -349,23 +388,47 @@
 								{isQRExpired(qrCode.expiresAt) ? 'Expired' : 'Active'}
 							</div>
 
-							<!-- Token with Copy Button -->
-							<div class="mt-3 p-2 bg-gray-50 rounded-md">
-								<div class="flex items-center justify-between gap-2">
-									<code class="text-xs text-gray-600 font-mono truncate flex-1">
-										{qrCode.token.slice(0, 12)}...{qrCode.token.slice(-12)}
-									</code>
-									<Button
-										variant="ghost"
-										size="sm"
-										onclick={() => {
-											navigator.clipboard.writeText(qrCode.token);
-											notifications.success('Token copied to clipboard');
-										}}
-										class="flex-shrink-0 p-1.5"
-									>
-										<Copy class="w-4 h-4" />
-									</Button>
+							<!-- QR Token with Copy Button -->
+							<div class="mt-3 space-y-2">
+								<div class="p-2 bg-gray-50 rounded-md">
+									<label class="text-xs font-medium text-gray-700 block mb-1">QR Code Token:</label>
+									<div class="flex items-center justify-between gap-2">
+										<code class="text-xs text-gray-600 font-mono truncate flex-1">
+											{qrCode.token.slice(0, 12)}...{qrCode.token.slice(-12)}
+										</code>
+										<Button
+											variant="ghost"
+											size="sm"
+											onclick={() => {
+												navigator.clipboard.writeText(qrCode.token);
+												notifications.success('QR token copied to clipboard');
+											}}
+											class="flex-shrink-0 p-1.5"
+										>
+											<Copy class="w-4 h-4" />
+										</Button>
+									</div>
+								</div>
+
+								<!-- Student UUID (alternative login code) -->
+								<div class="p-2 bg-blue-50 rounded-md">
+									<label class="text-xs font-medium text-blue-700 block mb-1">Student ID (manual login):</label>
+									<div class="flex items-center justify-between gap-2">
+										<code class="text-xs text-blue-600 font-mono truncate flex-1">
+											{student.uuid}
+										</code>
+										<Button
+											variant="ghost"
+											size="sm"
+											onclick={() => {
+												navigator.clipboard.writeText(student.uuid);
+												notifications.success('Student ID copied to clipboard');
+											}}
+											class="flex-shrink-0 p-1.5"
+										>
+											<Copy class="w-4 h-4" />
+										</Button>
+									</div>
 								</div>
 							</div>
 
@@ -386,8 +449,8 @@
 					{:else}
 				<div class="text-center py-8">
 					<QrCodeIcon class="w-12 h-12 mx-auto text-gray-300 mb-4" />
-					<p class="text-gray-600 text-sm">No QR code generated</p>
-					<p class="text-xs text-gray-500 mt-2">Click the + button above to generate</p>
+					<p class="text-gray-600 text-sm">No active QR code</p>
+					<p class="text-xs text-gray-500 mt-2">Refresh the page or click the + button to generate</p>
 				</div>
 			{/if}
 		</Card>
@@ -401,19 +464,19 @@
 		<div class="text-neutral-800 space-y-2">
 			<p class="flex items-start">
 				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold items-center justify-center mr-3 mt-0.5">1</span>
-				Generate QR codes for individual students or entire classes
+				QR codes are automatically generated for all students (no expiry by default)
 			</p>
 			<p class="flex items-start">
 				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">2</span>
-				Print QR codes or display them on screen for students to scan
+				Students can scan QR codes or manually enter the "Student ID" code shown below each QR
 			</p>
 			<p class="flex items-start">
 				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">3</span>
-				Students scan QR codes with their mobile app to log in securely
+				Print QR codes or display them on screen for students to scan with the mobile app
 			</p>
 			<p class="flex items-start">
 				<span class="flex w-6 h-6 bg-neutral-200 text-neutral-800 rounded-full text-xs font-semibold  items-center justify-center mr-3 mt-0.5">4</span>
-				QR codes expire automatically for security (default: 24 hours)
+				Click the + button to regenerate a student's QR code if needed
 			</p>
 		</div>
 	</Card>

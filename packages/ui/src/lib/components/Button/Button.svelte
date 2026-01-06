@@ -49,18 +49,18 @@
 			warning: 'bg-warning-500 hover:bg-warning-600 text-white border border-transparent'
 		},
 		outline: {
-			primary: 'border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white bg-transparent',
-			secondary: 'border border-secondary-500 text-secondary-500 hover:bg-secondary-500 hover:text-white bg-transparent',
-			success: 'border border-success-500 text-success-500 hover:bg-success-500 hover:text-white bg-transparent',
-			danger: 'border border-danger-500 text-danger-500 hover:bg-danger-500 hover:text-white bg-transparent',
-			warning: 'border border-warning-500 text-warning-500 hover:bg-warning-500 hover:text-white bg-transparent'
+			primary: 'border border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white bg-transparent',
+			secondary: 'border border-secondary-500 text-secondary-600 hover:bg-secondary-500 hover:text-white bg-transparent',
+			success: 'border border-success-500 text-success-600 hover:bg-success-500 hover:text-white bg-transparent',
+			danger: 'border border-danger-500 text-danger-600 hover:bg-danger-500 hover:text-white bg-transparent',
+			warning: 'border border-warning-500 text-warning-600 hover:bg-warning-500 hover:text-white bg-transparent'
 		},
 		ghost: {
-			primary: 'text-primary-500 hover:bg-primary-50 border border-transparent',
-			secondary: 'text-secondary-500 hover:bg-secondary-50 border border-transparent',
-			success: 'text-success-500 hover:bg-success-50 border border-transparent',
-			danger: 'text-danger-500 hover:bg-danger-50 border border-transparent',
-			warning: 'text-warning-500 hover:bg-warning-50 border border-transparent'
+			primary: 'text-primary-600 hover:bg-primary-50 border border-transparent',
+			secondary: 'text-secondary-600 hover:bg-secondary-50 border border-transparent',
+			success: 'text-success-600 hover:bg-success-50 border border-transparent',
+			danger: 'text-danger-600 hover:bg-danger-50 border border-transparent',
+			warning: 'text-warning-600 hover:bg-warning-50 border border-transparent'
 		},
 		soft: {
 			primary: 'bg-primary-50 text-primary-600 hover:bg-primary-100 border border-transparent',

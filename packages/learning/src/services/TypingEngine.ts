@@ -62,9 +62,24 @@ export class TypingEngine {
   private state: TypingState
   private errorPositions: ErrorPosition[] = []
   private wordTimings: Array<{ word: string; timeMs: number; errors: number }> = []
+  private version: number = 0 // Reactivity version counter
 
   constructor(text: string) {
     this.state = this.initializeState(text)
+  }
+
+  /**
+   * Get version number for reactivity tracking
+   */
+  public getVersion(): number {
+    return this.version
+  }
+
+  /**
+   * Increment version to trigger reactivity
+   */
+  private incrementVersion(): void {
+    this.version++
   }
 
   /**
@@ -75,16 +90,21 @@ export class TypingEngine {
 
     return {
       text,
-      words: words.map(word => ({
-        word,
-        characters: word.split('').map(char => ({
-          char,
-          expected: char,
-          isCorrect: null
-        })),
-        errors: 0,
-        isComplete: false
-      })),
+      words: words.map((word, index) => {
+        // Add space to all words except the last one
+        const wordWithSpace = index < words.length - 1 ? word + ' ' : word
+
+        return {
+          word,
+          characters: wordWithSpace.split('').map(char => ({
+            char,
+            expected: char,
+            isCorrect: null
+          })),
+          errors: 0,
+          isComplete: false
+        }
+      }),
       currentWordIndex: 0,
       currentCharIndex: 0,
       totalErrors: 0,
@@ -188,6 +208,9 @@ export class TypingEngine {
       }
     }
 
+    // Trigger reactivity
+    this.incrementVersion()
+
     return {
       isCorrect,
       currentWord,
@@ -217,6 +240,8 @@ export class TypingEngine {
       char.isCorrect = null
       char.timestamp = undefined
 
+      // Trigger reactivity
+      this.incrementVersion()
       return true
     } else if (this.state.currentWordIndex > 0) {
       // Move to previous word
@@ -237,6 +262,8 @@ export class TypingEngine {
       char.isCorrect = null
       char.timestamp = undefined
 
+      // Trigger reactivity
+      this.incrementVersion()
       return true
     }
 

@@ -1,6 +1,7 @@
 import { getContext, setContext } from 'svelte';
 export class NotificationManager {
-    _notifications = [];
+    // Use Svelte 5 $state rune for reactivity
+    _notifications = $state([]);
     listeners = new Set();
     get notifications() {
         return this._notifications;
@@ -75,7 +76,7 @@ export class NotificationManager {
      * Clear all notifications
      */
     clear() {
-        this._notifications.length = 0;
+        this._notifications = [];
         this.notify();
     }
     /**
@@ -168,3 +169,6 @@ export function getNotificationContext() {
 export function useNotifications() {
     return getNotificationContext();
 }
+// Global singleton instance for use without context
+// This allows pages and components to use notifications without setting up context
+export const notifications = new NotificationManager();

@@ -4,6 +4,7 @@ export * from './qr-analytics'
 export * from './qr-offline'
 export * from './email-service'
 export * from './url-utils'
+export * from './student-jwt'
 
 // Types
 export interface AuthUser {

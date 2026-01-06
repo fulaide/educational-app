@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation'
 	import { browser } from '$app/environment'
 	import { t } from '@educational-app/i18n'
-	// import LanguageSwitcher from '@educational-app/i18n/src/components/LanguageSwitcher.svelte'
+	import { authService } from '$lib/services/auth.svelte.ts'
 
 	let videoElement: HTMLVideoElement
 	let canvasElement: HTMLCanvasElement
@@ -21,6 +21,9 @@
 		className?: string
 		organizationId: string
 		expires: number
+		nonce: string
+		signature: string
+		version: number
 	}
 
 	onMount(async () => {
@@ -105,45 +108,73 @@
 
 	async function processQRCode(qrText: string) {
 		if (processing) return
-		
+
 		processing = true
 		scanning = false
 
 		try {
-			// Enhanced QR validation with security checks
-			const validationResult = validateQRData(qrText)
-			
-			if (!validationResult.isValid) {
-				throw new Error(validationResult.error || 'Invalid QR code')
-			}
+			// Try to detect QR code format: simple token or JSON with signature
+			let isTokenFormat = false
+			let authData: any = null
 
-			const qrData = validationResult.data!
+			try {
+				// Try parsing as JSON first
+				const parsedData = JSON.parse(qrText)
 
-			// Additional security checks
-			if (Date.now() > qrData.expires) {
-				throw new Error($t('auth.qr_expired'))
-			}
+				// Check if it has the signature format (JSON with security fields)
+				if (parsedData.uuid && parsedData.signature && parsedData.nonce) {
+					// JSON format with signature
+					const validationResult = validateQRData(qrText)
 
-			// Check version compatibility
-			if (qrData.version !== 1) {
-				throw new Error($t('errors.validation_failed'))
+					if (!validationResult.isValid) {
+						throw new Error(validationResult.error || 'Invalid QR code')
+					}
+
+					authData = validationResult.data!
+
+					// Additional security checks
+					if (Date.now() > authData.expires) {
+						throw new Error($t('auth.qr_expired'))
+					}
+
+					// Check version compatibility
+					if (authData.version !== 1) {
+						throw new Error($t('errors.validation_failed'))
+					}
+
+					isTokenFormat = false
+				} else {
+					throw new Error('Not a signed QR format')
+				}
+			} catch (jsonError) {
+				// Not JSON or not signed format, treat as simple token string
+				isTokenFormat = true
+				authData = { token: qrText.trim() }
 			}
 
 			// Show success message
-			success = $t('common.welcome') + `, ${qrData.studentName || $t('common.student', { default: 'Student' })}!`
-			
-			// Authenticate with enhanced data
-			await authenticateWithQR(qrData)
-			
+			success = $t('auth.processing_qr')
+
+			// Authenticate with appropriate method
+			const result = isTokenFormat
+				? await authService.authenticateWithToken(authData.token)
+				: await authService.authenticateWithQR(authData)
+
+			if (!result.success) {
+				throw new Error(result.error || 'Authentication failed')
+			}
+
+			success = $t('common.welcome') + '!'
+
 			// Redirect to student dashboard after successful authentication
 			setTimeout(() => {
 				goto('/dashboard')
-			}, 2000)
+			}, 1500)
 
-		} catch (err) {
+		} catch (err: any) {
 			console.error('QR processing failed:', err)
 			error = err.message || 'Failed to process QR code. Please try again.'
-			
+
 			// Restart scanning after error
 			setTimeout(() => {
 				error = ''
@@ -158,9 +189,9 @@
 	function validateQRData(qrDataString: string) {
 		try {
 			const data = JSON.parse(qrDataString)
-			
+
 			// Check required fields including security fields
-			if (!data.uuid || !data.studentName || !data.organizationId || !data.expires || 
+			if (!data.uuid || !data.studentName || !data.organizationId || !data.expires ||
 				!data.nonce || !data.signature || data.version === undefined) {
 				return {
 					isValid: false,
@@ -197,21 +228,6 @@
 		}
 	}
 
-	async function authenticateWithQR(qrData: any) {
-		// Mock API call with enhanced security data
-		await new Promise(resolve => setTimeout(resolve, 1000))
-		
-		// Log authentication attempt with nonce for replay protection
-		console.log('Student authenticated:', {
-			uuid: qrData.uuid,
-			nonce: qrData.nonce,
-			organizationId: qrData.organizationId,
-			timestamp: Date.now()
-		})
-		
-		return { success: true, studentName: qrData.studentName }
-	}
-
 	async function loginWithUUID() {
 		if (!manualUUID.trim()) {
 			error = 'Please enter your student code'
@@ -222,23 +238,40 @@
 		error = ''
 
 		try {
-			// Validate UUID format
-			const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-			if (!uuidRegex.test(manualUUID.trim())) {
-				throw new Error('Invalid student code format')
+			const code = manualUUID.trim()
+
+			// Detect code format
+			const fullUUIDRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i  // Full UUID with dashes
+			const shortCodeRegex = /^[A-Z0-9]{8}$/i  // Short 8-character code (IRNN46LV)
+			const hexTokenRegex = /^[0-9a-f]{64}$/i   // QR tokens are 64-char hex strings
+
+			let result;
+
+			if (fullUUIDRegex.test(code)) {
+				// Full Student UUID format (with dashes) - use UUID authentication
+				result = await authService.authenticateWithUUID(code.toLowerCase())
+			} else if (shortCodeRegex.test(code)) {
+				// Short 8-character student code - use UUID authentication (stored as UUID in DB)
+				result = await authService.authenticateWithUUID(code.toUpperCase())
+			} else if (hexTokenRegex.test(code)) {
+				// QR Token format (64-char hex) - use token authentication
+				result = await authService.authenticateWithToken(code)
+			} else {
+				throw new Error('Invalid code format. Please enter your student code or QR token.')
 			}
 
-			// Mock authentication
-			await mockAuthenticate(manualUUID.trim())
-			
+			if (!result.success) {
+				throw new Error(result.error || 'Authentication failed')
+			}
+
 			success = 'Login successful!'
-			
+
 			// Redirect to dashboard
 			setTimeout(() => {
 				goto('/dashboard')
 			}, 1500)
 
-		} catch (err) {
+		} catch (err: any) {
 			console.error('Manual login failed:', err)
 			error = err.message || 'Login failed. Please check your student code.'
 		} finally {
@@ -286,18 +319,6 @@
 		return null
 	}
 
-	async function mockAuthenticate(uuid: string) {
-		// Mock API call
-		await new Promise(resolve => setTimeout(resolve, 1000))
-		
-		// Simulate authentication success
-		if (uuid.length >= 8) {
-			console.log('Student authenticated with UUID:', uuid)
-			return { success: true, studentName: 'Test Student' }
-		} else {
-			throw new Error('Invalid student code')
-		}
-	}
 </script>
 
 <svelte:head>
@@ -459,12 +480,12 @@
 								id="uuid-input"
 								type="text"
 								bind:value={manualUUID}
-								placeholder="a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+								placeholder="Paste your code here"
 								class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-mono"
 								disabled={processing}
 							/>
 							<p class="text-xs text-gray-500 mt-1">
-								This is a long code with numbers and letters
+								Accepts: 8-character code (IRNN46LV), full ID with dashes, or QR token
 							</p>
 						</div>
 
