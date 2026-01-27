@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { authService } from '$lib/services/auth.svelte.ts'
-	import { goto } from '$app/navigation'
-	import { Home, BookOpen, Trophy, User, LogOut, WifiOff } from 'lucide-svelte'
-	import { Button } from '@educational-app/ui'
+	import { goto } from '$app/navigation';
+	import { authService } from '$lib/services/auth.svelte.ts';
+	import { Button } from '@educational-app/ui';
+	import { BookOpen, Home, LogOut, Trophy, User, WifiOff } from 'lucide-svelte';
 
 	// Get current user from auth service
 	const user = $derived(authService.currentUser)
@@ -75,7 +75,6 @@
 	<!-- Bottom Navigation -->
 	<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 safe-bottom">
 		<div class="max-w-7xl mx-auto px-4 py-2 flex justify-around items-center">
-			<!-- Home Tab -->
 			<button
 				onclick={() => navigateTo('/dashboard')}
 				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/dashboard' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
@@ -84,7 +83,6 @@
 				<span class="text-xs font-medium">Home</span>
 			</button>
 
-			<!-- Vocabulary Tab -->
 			<button
 				onclick={() => navigateTo('/vocabulary')}
 				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith('/vocabulary') ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
@@ -93,16 +91,22 @@
 				<span class="text-xs font-medium">Learn</span>
 			</button>
 
-			<!-- Achievements Tab -->
 			<button
-				onclick={() => navigateTo('/achievements')}
+				onclick={() => navigateTo('/math-challenge')}
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith('/vocabulary') ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+			>
+				<BookOpen class="w-5 h-5" />
+				<span class="text-xs font-medium">Math</span>
+			</button>
+
+			<button
+				onclick={() => navigateTo('/math-test')}
 				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/achievements' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<Trophy class="w-5 h-5" />
-				<span class="text-xs font-medium">Rewards</span>
+				<span class="text-xs font-medium">Test</span>
 			</button>
 
-			<!-- Profile Tab -->
 			<button
 				onclick={() => navigateTo('/profile')}
 				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/profile' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"

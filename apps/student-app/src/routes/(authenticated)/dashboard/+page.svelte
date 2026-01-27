@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { Card, Button, ProgressBar, Badge } from '@educational-app/ui'
-	import { BookOpen, Target, Flame, TrendingUp, Star, Clock } from 'lucide-svelte'
+	import { BookOpen, Target, Flame, TrendingUp, Star, Clock, Calculator } from 'lucide-svelte'
 	import type { PageData } from './$types'
 
 	let { data }: { data: PageData } = $props()
@@ -35,7 +35,7 @@
 	<!-- Welcome Header -->
 	<div class="text-center mb-8">
 		<h1 class="text-3xl font-bold text-neutral-900 mb-2">
-			Welcome back! 👋
+			Welcome back, {data.user.name || 'Student'}! 👋
 		</h1>
 		<p class="text-neutral-600">Keep learning and growing every day</p>
 	</div>
@@ -120,7 +120,7 @@
 	</Card>
 
 	<!-- Quick Actions -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 		<!-- Review Words -->
 		<Card class="p-6 cursor-pointer hover:shadow-md transition-shadow" onclick={startVocabulary}>
 			<div class="flex items-start justify-between">
@@ -153,6 +153,24 @@
 				</div>
 				<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
 					<Star class="w-6 h-6 text-purple-600" />
+				</div>
+			</div>
+		</Card>
+
+		<!-- Math Challenge -->
+		<Card class="p-6 cursor-pointer hover:shadow-md transition-shadow" onclick={() => goto('/math-challenge')}>
+			<div class="flex items-start justify-between">
+				<div class="flex-1">
+					<h3 class="text-lg font-semibold text-neutral-900 mb-2">Mathe-Übung</h3>
+					<p class="text-sm text-neutral-600 mb-4">
+						Übe Addition & Subtraktion
+					</p>
+					<Button variant="solid" color="success" size="sm">
+						Jetzt üben
+					</Button>
+				</div>
+				<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+					<Calculator class="w-6 h-6 text-green-600" />
 				</div>
 			</div>
 		</Card>

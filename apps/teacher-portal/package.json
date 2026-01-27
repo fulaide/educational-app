@@ -21,10 +21,10 @@
 		"clean": "rm -rf .svelte-kit build dist"
 	},
 	"dependencies": {
-		"@educational-app/database": "*",
-		"@educational-app/i18n": "*",
-		"@educational-app/media-manager": "*",
-		"@educational-app/ui": "*",
+		"@educational-app/database": "workspace:*",
+		"@educational-app/i18n": "workspace:*",
+		"@educational-app/media-manager": "workspace:*",
+		"@educational-app/ui": "workspace:*",
 		"@trpc/client": "^10.45.0",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@vercel/blob": "^0.23.4",

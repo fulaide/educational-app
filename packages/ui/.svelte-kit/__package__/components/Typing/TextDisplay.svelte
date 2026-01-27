@@ -12,15 +12,19 @@
 	let { words, currentWordIndex, windowSize = 5, class: className }: Props = $props();
 
 	// Get visible window of words
-	const visibleWords = $derived.by(() => {
+	const visibleWindow = $derived.by(() => {
 		const start = Math.max(0, currentWordIndex - 1);
 		const end = Math.min(words.length, start + windowSize);
-		return words.slice(start, end);
+		return {
+			words: words.slice(start, end),
+			start
+		};
 	});
 
-	const visibleCurrentIndex = $derived(
-		Math.min(currentWordIndex, visibleWords.length - 1)
-	);
+	const visibleWords = $derived(visibleWindow.words);
+
+	// Calculate the index within the visible window (offset from window start)
+	const visibleCurrentIndex = $derived(currentWordIndex - visibleWindow.start);
 
 	/**
 	 * Get CSS class for a character based on its state
@@ -61,7 +65,7 @@
 
 <div class={cn('w-full py-12 px-8 bg-surface rounded-xl', className)}>
 	<!-- Text Display Area -->
-	<div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 min-h-[200px]">
+	<div class="flex flex-wrap items-center justify-center gap-y-4 min-h-[200px]">
 		{#each visibleWords as word, wordIndex (wordIndex)}
 			<div
 				class={cn(
@@ -69,12 +73,14 @@
 					getWordClass(wordIndex, word)
 				)}
 			>
-				<!-- Individual Characters -->
+				<!-- Individual Characters (including space at end if present) -->
 				{#each word.characters as char, charIndex}
 					{@const isCurrent = wordIndex === visibleCurrentIndex && charIndex === word.characters.findIndex(c => c.isCorrect === null)}
+					{@const isSpace = char.char === ' '}
 					<span
 						class={cn(
-							'inline-block text-4xl font-mono font-semibold px-1 py-2 transition-all duration-150',
+							'inline-block text-4xl font-mono font-semibold transition-all duration-150',
+							isSpace ? 'px-2 py-2' : 'px-0.5 py-2',
 							getCharClass(char.isCorrect, isCurrent)
 						)}
 					>
@@ -92,26 +98,5 @@
 				{/if}
 			</div>
 		{/each}
-	</div>
-
-	<!-- Progress Indicator -->
-	<div class="mt-8 flex items-center justify-center gap-2">
-		{#each words as word, idx}
-			<div
-				class={cn(
-					'h-2 rounded-full transition-all duration-300',
-					idx < currentWordIndex
-						? 'bg-success-500 w-8'
-						: idx === currentWordIndex
-							? 'bg-primary-500 w-12'
-							: 'bg-neutral-200 w-6'
-				)}
-			></div>
-		{/each}
-	</div>
-
-	<!-- Word Counter -->
-	<div class="mt-4 text-center text-sm text-neutral-500">
-		Word {currentWordIndex + 1} of {words.length}
 	</div>
 </div>

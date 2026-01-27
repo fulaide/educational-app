@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@auth/sveltekit": "^1.7.0",
-		"@educational-app/ui": "*",
+		"@educational-app/ui": "workspace:*",
 		"@trpc/client": "^10.45.0",
 		"lucide-svelte": "^0.400.0",
 		"trpc-sveltekit": "^3.6.3",

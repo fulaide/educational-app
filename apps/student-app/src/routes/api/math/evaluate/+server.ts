@@ -1,3 +1,4 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from '$env/static/private';
 import type { GermanFeedback, MathProblem } from '@educational-app/learning';
 import { generateLocalFeedback } from '@educational-app/learning';
@@ -11,16 +12,8 @@ interface EvaluateRequest {
 	userAnswer: number;
 }
 
-interface ClaudeMessage {
-	role: 'user' | 'assistant';
-	content: string;
-}
-
-interface ClaudeResponse {
-	content: Array<{ type: string; text?: string }>;
-	stop_reason: string;
-	usage: { input_tokens: number; output_tokens: number };
-}
+// Initialize Anthropic client
+const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
 
 /**
  * Evaluate math answer endpoint
@@ -39,7 +32,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const isCorrect = userAnswer === problem.correctAnswer;
 
 		// Try Claude API first if available
-		if (ANTHROPIC_API_KEY) {
+		if (anthropic) {
 			try {
 				const feedback = await generateFeedbackWithClaude(problem, userAnswer, isCorrect);
 				if (feedback) {
@@ -67,6 +60,8 @@ async function generateFeedbackWithClaude(
 	userAnswer: number,
 	isCorrect: boolean
 ): Promise<GermanFeedback> {
+	if (!anthropic) throw new Error('Anthropic client not initialized');
+
 	const prompt = `You are a kind and encouraging German elementary school math teacher helping a 6-8 year old student.
 
 The student answered a math problem:
@@ -110,37 +105,19 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
   "explanation": "The detailed explanation (only for incorrect answers, null for correct)"
 }`;
 
-	const messages: ClaudeMessage[] = [{ role: 'user', content: prompt }];
-
-	const response = await fetch('https://api.anthropic.com/v1/messages', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'x-api-key': ANTHROPIC_API_KEY,
-			'anthropic-version': '2023-06-01'
-		},
-		body: JSON.stringify({
-			model: 'claude-3-5-haiku-20241022',
-			max_tokens: 500,
-			messages
-		})
+	const message = await anthropic.messages.create({
+		model: 'claude-3-5-haiku-20241022',
+		max_tokens: 500,
+		messages: [{ role: 'user', content: prompt }]
 	});
 
-	if (!response.ok) {
-		const errorText = await response.text();
-		console.error('Claude API error:', response.status, errorText);
-		throw new Error(`Claude API error: ${response.status}`);
-	}
-
-	const data: ClaudeResponse = await response.json();
-	const content = data.content?.find(c => c.type === 'text')?.text;
-
-	if (!content) {
-		throw new Error('No content in Claude response');
+	const content = message.content[0];
+	if (content.type !== 'text') {
+		throw new Error('Unexpected response type');
 	}
 
 	// Parse JSON from response
-	let jsonContent = content.trim();
+	let jsonContent = content.text.trim();
 	if (jsonContent.startsWith('```')) {
 		jsonContent = jsonContent.replace(/```json?\n?/g, '').replace(/```$/g, '').trim();
 	}

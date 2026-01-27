@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { useNotifications } from '../../stores/notifications.svelte.js'
+	import { notifications } from '../../stores/notifications.svelte.js'
 	import Toast from './Toast.svelte'
-	
+
 	interface Props {
 		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center'
 		maxVisible?: number
 	}
-	
+
 	let { position = 'top-right', maxVisible = 5 }: Props = $props()
-	
-	const notifications = useNotifications()
+
+	// Use global singleton instance instead of context
+	// This ensures pages and ToastContainer use the same NotificationManager
 	
 	// Get the most recent notifications up to the limit
 	const visibleNotifications = $derived.by(() => {

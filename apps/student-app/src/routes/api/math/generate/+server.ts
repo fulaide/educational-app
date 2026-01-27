@@ -1,3 +1,4 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from '$env/static/private';
 import type { MathDifficulty, MathOperation, MathProblem } from '@educational-app/learning';
 import { generateProblems, getDifficultyRange } from '@educational-app/learning';
@@ -13,16 +14,8 @@ interface GenerateRequest {
 	operations?: MathOperation[];
 }
 
-interface ClaudeMessage {
-	role: 'user' | 'assistant';
-	content: string;
-}
-
-interface ClaudeResponse {
-	content: Array<{ type: string; text?: string }>;
-	stop_reason: string;
-	usage: { input_tokens: number; output_tokens: number };
-}
+// Initialize Anthropic client
+const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
 
 /**
  * Generate math problems endpoint
@@ -43,7 +36,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Try Claude API first if available
-		if (ANTHROPIC_API_KEY) {
+		if (anthropic) {
 			try {
 				const problems = await generateProblemsWithClaude({
 					count,
@@ -79,6 +72,8 @@ export const POST: RequestHandler = async ({ request }) => {
  * Generate problems using Claude API
  */
 async function generateProblemsWithClaude(config: GenerateRequest): Promise<MathProblem[]> {
+	if (!anthropic) throw new Error('Anthropic client not initialized');
+
 	const { count, difficulty, includeZehneruebergang, operations = ['addition', 'subtraction'] } = config;
 	const range = getDifficultyRange(difficulty);
 
@@ -120,37 +115,19 @@ Valid unknownPosition: left, right, result
 
 Generate exactly ${count} problems with varied types.`;
 
-	const messages: ClaudeMessage[] = [{ role: 'user', content: prompt }];
-
-	const response = await fetch('https://api.anthropic.com/v1/messages', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'x-api-key': ANTHROPIC_API_KEY,
-			'anthropic-version': '2023-06-01'
-		},
-		body: JSON.stringify({
-			model: 'claude-3-5-haiku-20241022',
-			max_tokens: 2000,
-			messages
-		})
+	const message = await anthropic.messages.create({
+		model: 'claude-3-5-haiku-20241022',
+		max_tokens: 2000,
+		messages: [{ role: 'user', content: prompt }]
 	});
 
-	if (!response.ok) {
-		const errorText = await response.text();
-		console.error('Claude API error:', response.status, errorText);
-		throw new Error(`Claude API error: ${response.status}`);
-	}
-
-	const data: ClaudeResponse = await response.json();
-	const content = data.content?.find(c => c.type === 'text')?.text;
-
-	if (!content) {
-		throw new Error('No content in Claude response');
+	const content = message.content[0];
+	if (content.type !== 'text') {
+		throw new Error('Unexpected response type');
 	}
 
 	// Parse JSON from response (handle potential markdown code blocks)
-	let jsonContent = content.trim();
+	let jsonContent = content.text.trim();
 	if (jsonContent.startsWith('```')) {
 		jsonContent = jsonContent.replace(/```json?\n?/g, '').replace(/```$/g, '').trim();
 	}

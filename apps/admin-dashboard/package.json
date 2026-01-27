@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@auth/sveltekit": "^1.7.0",
-		"@educational-app/ui": "*",
+		"@educational-app/ui": "workspace:*",
 		"@trpc/client": "^10.45.0",
 		"trpc-sveltekit": "^3.6.3",
 		"zod": "^3.23.8"

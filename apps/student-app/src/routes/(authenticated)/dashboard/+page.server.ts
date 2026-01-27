@@ -1,11 +1,14 @@
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const studentId = locals.user!.id
-
 	// For Phase 2, return mock data
 	// In future phases, query real data from database
 	return {
+		user: {
+			name: locals.user!.name,
+			uuid: locals.user!.uuid,
+			grade: locals.user!.grade
+		},
 		stats: {
 			xp: 1250,
 			level: 5,

@@ -59,6 +59,7 @@ declare module '$env/static/private' {
 	export const PAGER: string;
 	export const LSCOLORS: string;
 	export const PATH: string;
+	export const LaunchInstanceID: string;
 	export const npm_package_json: string;
 	export const __CFBundleIdentifier: string;
 	export const USER_ZDOTDIR: string;
@@ -69,6 +70,7 @@ declare module '$env/static/private' {
 	export const OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 	export const EDITOR: string;
 	export const npm_lifecycle_event: string;
+	export const LOCAL_GIT_DIRECTORY: string;
 	export const LANG: string;
 	export const npm_package_name: string;
 	export const XPC_FLAGS: string;
@@ -79,8 +81,8 @@ declare module '$env/static/private' {
 	export const XPC_SERVICE_NAME: string;
 	export const npm_package_version: string;
 	export const VSCODE_INJECTION: string;
-	export const HOME: string;
 	export const SHLVL: string;
+	export const HOME: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
 	export const LOGNAME: string;
 	export const LESS: string;
@@ -92,6 +94,7 @@ declare module '$env/static/private' {
 	export const GIT_ASKPASS: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const OSLogRateLimit: string;
+	export const SECURITYSESSIONID: string;
 	export const CLAUDECODE: string;
 	export const COLORTERM: string;
 	export const npm_config_prefix: string;
@@ -160,6 +163,7 @@ declare module '$env/dynamic/private' {
 		PAGER: string;
 		LSCOLORS: string;
 		PATH: string;
+		LaunchInstanceID: string;
 		npm_package_json: string;
 		__CFBundleIdentifier: string;
 		USER_ZDOTDIR: string;
@@ -170,6 +174,7 @@ declare module '$env/dynamic/private' {
 		OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 		EDITOR: string;
 		npm_lifecycle_event: string;
+		LOCAL_GIT_DIRECTORY: string;
 		LANG: string;
 		npm_package_name: string;
 		XPC_FLAGS: string;
@@ -180,8 +185,8 @@ declare module '$env/dynamic/private' {
 		XPC_SERVICE_NAME: string;
 		npm_package_version: string;
 		VSCODE_INJECTION: string;
-		HOME: string;
 		SHLVL: string;
+		HOME: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
 		LOGNAME: string;
 		LESS: string;
@@ -193,6 +198,7 @@ declare module '$env/dynamic/private' {
 		GIT_ASKPASS: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		OSLogRateLimit: string;
+		SECURITYSESSIONID: string;
 		CLAUDECODE: string;
 		COLORTERM: string;
 		npm_config_prefix: string;

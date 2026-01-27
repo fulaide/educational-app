@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cn } from '../../utils/index.js';
-	import { TypingEngine, HintSystem } from '@educational-app/learning';
+	import { ReactiveTypingEngine, HintSystem } from '@educational-app/learning';
 	import type { TypingMetrics } from '@educational-app/learning';
 	import TextDisplay from './TextDisplay.svelte';
 	import TimerBar from './TimerBar.svelte';
@@ -31,7 +31,7 @@
 		class: className
 	}: Props = $props();
 
-	let engine = $state(new TypingEngine(text));
+	let engine = new ReactiveTypingEngine(text);
 	let hintSystem = $state(new HintSystem({ enabled: enableHints }));
 	let timerBar = $state<any>(null);
 	let showResults = $state(false);
@@ -40,11 +40,11 @@
 	let achievements = $state<string[]>([]);
 	let pressedKey = $state<string | null>(null);
 
-	// Get typing state
-	const state = $derived(engine.getState());
+	// Access reactive state - automatically updates when engine state changes
 	const currentWord = $derived(engine.getCurrentWord());
 	const currentChar = $derived(engine.getCurrentChar());
 	const isComplete = $derived(engine.isComplete());
+	const progress = $derived(engine.getProgress());
 	const hintState = $derived(hintSystem.getState());
 
 	// Update hint system when current character changes
@@ -76,7 +76,7 @@
 		}
 
 		// Start timer on first keypress
-		if (!state.startTime && timerBar && timeLimit > 0) {
+		if (!engine.state.startTime && timerBar && timeLimit > 0) {
 			timerBar.start();
 		}
 
@@ -87,7 +87,7 @@
 		// Handle backspace
 		if (event.key === 'Backspace') {
 			const didDelete = engine.handleBackspace();
-			if (enableSounds && didDelete) {
+			if (didDelete && enableSounds) {
 				playSound('delete');
 			}
 			return;
@@ -215,11 +215,6 @@
 			timerBar.reset();
 		}
 	}
-
-	/**
-	 * Get progress percentage
-	 */
-	const progress = $derived(engine.getProgress());
 </script>
 
 {#if showResults && metrics}
@@ -258,8 +253,8 @@
 
 		<!-- Text Display -->
 		<TextDisplay
-			words={state.words}
-			currentWordIndex={state.currentWordIndex}
+			words={engine.state.words}
+			currentWordIndex={engine.state.currentWordIndex}
 			windowSize={5}
 		/>
 
@@ -301,11 +296,11 @@
 		<Card variant="outlined" padding="md" class="mt-6">
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
 				<div>
-					<div class="text-2xl font-bold text-success-600">{state.totalCorrect}</div>
+					<div class="text-2xl font-bold text-success-600">{engine.state.totalCorrect}</div>
 					<div class="text-xs text-neutral-500">Correct</div>
 				</div>
 				<div>
-					<div class="text-2xl font-bold text-danger-600">{state.totalErrors}</div>
+					<div class="text-2xl font-bold text-danger-600">{engine.state.totalErrors}</div>
 					<div class="text-xs text-neutral-500">Errors</div>
 				</div>
 				<div>
