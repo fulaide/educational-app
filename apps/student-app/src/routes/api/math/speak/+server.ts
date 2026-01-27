@@ -13,9 +13,15 @@ interface SpeakRequest {
 
 const elevenlabs = new ElevenLabsClient({ apiKey: ELEVENLABS_API_KEY });
 
-const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
+// German-friendly voices (eleven_multilingual_v2 supports German well)
+// Using "Nicole" which has good German pronunciation
+const DEFAULT_VOICE_ID = 'piTKgcLEGmPE4e6mEKli'; // Nicole - clear, friendly
 
 const PREMADE_VOICES: Record<string, string> = {
+  // German-optimized voices
+  nicole: 'piTKgcLEGmPE4e6mEKli', // Clear, friendly - good for kids
+  freya: 'jsCqWAovK2LkecY7zXl4', // Warm, expressive
+  // Original English voices (still work with multilingual model)
   rachel: '21m00Tcm4TlvDq8ikWAM',
   domi: 'AZnzlk1XvdvUeBnXmlld',
   bella: 'EXAVITQu4vr4xnSDxMaL',
@@ -30,15 +36,38 @@ const PREMADE_VOICES: Record<string, string> = {
 const audioCache = new Map<string, { audio: ArrayBuffer; timestamp: number }>();
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 
+/**
+ * Convert math symbols to spoken German words for TTS
+ */
+function convertMathToSpokenGerman(text: string): string {
+  return text
+    // Math operators - use word boundaries to avoid partial replacements
+    .replace(/\s*\+\s*/g, ' plus ')
+    .replace(/\s*-\s*/g, ' minus ')
+    .replace(/\s*×\s*/g, ' mal ')
+    .replace(/\s*÷\s*/g, ' geteilt durch ')
+    .replace(/\s*=\s*/g, ' gleich ')
+    // Unknown/blank placeholder - add pause
+    .replace(/__+/g, '... Lücke ...')
+    .replace(/_/g, '')
+    // Clean up multiple spaces
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const body: SpeakRequest = await request.json();
-    const text = body?.text;
+    const rawText = body?.text;
     const voice = body?.voice;
 
-    if (!text || typeof text !== 'string') {
+    if (!rawText || typeof rawText !== 'string') {
       return json({ error: 'Text is required' }, { status: 400 });
     }
+
+    // Convert math symbols to spoken words
+    const text = convertMathToSpokenGerman(rawText);
+    console.log('[Speak] Converted text:', { original: rawText, spoken: text });
     if (text.length > 500) {
       return json({ error: 'Text too long (max 500 characters)' }, { status: 400 });
     }
