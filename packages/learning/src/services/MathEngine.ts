@@ -370,6 +370,7 @@ export function calculateResults(session: MathSession): MathSessionResults {
 
 /**
  * Record an answer in a session
+ * Note: Does NOT advance currentIndex - call advanceToNextProblem() separately
  */
 export function recordAnswer(
   session: MathSession,
@@ -394,13 +395,14 @@ export function recordAnswer(
     answeredAt: new Date()
   }
 
+  // Don't increment currentIndex here - let UI control when to advance
   const updatedSession: MathSession = {
     ...session,
-    answers: [...session.answers, mathAnswer],
-    currentIndex: session.currentIndex + 1
+    answers: [...session.answers, mathAnswer]
   }
 
-  const isComplete = updatedSession.currentIndex >= updatedSession.problems.length
+  // Check if all problems have been answered
+  const isComplete = updatedSession.answers.length >= updatedSession.problems.length
 
   if (isComplete) {
     updatedSession.completedAt = new Date()
@@ -414,6 +416,16 @@ export function recordAnswer(
 }
 
 /**
+ * Advance to the next problem in a session
+ */
+export function advanceToNextProblem(session: MathSession): MathSession {
+  return {
+    ...session,
+    currentIndex: session.currentIndex + 1
+  }
+}
+
+/**
  * Get the current problem in a session
  */
 export function getCurrentProblem(session: MathSession): MathProblem | null {
@@ -421,10 +433,10 @@ export function getCurrentProblem(session: MathSession): MathProblem | null {
 }
 
 /**
- * Check if session is complete
+ * Check if session is complete (all problems answered)
  */
 export function isSessionComplete(session: MathSession): boolean {
-  return session.currentIndex >= session.problems.length
+  return session.answers.length >= session.problems.length
 }
 
 /**

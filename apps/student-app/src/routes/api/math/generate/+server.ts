@@ -120,6 +120,7 @@ Generate exactly ${count} problems with varied types.`;
 	const problems: MathProblem[] = JSON.parse(jsonContent);
 
 	// Validate and ensure all problems have required fields
+	// IMPORTANT: Always use the requested difficulty, ignore what Claude returns
 	return problems.map((p, index) => ({
 		id: p.id || `claude-${Date.now()}-${index}`,
 		type: p.type,
@@ -131,6 +132,6 @@ Generate exactly ${count} problems with varied types.`;
 		unknownPosition: p.unknownPosition,
 		correctAnswer: p.correctAnswer,
 		hasZehneruebergang: p.hasZehneruebergang,
-		difficulty: p.difficulty || config.difficulty
+		difficulty: config.difficulty // Force requested difficulty
 	}));
 }

@@ -6,12 +6,11 @@ import {
 	type MathDifficulty,
 	type MathOperation,
 	type GermanFeedback,
-	createSession,
 	recordAnswer,
 	calculateResults,
 	getCurrentProblem,
 	isSessionComplete,
-	generateLocalFeedback
+	advanceToNextProblem
 } from '@educational-app/learning'
 
 export interface MathChallengeState {
@@ -39,11 +38,11 @@ class MathChallengeServiceClass {
 	results = $state<MathSessionResults | null>(null)
 
 	// API settings
-	private useClaudeApi = $state(true)
 	private apiBaseUrl = '/api/math'
 
 	/**
 	 * Start a new math challenge session
+	 * Uses Claude API for problem generation
 	 */
 	async startSession(
 		studentId: string,
@@ -61,55 +60,44 @@ class MathChallengeServiceClass {
 		this.currentInput = ''
 
 		try {
-			// Try to generate problems via Claude API
-			if (this.useClaudeApi) {
-				try {
-					const response = await fetch(`${this.apiBaseUrl}/generate`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							count: config.count,
-							difficulty: config.difficulty,
-							includeZehneruebergang: config.includeZehneruebergang,
-							operations: config.operations
-						})
-					})
+			const response = await fetch(`${this.apiBaseUrl}/generate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					count: config.count,
+					difficulty: config.difficulty,
+					includeZehneruebergang: config.includeZehneruebergang,
+					operations: config.operations
+				})
+			})
 
-					if (response.ok) {
-						const data = await response.json()
-						if (data.problems && data.problems.length > 0) {
-							// Create session with API-generated problems
-							const session: MathSession = {
-								id: crypto.randomUUID(),
-								studentId,
-								problems: data.problems,
-								currentIndex: 0,
-								answers: [],
-								startedAt: new Date(),
-								config: {
-									difficulty: config.difficulty,
-									count: config.count,
-									includeZehneruebergang: config.includeZehneruebergang,
-									operations: config.operations
-								}
-							}
-							this.currentSession = session
-							this.problemStartTime = Date.now()
-							return session
-						}
-					}
-				} catch (error) {
-					console.warn('Claude API unavailable, falling back to local generation', error)
-				}
+			if (!response.ok) {
+				throw new Error(`API error: ${response.status}`)
 			}
 
-			// Fallback to local generation
-			const session = createSession(studentId, {
-				difficulty: config.difficulty,
-				count: config.count,
-				includeZehneruebergang: config.includeZehneruebergang,
-				operations: config.operations
-			})
+			const data = await response.json()
+
+			if (!data.problems || data.problems.length === 0) {
+				throw new Error('No problems returned from API')
+			}
+
+			console.log('[MathChallenge] Problems received:', data.problems)
+
+			// Create session with API-generated problems
+			const session: MathSession = {
+				id: crypto.randomUUID(),
+				studentId,
+				problems: data.problems,
+				currentIndex: 0,
+				answers: [],
+				startedAt: new Date(),
+				config: {
+					difficulty: config.difficulty,
+					count: config.count,
+					includeZehneruebergang: config.includeZehneruebergang,
+					operations: config.operations
+				}
+			}
 
 			this.currentSession = session
 			this.problemStartTime = Date.now()
@@ -154,6 +142,7 @@ class MathChallengeServiceClass {
 
 	/**
 	 * Submit the current answer
+	 * Uses Claude API for feedback generation
 	 */
 	async submitAnswer(): Promise<GermanFeedback | null> {
 		if (!this.currentSession || !this.currentInput) return null
@@ -167,38 +156,30 @@ class MathChallengeServiceClass {
 			const answer = parseInt(this.currentInput, 10)
 			const timeSpent = Date.now() - this.problemStartTime
 
-			// Try to get feedback from Claude API
-			let apiFeedback: GermanFeedback | null = null
+			// Get feedback from Claude API
+			const response = await fetch(`${this.apiBaseUrl}/evaluate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					problem: currentProblem,
+					userAnswer: answer
+				})
+			})
 
-			if (this.useClaudeApi) {
-				try {
-					const response = await fetch(`${this.apiBaseUrl}/evaluate`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							problem: currentProblem,
-							userAnswer: answer
-						})
-					})
-
-					if (response.ok) {
-						apiFeedback = await response.json()
-					}
-				} catch (error) {
-					console.warn('Claude API unavailable, using local feedback', error)
-				}
+			if (!response.ok) {
+				throw new Error(`API error: ${response.status}`)
 			}
 
-			// Use API feedback or fall back to local feedback
-			const feedbackToUse = apiFeedback || generateLocalFeedback(currentProblem, answer)
+			const apiFeedback: GermanFeedback = await response.json()
+			console.log('[MathChallenge] Feedback received:', apiFeedback)
 
-			// Record the answer in the session
+			// Record the answer in the session (does NOT advance to next problem)
 			const result = recordAnswer(this.currentSession, answer, timeSpent)
 			this.currentSession = result.session
-			this.feedback = feedbackToUse
+			this.feedback = apiFeedback
 			this.showFeedback = true
 
-			return feedbackToUse
+			return apiFeedback
 		} finally {
 			this.isLoading = false
 		}
@@ -206,17 +187,21 @@ class MathChallengeServiceClass {
 
 	/**
 	 * Move to the next problem
+	 * Advances the session index and resets UI state
 	 */
 	nextProblem(): boolean {
 		if (!this.currentSession) return false
 
-		// Check if session is complete
+		// Check if all problems have been answered
 		if (isSessionComplete(this.currentSession)) {
 			this.results = calculateResults(this.currentSession)
 			return false
 		}
 
-		// Reset for next problem
+		// Advance to next problem
+		this.currentSession = advanceToNextProblem(this.currentSession)
+
+		// Reset UI state for next problem
 		this.currentInput = ''
 		this.feedback = null
 		this.showFeedback = false
@@ -272,20 +257,6 @@ class MathChallengeServiceClass {
 		this.showFeedback = false
 		this.problemStartTime = Date.now()
 		this.results = null
-	}
-
-	/**
-	 * Toggle Claude API usage
-	 */
-	setUseClaudeApi(use: boolean) {
-		this.useClaudeApi = use
-	}
-
-	/**
-	 * Check if Claude API is being used
-	 */
-	isUsingClaudeApi(): boolean {
-		return this.useClaudeApi
 	}
 }
 
