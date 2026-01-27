@@ -63,7 +63,7 @@ async function generateProblemsWithClaude(config: GenerateRequest): Promise<Math
 Requirements:
 - Number range: ${range.min} to ${range.max}
 - Operations: ${operations.join(' and ')}
-- Include Zehnerübergang (crossing tens): ${includeZehneruebergang ? 'Yes, include some problems' : 'No, avoid crossing tens'}
+- Zehnerübergang (crossing tens): ${includeZehneruebergang ? 'YES - ALL problems MUST cross the tens boundary (hasZehneruebergang: true)' : 'NO - NONE of the problems should cross tens (hasZehneruebergang: false)'}
 - Problem types should rotate between:
   - "__ + b = c" (find left operand)
   - "a + __ = c" (find right operand)
@@ -120,7 +120,7 @@ Generate exactly ${count} problems with varied types.`;
 	const problems: MathProblem[] = JSON.parse(jsonContent);
 
 	// Validate and ensure all problems have required fields
-	// IMPORTANT: Always use the requested difficulty, ignore what Claude returns
+	// IMPORTANT: Force requested difficulty and Zehnerübergang setting
 	return problems.map((p, index) => ({
 		id: p.id || `claude-${Date.now()}-${index}`,
 		type: p.type,
@@ -131,7 +131,7 @@ Generate exactly ${count} problems with varied types.`;
 		result: p.result,
 		unknownPosition: p.unknownPosition,
 		correctAnswer: p.correctAnswer,
-		hasZehneruebergang: p.hasZehneruebergang,
+		hasZehneruebergang: config.includeZehneruebergang, // Force requested setting
 		difficulty: config.difficulty // Force requested difficulty
 	}));
 }
