@@ -116,7 +116,7 @@ Valid unknownPosition: left, right, result
 Generate exactly ${count} problems with varied types.`;
 
 	const message = await anthropic.messages.create({
-		model: 'claude-3-5-haiku-20241022',
+		model: 'claude-sonnet-4-20250514',
 		max_tokens: 2000,
 		messages: [{ role: 'user', content: prompt }]
 	});
