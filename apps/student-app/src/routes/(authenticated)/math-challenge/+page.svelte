@@ -1,15 +1,46 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { Card, Button, Badge } from '@educational-app/ui'
-	import { Calculator, Star, Zap, Trophy } from 'lucide-svelte'
+	import { Calculator, Star, Zap, Trophy, Plus, Minus, X, Divide } from 'lucide-svelte'
 	import { mathChallengeService } from '$lib/services/math-challenge.svelte'
-	import type { MathDifficulty } from '@educational-app/learning'
+	import type { MathDifficulty, MathOperation } from '@educational-app/learning'
 
 	// Configuration state
 	let selectedDifficulty = $state<MathDifficulty>('easy')
 	let selectedCount = $state(5)
 	let includeZehneruebergang = $state(false)
+	let selectedOperations = $state<MathOperation[]>(['addition', 'subtraction'])
 	let isStarting = $state(false)
+
+	// Operation options
+	const operations: Array<{
+		value: MathOperation
+		label: string
+		labelDe: string
+		symbol: string
+		icon: typeof Plus
+	}> = [
+		{ value: 'addition', label: 'Addition', labelDe: 'Addition', symbol: '+', icon: Plus },
+		{ value: 'subtraction', label: 'Subtraction', labelDe: 'Subtraktion', symbol: '-', icon: Minus },
+		{ value: 'multiplication', label: 'Multiplication', labelDe: 'Multiplikation', symbol: '×', icon: X },
+		{ value: 'division', label: 'Division', labelDe: 'Division', symbol: '÷', icon: Divide }
+	]
+
+	function toggleOperation(op: MathOperation) {
+		if (selectedOperations.includes(op)) {
+			// Don't allow deselecting the last operation
+			if (selectedOperations.length > 1) {
+				selectedOperations = selectedOperations.filter(o => o !== op)
+			}
+		} else {
+			selectedOperations = [...selectedOperations, op]
+		}
+	}
+
+	// Check if Zehnerübergang is relevant (only for add/subtract)
+	const showZehneruebergang = $derived(
+		selectedOperations.includes('addition') || selectedOperations.includes('subtraction')
+	)
 
 	// Difficulty options
 	const difficulties: Array<{
@@ -41,7 +72,8 @@
 			const session = await mathChallengeService.startSession(studentId, {
 				difficulty: selectedDifficulty,
 				count: selectedCount,
-				includeZehneruebergang
+				includeZehneruebergang: showZehneruebergang ? includeZehneruebergang : false,
+				operations: selectedOperations
 			})
 
 			// Navigate to session page
@@ -63,6 +95,33 @@
 		</h1>
 		<p class="text-neutral-600">Wähle deine Einstellungen und los geht's!</p>
 	</div>
+
+	<!-- Operation Selection -->
+	<Card class="p-6">
+		<h2 class="text-lg font-semibold text-neutral-900 mb-4">Rechenarten</h2>
+		<p class="text-sm text-neutral-600 mb-4">Wähle mindestens eine Rechenart</p>
+
+		<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+			{#each operations as op}
+				{@const isSelected = selectedOperations.includes(op.value)}
+				<button
+					onclick={() => toggleOperation(op.value)}
+					class="p-4 rounded-xl border-2 transition-all text-center
+						{isSelected
+							? 'border-primary-500 bg-primary-50'
+							: 'border-neutral-200 bg-white hover:border-neutral-300'}"
+				>
+					<div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2
+						{isSelected
+							? 'bg-primary-500 text-white'
+							: 'bg-neutral-100 text-neutral-600'}">
+						<span class="text-xl font-bold">{op.symbol}</span>
+					</div>
+					<h3 class="font-medium text-neutral-900 text-sm">{op.labelDe}</h3>
+				</button>
+			{/each}
+		</div>
+	</Card>
 
 	<!-- Difficulty Selection -->
 	<Card class="p-6">
@@ -111,34 +170,36 @@
 		</div>
 	</Card>
 
-	<!-- Zehnerübergang Toggle -->
-	<Card class="p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<h2 class="text-lg font-semibold text-neutral-900">Zehnerübergang</h2>
-				<p class="text-sm text-neutral-600 mt-1">
-					Aufgaben mit Zehnerübergang einschließen (z.B. 7 + 5 = 12)
-				</p>
+	<!-- Zehnerübergang Toggle (only for addition/subtraction) -->
+	{#if showZehneruebergang}
+		<Card class="p-6">
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-neutral-900">Zehnerübergang</h2>
+					<p class="text-sm text-neutral-600 mt-1">
+						Aufgaben mit Zehnerübergang einschließen (z.B. 7 + 5 = 12)
+					</p>
+				</div>
+				<label class="relative inline-flex items-center cursor-pointer">
+					<input
+						type="checkbox"
+						bind:checked={includeZehneruebergang}
+						class="sr-only peer"
+					>
+					<div class="w-14 h-8 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-500"></div>
+				</label>
 			</div>
-			<label class="relative inline-flex items-center cursor-pointer">
-				<input
-					type="checkbox"
-					bind:checked={includeZehneruebergang}
-					class="sr-only peer"
-				>
-				<div class="w-14 h-8 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-500"></div>
-			</label>
-		</div>
 
-		{#if includeZehneruebergang}
-			<div class="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-				<p class="text-sm text-warning-800">
-					<strong>Tipp:</strong> Bei einem Zehnerübergang gehst du über die 10 hinaus.
-					Zum Beispiel: 7 + 5 - erst 7 + 3 = 10, dann + 2 = 12
-				</p>
-			</div>
-		{/if}
-	</Card>
+			{#if includeZehneruebergang}
+				<div class="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
+					<p class="text-sm text-warning-800">
+						<strong>Tipp:</strong> Bei einem Zehnerübergang gehst du über die 10 hinaus.
+						Zum Beispiel: 7 + 5 - erst 7 + 3 = 10, dann + 2 = 12
+					</p>
+				</div>
+			{/if}
+		</Card>
+	{/if}
 
 	<!-- Summary & Start -->
 	<Card class="p-6 bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200">
@@ -150,7 +211,12 @@
 					<Badge variant="secondary">
 						{difficulties.find(d => d.value === selectedDifficulty)?.labelDe}
 					</Badge>
-					{#if includeZehneruebergang}
+					{#each selectedOperations as op}
+						<Badge variant="outline">
+							{operations.find(o => o.value === op)?.symbol}
+						</Badge>
+					{/each}
+					{#if showZehneruebergang && includeZehneruebergang}
 						<Badge variant="warning">Mit Zehnerübergang</Badge>
 					{/if}
 				</div>

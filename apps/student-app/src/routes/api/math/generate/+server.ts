@@ -58,21 +58,38 @@ async function generateProblemsWithClaude(config: GenerateRequest): Promise<Math
 	const { count, difficulty, includeZehneruebergang, operations = ['addition', 'subtraction'] } = config;
 	const range = getDifficultyRange(difficulty);
 
-	const prompt = `Generate ${count} German elementary math problems for 6-8 year old children learning basic arithmetic.
+	// Build operation-specific instructions
+	const operationSymbols: Record<string, string> = {
+		addition: '+',
+		subtraction: '-',
+		multiplication: '×',
+		division: '÷'
+	};
+
+	const selectedOps = operations.map(op => `${op} (${operationSymbols[op]})`).join(', ');
+
+	const prompt = `Generate ${count} German elementary math problems for children learning arithmetic.
 
 Requirements:
 - Number range: ${range.min} to ${range.max}
-- Operations: ${operations.join(' and ')}
-- Zehnerübergang (crossing tens): ${includeZehneruebergang ? 'YES - ALL problems MUST cross the tens boundary (hasZehneruebergang: true)' : 'NO - NONE of the problems should cross tens (hasZehneruebergang: false)'}
-- Problem types should rotate between:
-  - "__ + b = c" (find left operand)
-  - "a + __ = c" (find right operand)
-  - "a + b = __" (find result)
-  - Same for subtraction
+- Operations to use: ${selectedOps}
+- Distribute problems evenly across the selected operations
+- Problem types should rotate between finding: left operand, right operand, or result
 
-For each problem, determine if it has Zehnerübergang:
-- Addition: if the ones digits sum to 10 or more (e.g., 7 + 5 crosses tens)
-- Subtraction: if you need to borrow from tens (e.g., 13 - 5 crosses tens)
+Operation symbols:
+- Addition: use "+"
+- Subtraction: use "-"
+- Multiplication: use "×" (NOT "x" or "*")
+- Division: use "÷" (NOT "/" or ":")
+
+For multiplication and division:
+- Use multiplication tables (1-10 times tables)
+- Division must result in whole numbers (no remainders)
+- For division: the dividend (left) divided by divisor (right) must be a whole number
+
+Zehnerübergang (crossing tens) - applies to addition/subtraction only:
+${includeZehneruebergang ? 'YES - Addition/subtraction problems MUST cross the tens boundary' : 'NO - Addition/subtraction problems should NOT cross tens'}
+- For multiplication/division: set hasZehneruebergang to false
 
 Return ONLY a valid JSON array with this exact structure (no markdown, no explanation):
 [
@@ -88,13 +105,31 @@ Return ONLY a valid JSON array with this exact structure (no markdown, no explan
     "correctAnswer": 12,
     "hasZehneruebergang": true,
     "difficulty": "${difficulty}"
+  },
+  {
+    "id": "unique-id-string",
+    "type": "multiplication_result",
+    "operation": "multiplication",
+    "display": "6 × 7 = __",
+    "leftOperand": 6,
+    "rightOperand": 7,
+    "result": 42,
+    "unknownPosition": "result",
+    "correctAnswer": 42,
+    "hasZehneruebergang": false,
+    "difficulty": "${difficulty}"
   }
 ]
 
-Valid types: addition_left, addition_right, addition_result, subtraction_left, subtraction_right, subtraction_result
+Valid types:
+- addition_left, addition_right, addition_result
+- subtraction_left, subtraction_right, subtraction_result
+- multiplication_left, multiplication_right, multiplication_result
+- division_left, division_right, division_result
+
 Valid unknownPosition: left, right, result
 
-Generate exactly ${count} problems with varied types.`;
+Generate exactly ${count} problems with varied types across the selected operations.`;
 
 	console.log('[Math Generate] Sending request to Claude API...');
 
@@ -121,17 +156,23 @@ Generate exactly ${count} problems with varied types.`;
 
 	// Validate and ensure all problems have required fields
 	// IMPORTANT: Force requested difficulty and Zehnerübergang setting
-	return problems.map((p, index) => ({
-		id: p.id || `claude-${Date.now()}-${index}`,
-		type: p.type,
-		operation: p.operation,
-		display: p.display,
-		leftOperand: p.leftOperand,
-		rightOperand: p.rightOperand,
-		result: p.result,
-		unknownPosition: p.unknownPosition,
-		correctAnswer: p.correctAnswer,
-		hasZehneruebergang: config.includeZehneruebergang, // Force requested setting
-		difficulty: config.difficulty // Force requested difficulty
-	}));
+	return problems.map((p, index) => {
+		// Zehnerübergang only applies to addition/subtraction
+		const isAddSubtract = p.operation === 'addition' || p.operation === 'subtraction';
+		const hasZehneruebergang = isAddSubtract ? config.includeZehneruebergang : false;
+
+		return {
+			id: p.id || `claude-${Date.now()}-${index}`,
+			type: p.type,
+			operation: p.operation,
+			display: p.display,
+			leftOperand: p.leftOperand,
+			rightOperand: p.rightOperand,
+			result: p.result,
+			unknownPosition: p.unknownPosition,
+			correctAnswer: p.correctAnswer,
+			hasZehneruebergang,
+			difficulty: config.difficulty // Force requested difficulty
+		};
+	});
 }

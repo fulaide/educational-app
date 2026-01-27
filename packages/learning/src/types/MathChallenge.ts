@@ -3,16 +3,22 @@
  * Types for the interactive German math learning feature
  */
 
-// Problem type variations for Grade 1 math
+// Problem type variations for elementary math
 export type MathProblemType =
-  | 'addition_left'       // __ + 35 = 47 (find left operand)
-  | 'addition_right'      // 35 + __ = 47 (find right operand)
-  | 'subtraction_left'    // __ - 35 = 12 (find left operand)
-  | 'subtraction_right'   // 67 - __ = 23 (find right operand)
-  | 'addition_result'     // 34 + 12 = __ (find result)
-  | 'subtraction_result'  // 45 - 12 = __ (find result)
+  | 'addition_left'         // __ + 35 = 47 (find left operand)
+  | 'addition_right'        // 35 + __ = 47 (find right operand)
+  | 'addition_result'       // 34 + 12 = __ (find result)
+  | 'subtraction_left'      // __ - 35 = 12 (find left operand)
+  | 'subtraction_right'     // 67 - __ = 23 (find right operand)
+  | 'subtraction_result'    // 45 - 12 = __ (find result)
+  | 'multiplication_left'   // __ × 5 = 25 (find left operand)
+  | 'multiplication_right'  // 5 × __ = 25 (find right operand)
+  | 'multiplication_result' // 5 × 5 = __ (find result)
+  | 'division_left'         // __ ÷ 5 = 5 (find left operand)
+  | 'division_right'        // 25 ÷ __ = 5 (find right operand)
+  | 'division_result'       // 25 ÷ 5 = __ (find result)
 
-export type MathOperation = 'addition' | 'subtraction'
+export type MathOperation = 'addition' | 'subtraction' | 'multiplication' | 'division'
 
 export type UnknownPosition = 'left' | 'right' | 'result'
 
