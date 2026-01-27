@@ -13,24 +13,26 @@ interface SpeakRequest {
 
 const elevenlabs = new ElevenLabsClient({ apiKey: ELEVENLABS_API_KEY });
 
-// German-friendly voices (eleven_multilingual_v2 supports German well)
-// Using "Nicole" which has good German pronunciation
-const DEFAULT_VOICE_ID = 'piTKgcLEGmPE4e6mEKli'; // Nicole - clear, friendly
+// ElevenLabs voices - using multilingual model for German support
+// "Rachel" is reliable and works well with German text
+const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'; // Rachel
 
 const PREMADE_VOICES: Record<string, string> = {
-  // German-optimized voices
-  nicole: 'piTKgcLEGmPE4e6mEKli', // Clear, friendly - good for kids
-  freya: 'jsCqWAovK2LkecY7zXl4', // Warm, expressive
-  // Original English voices (still work with multilingual model)
-  rachel: '21m00Tcm4TlvDq8ikWAM',
-  domi: 'AZnzlk1XvdvUeBnXmlld',
-  bella: 'EXAVITQu4vr4xnSDxMaL',
-  antoni: 'ErXwobaYiN019PkySvjV',
-  elli: 'MF3mGyEYCl7XYWbV9V6O',
-  josh: 'TxGEqnHWrfWFTfGW9XjX',
-  arnold: 'VR6AewLTigWG4xSOukaG',
-  adam: 'pNInz6obpgDQGcFmaJgB',
-  sam: 'yoZ06aMxZJJ28mfd3POQ'
+  rachel: '21m00Tcm4TlvDq8ikWAM', // Clear, neutral - works well for German
+  domi: 'AZnzlk1XvdvUeBnXmlld',   // Young female
+  bella: 'EXAVITQu4vr4xnSDxMaL',  // Soft female
+  elli: 'MF3mGyEYCl7XYWbV9V6O',   // Young female
+  josh: 'TxGEqnHWrfWFTfGW9XjX',   // Young male
+  adam: 'pNInz6obpgDQGcFmaJgB',   // Deep male
+  sam: 'yoZ06aMxZJJ28mfd3POQ'     // Young male
+};
+
+// Voice settings for clear, natural speech (not whispering)
+const VOICE_SETTINGS = {
+  stability: 0.5,           // Balance between consistent and expressive
+  similarity_boost: 0.75,   // Stay close to original voice
+  style: 0.0,               // No style exaggeration
+  use_speaker_boost: true   // Enhance clarity
 };
 
 const audioCache = new Map<string, { audio: ArrayBuffer; timestamp: number }>();
@@ -96,7 +98,8 @@ export const POST: RequestHandler = async ({ request }) => {
     const audioStream = await elevenlabs.textToSpeech.convert(voiceId, {
       text,
       modelId: 'eleven_multilingual_v2',
-      outputFormat: 'mp3_44100_128'
+      outputFormat: 'mp3_44100_128',
+      voiceSettings: VOICE_SETTINGS
     });
 
     const audioBuffer = await streamToArrayBuffer(audioStream);
