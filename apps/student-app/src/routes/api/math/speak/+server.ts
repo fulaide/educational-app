@@ -40,18 +40,22 @@ const CACHE_TTL = 24 * 60 * 60 * 1000;
 
 /**
  * Convert math symbols to spoken German words for TTS
+ * Only converts symbols when they appear in math context (between numbers)
  */
 function convertMathToSpokenGerman(text: string): string {
   return text
-    // Math operators - use word boundaries to avoid partial replacements
-    .replace(/\s*\+\s*/g, ' plus ')
-    .replace(/\s*-\s*/g, ' minus ')
-    .replace(/\s*×\s*/g, ' mal ')
-    .replace(/\s*÷\s*/g, ' geteilt durch ')
-    .replace(/\s*=\s*/g, ' gleich ')
+    // Math operators - ONLY when between numbers or blanks (math context)
+    // Pattern: number/blank + operator + number/blank
+    .replace(/(\d|_)\s*\+\s*(\d|_)/g, '$1 plus $2')
+    .replace(/(\d|_)\s*-\s*(\d|_)/g, '$1 minus $2')
+    .replace(/(\d|_)\s*×\s*(\d|_)/g, '$1 mal $2')
+    .replace(/(\d|_)\s*÷\s*(\d|_)/g, '$1 geteilt durch $2')
+    .replace(/(\d|_)\s*=\s*(\d|_)/g, '$1 gleich $2')
+    // Also handle = at the end (e.g., "5 + 3 = __")
+    .replace(/(\d|_)\s*=\s*$/g, '$1 gleich')
     // Unknown/blank placeholder - add pause
-    .replace(/__+/g, '... Lücke ...')
-    .replace(/_/g, '')
+    .replace(/__+/g, ' Lücke ')
+    .replace(/(?<!\w)_(?!\w)/g, '') // Remove standalone underscores
     // Clean up multiple spaces
     .replace(/\s+/g, ' ')
     .trim();
