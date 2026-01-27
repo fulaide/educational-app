@@ -6,7 +6,7 @@ import { verifyStudentToken, type StudentTokenPayload } from '@educational-app/a
  */
 export const handle: Handle = async ({ event, resolve }) => {
 	// Protected routes that require authentication
-	const protectedPaths = ['/dashboard', '/vocabulary', '/profile', '/settings']
+	const protectedPaths = ['/dashboard', '/vocabulary', '/profile', '/settings', '/math-challenge', '/math-test']
 	const isProtectedRoute = protectedPaths.some((path) => event.url.pathname.startsWith(path))
 
 	// Public routes (no authentication required)

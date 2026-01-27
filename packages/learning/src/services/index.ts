@@ -9,6 +9,8 @@ export type { CharacterState, WordState, TypingState, TypingMetrics, ErrorPositi
 export { ReactiveTypingEngine } from './TypingEngine.svelte'
 export { HintSystem } from './HintSystem'
 export type { HintLevel, HintState, HintSystemOptions } from './HintSystem'
+export { MathEngine, mathEngine } from './MathEngine'
+export * from './MathEngine'
 
 // Import after exports to avoid circular dependency issues
 import { LearningService } from './LearningService'
