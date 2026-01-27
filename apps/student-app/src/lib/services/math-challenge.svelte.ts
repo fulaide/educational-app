@@ -59,6 +59,8 @@ class MathChallengeServiceClass {
 		this.results = null
 		this.currentInput = ''
 
+		console.log('[MathChallengeService] Starting session with config:', config)
+
 		try {
 			const response = await fetch(`${this.apiBaseUrl}/generate`, {
 				method: 'POST',
@@ -71,17 +73,20 @@ class MathChallengeServiceClass {
 				})
 			})
 
+			console.log('[MathChallengeService] API response status:', response.status)
+
 			if (!response.ok) {
-				throw new Error(`API error: ${response.status}`)
+				const errorText = await response.text()
+				console.error('[MathChallengeService] API error response:', errorText)
+				throw new Error(`API error: ${response.status} - ${errorText}`)
 			}
 
 			const data = await response.json()
+			console.log('[MathChallengeService] API response data:', data)
 
 			if (!data.problems || data.problems.length === 0) {
 				throw new Error('No problems returned from API')
 			}
-
-			console.log('[MathChallenge] Problems received:', data.problems)
 
 			// Create session with API-generated problems
 			const session: MathSession = {
@@ -99,9 +104,13 @@ class MathChallengeServiceClass {
 				}
 			}
 
+			console.log('[MathChallengeService] Session created:', session.id)
 			this.currentSession = session
 			this.problemStartTime = Date.now()
 			return session
+		} catch (error) {
+			console.error('[MathChallengeService] Error starting session:', error)
+			throw error // Re-throw so caller can handle
 		} finally {
 			this.isLoading = false
 		}

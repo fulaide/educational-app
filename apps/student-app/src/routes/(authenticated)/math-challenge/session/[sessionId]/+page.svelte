@@ -18,7 +18,11 @@
 
 	// Check if we have an active session on mount
 	onMount(() => {
+		console.log('[SessionPage] onMount - currentSession:', mathChallengeService.currentSession)
+		console.log('[SessionPage] onMount - currentProblem:', mathChallengeService.getCurrentProblem())
+
 		if (!mathChallengeService.currentSession) {
+			console.warn('[SessionPage] No active session, redirecting to config page')
 			// No active session, redirect back to math-challenge page
 			goto('/math-challenge')
 		}

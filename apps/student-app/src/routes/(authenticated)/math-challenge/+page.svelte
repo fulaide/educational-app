@@ -67,6 +67,13 @@
 			// Clear any existing session
 			mathChallengeService.clearSession()
 
+			console.log('[MathChallenge] Starting session with config:', {
+				difficulty: selectedDifficulty,
+				count: selectedCount,
+				includeZehneruebergang: showZehneruebergang ? includeZehneruebergang : false,
+				operations: selectedOperations
+			})
+
 			// Start new session (studentId will come from page.data in real app)
 			const studentId = 'demo-student'
 			const session = await mathChallengeService.startSession(studentId, {
@@ -76,8 +83,13 @@
 				operations: selectedOperations
 			})
 
+			console.log('[MathChallenge] Session created:', session)
+
 			// Navigate to session page
 			goto(`/math-challenge/session/${session.id}`)
+		} catch (error) {
+			console.error('[MathChallenge] Failed to start session:', error)
+			// TODO: Show error toast to user
 		} finally {
 			isStarting = false
 		}
