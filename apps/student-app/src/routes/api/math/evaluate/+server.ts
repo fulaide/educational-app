@@ -1,7 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from '$env/static/private';
 import type { GermanFeedback, MathProblem } from '@educational-app/learning';
-import { generateLocalFeedback } from '@educational-app/learning';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -13,11 +12,11 @@ interface EvaluateRequest {
 }
 
 // Initialize Anthropic client
-const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 /**
  * Evaluate math answer endpoint
- * Uses Claude API for intelligent German feedback with local fallback
+ * Uses Claude API for intelligent German feedback
  */
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -31,23 +30,13 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const isCorrect = userAnswer === problem.correctAnswer;
 
-		// Try Claude API first if available
-		if (anthropic) {
-			try {
-				const feedback = await generateFeedbackWithClaude(problem, userAnswer, isCorrect);
-				if (feedback) {
-					return json({ ...feedback, source: 'claude' });
-				}
-			} catch (apiError) {
-				console.warn('Claude API failed, falling back to local feedback:', apiError);
-			}
-		}
+		const feedback = await generateFeedbackWithClaude(problem, userAnswer, isCorrect);
 
-		// Fallback to local feedback generation
-		const feedback = generateLocalFeedback(problem, userAnswer);
-		return json({ ...feedback, source: 'local' });
+		console.log('[Math Evaluate] Claude API response:', JSON.stringify(feedback, null, 2));
+
+		return json({ ...feedback, source: 'claude' });
 	} catch (err) {
-		console.error('Error evaluating answer:', err);
+		console.error('[Math Evaluate] Error:', err);
 		return json({ error: 'Failed to evaluate answer' }, { status: 500 });
 	}
 };
@@ -60,8 +49,6 @@ async function generateFeedbackWithClaude(
 	userAnswer: number,
 	isCorrect: boolean
 ): Promise<GermanFeedback> {
-	if (!anthropic) throw new Error('Anthropic client not initialized');
-
 	const prompt = `You are a kind and encouraging German elementary school math teacher helping a 6-8 year old student.
 
 The student answered a math problem:
@@ -105,11 +92,15 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
   "explanation": "The detailed explanation (only for incorrect answers, null for correct)"
 }`;
 
+	console.log('[Math Evaluate] Sending request to Claude API...');
+
 	const message = await anthropic.messages.create({
 		model: 'claude-sonnet-4-20250514',
 		max_tokens: 500,
 		messages: [{ role: 'user', content: prompt }]
 	});
+
+	console.log('[Math Evaluate] Raw Claude response:', JSON.stringify(message, null, 2));
 
 	const content = message.content[0];
 	if (content.type !== 'text') {

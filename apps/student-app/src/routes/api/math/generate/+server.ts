@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from '$env/static/private';
 import type { MathDifficulty, MathOperation, MathProblem } from '@educational-app/learning';
-import { generateProblems, getDifficultyRange } from '@educational-app/learning';
+import { getDifficultyRange } from '@educational-app/learning';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -15,11 +15,11 @@ interface GenerateRequest {
 }
 
 // Initialize Anthropic client
-const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 /**
  * Generate math problems endpoint
- * Uses Claude API for intelligent problem generation with local fallback
+ * Uses Claude API for intelligent problem generation
  */
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -35,35 +35,18 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'Invalid difficulty level' }, { status: 400 });
 		}
 
-		// Try Claude API first if available
-		if (anthropic) {
-			try {
-				const problems = await generateProblemsWithClaude({
-					count,
-					difficulty,
-					includeZehneruebergang,
-					operations
-				});
-
-				if (problems && problems.length > 0) {
-					return json({ problems, source: 'claude' });
-				}
-			} catch (apiError) {
-				console.warn('Claude API failed, falling back to local generation:', apiError);
-			}
-		}
-
-		// Fallback to local generation
-		const problems = generateProblems({
+		const problems = await generateProblemsWithClaude({
 			count,
 			difficulty,
 			includeZehneruebergang,
 			operations
 		});
 
-		return json({ problems, source: 'local' });
+		console.log('[Math Generate] Claude API response:', JSON.stringify(problems, null, 2));
+
+		return json({ problems, source: 'claude' });
 	} catch (err) {
-		console.error('Error generating problems:', err);
+		console.error('[Math Generate] Error:', err);
 		return json({ error: 'Failed to generate problems' }, { status: 500 });
 	}
 };
@@ -72,8 +55,6 @@ export const POST: RequestHandler = async ({ request }) => {
  * Generate problems using Claude API
  */
 async function generateProblemsWithClaude(config: GenerateRequest): Promise<MathProblem[]> {
-	if (!anthropic) throw new Error('Anthropic client not initialized');
-
 	const { count, difficulty, includeZehneruebergang, operations = ['addition', 'subtraction'] } = config;
 	const range = getDifficultyRange(difficulty);
 
@@ -115,11 +96,15 @@ Valid unknownPosition: left, right, result
 
 Generate exactly ${count} problems with varied types.`;
 
+	console.log('[Math Generate] Sending request to Claude API...');
+
 	const message = await anthropic.messages.create({
 		model: 'claude-sonnet-4-20250514',
 		max_tokens: 2000,
 		messages: [{ role: 'user', content: prompt }]
 	});
+
+	console.log('[Math Generate] Raw Claude response:', JSON.stringify(message, null, 2));
 
 	const content = message.content[0];
 	if (content.type !== 'text') {
@@ -146,6 +131,6 @@ Generate exactly ${count} problems with varied types.`;
 		unknownPosition: p.unknownPosition,
 		correctAnswer: p.correctAnswer,
 		hasZehneruebergang: p.hasZehneruebergang,
-		difficulty: p.difficulty || difficulty
+		difficulty: p.difficulty || config.difficulty
 	}));
 }
