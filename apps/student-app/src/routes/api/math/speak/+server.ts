@@ -44,6 +44,10 @@ const CACHE_TTL = 24 * 60 * 60 * 1000;
  */
 function convertMathToSpokenGerman(text: string): string {
   return text
+    // Fix ordinal pronunciation: "20." at end of sentence should be "20"
+    // German TTS reads "20." as "zwanzigsten" (ordinal), we want "zwanzig" (cardinal)
+    .replace(/(\d+)\.\s*$/g, '$1')           // "20." at end → "20"
+    .replace(/(\d+)\.\s+([A-ZÄÖÜ])/g, '$1, $2') // "20. Das" → "20, Das" (pause instead)
     // Math operators - ONLY when between numbers or blanks (math context)
     // Pattern: number/blank + operator + number/blank
     .replace(/(\d|_)\s*\+\s*(\d|_)/g, '$1 plus $2')

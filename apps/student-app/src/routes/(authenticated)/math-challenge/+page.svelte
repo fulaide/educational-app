@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { Card, Button, Badge } from '@educational-app/ui'
-	import { Calculator, Star, Zap, Trophy, Plus, Minus, X, Divide } from 'lucide-svelte'
+	import { Calculator, Star, Zap, Trophy, Plus, Minus, X, Divide, Timer } from 'lucide-svelte'
 	import { mathChallengeService } from '$lib/services/math-challenge.svelte'
 	import type { MathDifficulty, MathOperation } from '@educational-app/learning'
 
@@ -10,7 +10,18 @@
 	let selectedCount = $state(5)
 	let includeZehneruebergang = $state(false)
 	let selectedOperations = $state<MathOperation[]>(['addition', 'subtraction'])
+	let timerEnabled = $state(false)
+	let timerDuration = $state(60) // seconds
 	let isStarting = $state(false)
+
+	// Timer options in seconds
+	const timerOptions = [
+		{ value: 30, label: '30 Sek.' },
+		{ value: 60, label: '1 Min.' },
+		{ value: 120, label: '2 Min.' },
+		{ value: 180, label: '3 Min.' },
+		{ value: 300, label: '5 Min.' }
+	]
 
 	// Operation options
 	const operations: Array<{
@@ -67,21 +78,20 @@
 			// Clear any existing session
 			mathChallengeService.clearSession()
 
-			console.log('[MathChallenge] Starting session with config:', {
+			const config = {
 				difficulty: selectedDifficulty,
 				count: selectedCount,
 				includeZehneruebergang: showZehneruebergang ? includeZehneruebergang : false,
-				operations: selectedOperations
-			})
+				operations: selectedOperations,
+				timerEnabled,
+				timerDuration: timerEnabled ? timerDuration : undefined
+			}
+
+			console.log('[MathChallenge] Starting session with config:', config)
 
 			// Start new session (studentId will come from page.data in real app)
 			const studentId = 'demo-student'
-			const session = await mathChallengeService.startSession(studentId, {
-				difficulty: selectedDifficulty,
-				count: selectedCount,
-				includeZehneruebergang: showZehneruebergang ? includeZehneruebergang : false,
-				operations: selectedOperations
-			})
+			const session = await mathChallengeService.startSession(studentId, config)
 
 			console.log('[MathChallenge] Session created:', session)
 
@@ -213,6 +223,50 @@
 		</Card>
 	{/if}
 
+	<!-- Timer Option -->
+	<Card class="p-6">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+					<Timer class="w-5 h-5 text-neutral-600" />
+				</div>
+				<div>
+					<h2 class="text-lg font-semibold text-neutral-900">Zeitlimit</h2>
+					<p class="text-sm text-neutral-600 mt-1">
+						Setze ein Zeitlimit für die gesamte Übung
+					</p>
+				</div>
+			</div>
+			<label class="relative inline-flex items-center cursor-pointer">
+				<input
+					type="checkbox"
+					bind:checked={timerEnabled}
+					class="sr-only peer"
+				>
+				<div class="w-14 h-8 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-500"></div>
+			</label>
+		</div>
+
+		{#if timerEnabled}
+			<div class="mt-4">
+				<p class="text-sm text-neutral-600 mb-3">Wähle die Zeit:</p>
+				<div class="flex flex-wrap gap-2">
+					{#each timerOptions as option}
+						<button
+							onclick={() => timerDuration = option.value}
+							class="px-4 py-2 rounded-lg border-2 transition-all
+								{timerDuration === option.value
+									? 'border-primary-500 bg-primary-50 text-primary-700 font-medium'
+									: 'border-neutral-200 bg-white hover:border-neutral-300 text-neutral-700'}"
+						>
+							{option.label}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</Card>
+
 	<!-- Summary & Start -->
 	<Card class="p-6 bg-gradient-to-br from-primary-50 to-secondary-50 border-primary-200">
 		<div class="flex items-center justify-between">
@@ -230,6 +284,11 @@
 					{/each}
 					{#if showZehneruebergang && includeZehneruebergang}
 						<Badge variant="warning">Mit Zehnerübergang</Badge>
+					{/if}
+					{#if timerEnabled}
+						<Badge variant="danger">
+							⏱ {timerOptions.find(t => t.value === timerDuration)?.label}
+						</Badge>
 					{/if}
 				</div>
 			</div>

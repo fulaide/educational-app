@@ -5,7 +5,7 @@
 	import NumericKeypad from '$lib/components/NumericKeypad.svelte';
 	import { mathChallengeService } from '$lib/services/math-challenge.svelte';
 	import { Button, Card, ProgressBar } from '@educational-app/ui';
-	import { ArrowRight, X } from 'lucide-svelte';
+	import { ArrowRight, X, Timer } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
 	// State derived from service
@@ -16,6 +16,16 @@
 	const isLoading = $derived(mathChallengeService.isLoading)
 	const progress = $derived(mathChallengeService.getProgress())
 
+	// Timer state
+	const timerEnabled = $derived(mathChallengeService.timerEnabled)
+	const timeRemaining = $derived(mathChallengeService.timeRemaining)
+	const formattedTime = $derived(mathChallengeService.formatTimeRemaining())
+	const isTimerExpired = $derived(mathChallengeService.isTimerExpired())
+
+	// Timer warning when less than 30 seconds
+	const timerWarning = $derived(timerEnabled && timeRemaining <= 30 && timeRemaining > 0)
+	const timerCritical = $derived(timerEnabled && timeRemaining <= 10 && timeRemaining > 0)
+
 	// Check if we have an active session on mount
 	onMount(() => {
 		console.log('[SessionPage] onMount - currentSession:', mathChallengeService.currentSession)
@@ -25,6 +35,16 @@
 			console.warn('[SessionPage] No active session, redirecting to config page')
 			// No active session, redirect back to math-challenge page
 			goto('/math-challenge')
+		}
+	})
+
+	// Watch for timer expiration
+	$effect(() => {
+		if (isTimerExpired && mathChallengeService.currentSession) {
+			// Timer expired - go to results
+			const session = mathChallengeService.currentSession
+			mathChallengeService.stopTimer()
+			goto(`/math-challenge/results/${session.id}`)
 		}
 	})
 
@@ -66,7 +86,7 @@
 
 <div class="max-w-lg mx-auto px-4 py-6 flex flex-col">
 	{#if mathChallengeService.currentSession}
-		<!-- Header with progress -->
+		<!-- Header with progress and timer -->
 		<div class="mb-6">
 			<div class="flex items-center justify-between text-sm text-neutral-600 mb-2">
 				<button
@@ -76,6 +96,17 @@
 					<X class="w-4 h-4" />
 					Beenden
 				</button>
+
+				{#if timerEnabled}
+					<div class="flex items-center gap-1.5 px-3 py-1 rounded-full font-mono font-bold
+						{timerCritical ? 'bg-danger-100 text-danger-700 animate-pulse' :
+						 timerWarning ? 'bg-warning-100 text-warning-700' :
+						 'bg-neutral-100 text-neutral-700'}">
+						<Timer class="w-4 h-4" />
+						{formattedTime}
+					</div>
+				{/if}
+
 				<span>Aufgabe {progress.current} von {progress.total}</span>
 			</div>
 			<ProgressBar current={progress.current} total={progress.total} class="h-2" />

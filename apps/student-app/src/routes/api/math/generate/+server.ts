@@ -83,9 +83,16 @@ Operation symbols:
 - Division: use "÷" (NOT "/" or ":")
 
 For multiplication and division:
-- Use multiplication tables (1-10 times tables)
+- IMPORTANT: Both operands AND the answer must be between 1 and 10
+- Use only 1-10 times tables (e.g., 3 × 7 = 21, but answer to find must be 1-10)
+- Examples of VALID problems:
+  - "__ × 7 = 21" (answer is 3, which is 1-10) ✓
+  - "6 × __ = 24" (answer is 4, which is 1-10) ✓
+  - "5 × 5 = __" (answer is 25, but we're finding the result, operands are 1-10) ✓
+- Examples of INVALID problems:
+  - "84 ÷ __ = 7" (answer is 12, which is > 10) ✗
+  - "__ × 8 = 96" (answer is 12, which is > 10) ✗
 - Division must result in whole numbers (no remainders)
-- For division: the dividend (left) divided by divisor (right) must be a whole number
 
 Zehnerübergang (crossing tens) - applies to addition/subtraction only:
 ${includeZehneruebergang ? 'YES - Addition/subtraction problems MUST cross the tens boundary' : 'NO - Addition/subtraction problems should NOT cross tens'}

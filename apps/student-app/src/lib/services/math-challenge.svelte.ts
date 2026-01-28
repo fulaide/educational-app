@@ -40,6 +40,12 @@ class MathChallengeServiceClass {
 	// API settings
 	private apiBaseUrl = '/api/math'
 
+	// Timer state
+	timerEnabled = $state(false)
+	timerDuration = $state(0) // seconds
+	timeRemaining = $state(0) // seconds
+	private timerInterval: ReturnType<typeof setInterval> | null = null
+
 	/**
 	 * Start a new math challenge session
 	 * Uses Claude API for problem generation
@@ -51,6 +57,8 @@ class MathChallengeServiceClass {
 			count: number
 			includeZehneruebergang: boolean
 			operations?: MathOperation[]
+			timerEnabled?: boolean
+			timerDuration?: number
 		}
 	): Promise<MathSession> {
 		this.isLoading = true
@@ -107,6 +115,16 @@ class MathChallengeServiceClass {
 			console.log('[MathChallengeService] Session created:', session.id)
 			this.currentSession = session
 			this.problemStartTime = Date.now()
+
+			// Set up timer if enabled
+			this.timerEnabled = config.timerEnabled ?? false
+			this.timerDuration = config.timerDuration ?? 0
+			this.timeRemaining = this.timerDuration
+
+			if (this.timerEnabled && this.timerDuration > 0) {
+				this.startTimer()
+			}
+
 			return session
 		} catch (error) {
 			console.error('[MathChallengeService] Error starting session:', error)
@@ -114,6 +132,48 @@ class MathChallengeServiceClass {
 		} finally {
 			this.isLoading = false
 		}
+	}
+
+	/**
+	 * Start the countdown timer
+	 */
+	startTimer() {
+		this.stopTimer() // Clear any existing timer
+		this.timerInterval = setInterval(() => {
+			if (this.timeRemaining > 0) {
+				this.timeRemaining--
+			} else {
+				this.stopTimer()
+				// Timer expired - session should end
+				console.log('[MathChallengeService] Timer expired')
+			}
+		}, 1000)
+	}
+
+	/**
+	 * Stop the countdown timer
+	 */
+	stopTimer() {
+		if (this.timerInterval) {
+			clearInterval(this.timerInterval)
+			this.timerInterval = null
+		}
+	}
+
+	/**
+	 * Check if timer has expired
+	 */
+	isTimerExpired(): boolean {
+		return this.timerEnabled && this.timeRemaining <= 0
+	}
+
+	/**
+	 * Format time remaining as MM:SS
+	 */
+	formatTimeRemaining(): string {
+		const minutes = Math.floor(this.timeRemaining / 60)
+		const seconds = this.timeRemaining % 60
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`
 	}
 
 	/**
@@ -259,6 +319,7 @@ class MathChallengeServiceClass {
 	 * Clear the current session
 	 */
 	clearSession() {
+		this.stopTimer()
 		this.currentSession = null
 		this.currentInput = ''
 		this.isLoading = false
@@ -266,6 +327,9 @@ class MathChallengeServiceClass {
 		this.showFeedback = false
 		this.problemStartTime = Date.now()
 		this.results = null
+		this.timerEnabled = false
+		this.timerDuration = 0
+		this.timeRemaining = 0
 	}
 }
 
