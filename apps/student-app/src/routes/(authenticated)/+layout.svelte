@@ -3,6 +3,9 @@
 	import { authService } from '$lib/services/auth.svelte.ts';
 	import { Button } from '@educational-app/ui';
 	import { BookOpen, Home, LogOut, Trophy, User, WifiOff } from 'lucide-svelte';
+	import type { Snippet } from 'svelte';
+
+	let { children }: { children: Snippet } = $props();
 
 	// Get current user from auth service
 	const user = $derived(authService.currentUser)
@@ -69,7 +72,7 @@
 
 	<!-- Main Content -->
 	<main class="flex-1 overflow-y-auto pb-20">
-		<slot />
+		{@render children()}
 	</main>
 
 	<!-- Bottom Navigation -->

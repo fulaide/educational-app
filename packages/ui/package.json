@@ -74,7 +74,9 @@
 		"vitest": "^2.1.5"
 	},
 	"peerDependencies": {
-		"svelte": "^5.0.0"
+		"svelte": "^5.0.0",
+		"@educational-app/i18n": "workspace:*",
+		"@educational-app/learning": "workspace:*"
 	},
 	"engines": {
 		"node": ">=18.0.0"

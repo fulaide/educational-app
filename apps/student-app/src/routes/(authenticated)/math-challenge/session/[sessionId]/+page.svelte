@@ -26,6 +26,9 @@
 	const timerWarning = $derived(timerEnabled && timeRemaining <= 30 && timeRemaining > 0)
 	const timerCritical = $derived(timerEnabled && timeRemaining <= 10 && timeRemaining > 0)
 
+	// Track if we've already handled timer expiration to prevent double redirects
+	let hasHandledExpiration = $state(false)
+
 	// Check if we have an active session on mount
 	onMount(() => {
 		console.log('[SessionPage] onMount - currentSession:', mathChallengeService.currentSession)
@@ -40,11 +43,18 @@
 
 	// Watch for timer expiration
 	$effect(() => {
-		if (isTimerExpired && mathChallengeService.currentSession) {
+		if (isTimerExpired && mathChallengeService.currentSession && !hasHandledExpiration) {
+			// Mark as handled immediately to prevent multiple redirects
+			hasHandledExpiration = true
+
 			// Timer expired - go to results
-			const session = mathChallengeService.currentSession
+			const sessionId = mathChallengeService.currentSession.id
+			console.log('[SessionPage] Timer expired, redirecting to results for session:', sessionId)
+
+			// Force calculate results before redirecting (session may not be complete)
+			mathChallengeService.forceCalculateResults()
 			mathChallengeService.stopTimer()
-			goto(`/math-challenge/results/${session.id}`)
+			goto(`/math-challenge/results/${sessionId}`)
 		}
 	})
 

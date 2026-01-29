@@ -16,7 +16,7 @@ if (typeof document !== 'undefined') {
 }
 
 // Listen for locale changes
-import { locale } from 'svelte-i18n'
+import { locale } from '@educational-app/i18n'
 locale.subscribe((newLocale) => {
 	if (typeof document !== 'undefined' && newLocale) {
 		document.documentElement.lang = newLocale

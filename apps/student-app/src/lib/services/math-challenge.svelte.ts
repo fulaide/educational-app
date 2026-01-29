@@ -301,6 +301,18 @@ class MathChallengeServiceClass {
 	}
 
 	/**
+	 * Force calculate results even if session is not complete
+	 * Used when timer expires before all problems are answered
+	 */
+	forceCalculateResults(): MathSessionResults | null {
+		if (!this.currentSession) return null
+
+		// Calculate results regardless of completion status
+		this.results = calculateResults(this.currentSession)
+		return this.results
+	}
+
+	/**
 	 * Get session progress
 	 */
 	getProgress(): { current: number; total: number; percentage: number } {

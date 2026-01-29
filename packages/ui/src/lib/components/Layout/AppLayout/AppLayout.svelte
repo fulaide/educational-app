@@ -9,7 +9,7 @@
   }
 
   let { children, theme = 'auto', class: className = '' }: Props = $props();
-  
+
   // Create layout context immediately (not onMount to support SSR)
   const layoutContext = createLayoutContext({
     sidebarCollapsed: false,
