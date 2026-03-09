@@ -1,0 +1,32 @@
+[
+  {
+    "time": 0,
+    "viseme": 9,
+    "duration": 0.313
+  },
+  {
+    "time": 0.313,
+    "viseme": 7,
+    "duration": 0.23300000000000004
+  },
+  {
+    "time": 0.546,
+    "viseme": 3,
+    "duration": 0.127
+  },
+  {
+    "time": 0.673,
+    "viseme": 9,
+    "duration": 0.11599999999999999
+  },
+  {
+    "time": 0.789,
+    "viseme": 5,
+    "duration": 0.16299999999999992
+  },
+  {
+    "time": 0.952,
+    "viseme": 0,
+    "duration": 0.3
+  }
+]

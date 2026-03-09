@@ -2,30 +2,30 @@
 	import { goto } from '$app/navigation';
 	import { authService } from '$lib/services/auth.svelte.ts';
 	import { Button } from '@educational-app/ui';
-	import { BookOpen, Home, LogOut, Trophy, User, WifiOff } from 'lucide-svelte';
+	import { Banana, BookOpen, Home, LogOut, Trophy, User, WifiOff } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
 
 	// Get current user from auth service
-	const user = $derived(authService.currentUser)
-	const isOnline = $derived(authService.isOnline)
+	const user = $derived(authService.currentUser);
+	const isOnline = $derived(authService.isOnline);
 
 	// Current active route
-	let currentPath = $state('')
+	let currentPath = $state('');
 
 	// Update current path when component mounts
 	if (typeof window !== 'undefined') {
-		currentPath = window.location.pathname
+		currentPath = window.location.pathname;
 	}
 
 	function handleLogout() {
-		authService.logout()
+		authService.logout();
 	}
 
 	function navigateTo(path: string) {
-		currentPath = path
-		goto(path)
+		currentPath = path;
+		goto(path);
 	}
 </script>
 
@@ -35,7 +35,9 @@
 		<div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 			<!-- User Profile -->
 			<div class="flex items-center space-x-3">
-				<div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+				<div
+					class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold"
+				>
 					{#if user?.name}
 						{user.name.charAt(0).toUpperCase()}
 					{:else}
@@ -56,14 +58,21 @@
 			<div class="flex items-center space-x-2">
 				<!-- Offline Indicator -->
 				{#if !isOnline}
-					<div class="flex items-center space-x-1 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
+					<div
+						class="flex items-center space-x-1 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium"
+					>
 						<WifiOff class="w-3 h-3" />
 						<span>Offline</span>
 					</div>
 				{/if}
 
 				<!-- Logout Button -->
-				<Button variant="ghost" size="sm" onclick={handleLogout} class="text-neutral-600 hover:text-neutral-900">
+				<Button
+					variant="ghost"
+					size="sm"
+					onclick={handleLogout}
+					class="text-neutral-600 hover:text-neutral-900"
+				>
 					<LogOut class="w-4 h-4" />
 				</Button>
 			</div>
@@ -80,7 +89,10 @@
 		<div class="max-w-7xl mx-auto px-4 py-2 flex justify-around items-center">
 			<button
 				onclick={() => navigateTo('/dashboard')}
-				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/dashboard' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath ===
+				'/dashboard'
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<Home class="w-5 h-5" />
 				<span class="text-xs font-medium">Home</span>
@@ -88,15 +100,35 @@
 
 			<button
 				onclick={() => navigateTo('/vocabulary')}
-				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith('/vocabulary') ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith(
+					'/vocabulary'
+				)
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<BookOpen class="w-5 h-5" />
 				<span class="text-xs font-medium">Learn</span>
 			</button>
 
 			<button
+				onclick={() => navigateTo('/kapi')}
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith(
+					'/kapi'
+				)
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
+			>
+				<Banana class="w-5 h-5" />
+				<span class="text-xs font-medium">Kapi</span>
+			</button>
+
+			<button
 				onclick={() => navigateTo('/math-challenge')}
-				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith('/vocabulary') ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath.startsWith(
+					'/vocabulary'
+				)
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<BookOpen class="w-5 h-5" />
 				<span class="text-xs font-medium">Math</span>
@@ -104,7 +136,10 @@
 
 			<button
 				onclick={() => navigateTo('/math-test')}
-				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/achievements' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath ===
+				'/achievements'
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<Trophy class="w-5 h-5" />
 				<span class="text-xs font-medium">Test</span>
@@ -112,7 +147,10 @@
 
 			<button
 				onclick={() => navigateTo('/profile')}
-				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath === '/profile' ? 'text-primary-600 bg-primary-50' : 'text-neutral-600 hover:bg-neutral-50'}"
+				class="flex flex-col items-center space-y-1 py-2 px-4 rounded-lg transition-colors {currentPath ===
+				'/profile'
+					? 'text-primary-600 bg-primary-50'
+					: 'text-neutral-600 hover:bg-neutral-50'}"
 			>
 				<User class="w-5 h-5" />
 				<span class="text-xs font-medium">Me</span>

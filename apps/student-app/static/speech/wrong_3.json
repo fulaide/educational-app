@@ -1,0 +1,52 @@
+[
+  {
+    "time": 0,
+    "viseme": 3,
+    "duration": 0.093
+  },
+  {
+    "time": 0.093,
+    "viseme": 7,
+    "duration": 0.30200000000000005
+  },
+  {
+    "time": 0.395,
+    "viseme": 6,
+    "duration": 0.15100000000000002
+  },
+  {
+    "time": 0.546,
+    "viseme": 3,
+    "duration": 0.08099999999999996
+  },
+  {
+    "time": 0.627,
+    "viseme": 7,
+    "duration": 0.08099999999999996
+  },
+  {
+    "time": 0.708,
+    "viseme": 1,
+    "duration": 0.4990000000000001
+  },
+  {
+    "time": 1.207,
+    "viseme": 9,
+    "duration": 0.627
+  },
+  {
+    "time": 1.834,
+    "viseme": 7,
+    "duration": 0.11599999999999988
+  },
+  {
+    "time": 1.95,
+    "viseme": 3,
+    "duration": 0.0930000000000002
+  },
+  {
+    "time": 2.043,
+    "viseme": 0,
+    "duration": 0.3
+  }
+]

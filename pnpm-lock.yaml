@@ -119,10 +119,10 @@ importers:
         version: link:../../packages/ui
       '@trpc/client':
         specifier: ^10.45.0
-        version: 10.45.4(@trpc/server@10.45.4)
+        version: 10.45.4(@trpc/server@11.11.0(typescript@5.9.3))
       trpc-sveltekit:
         specifier: ^3.6.3
-        version: 3.6.3(@sveltejs/adapter-node@5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))))(@trpc/client@10.45.4(@trpc/server@10.45.4))(@trpc/server@10.45.4)(ws@8.19.0)
+        version: 3.6.3(@sveltejs/adapter-node@5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))))(@trpc/client@10.45.4(@trpc/server@11.11.0(typescript@5.9.3)))(@trpc/server@11.11.0(typescript@5.9.3))(ws@8.19.0)
       zod:
         specifier: ^3.23.8
         version: 3.25.76
@@ -189,13 +189,13 @@ importers:
         version: link:../../packages/ui
       '@trpc/client':
         specifier: ^10.45.0
-        version: 10.45.4(@trpc/server@10.45.4)
+        version: 10.45.4(@trpc/server@11.11.0(typescript@5.9.3))
       lucide-svelte:
         specifier: ^0.400.0
         version: 0.400.0(svelte@5.48.3)
       trpc-sveltekit:
         specifier: ^3.6.3
-        version: 3.6.3(@sveltejs/adapter-node@5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))))(@trpc/client@10.45.4(@trpc/server@10.45.4))(@trpc/server@10.45.4)(ws@8.19.0)
+        version: 3.6.3(@sveltejs/adapter-node@5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))))(@trpc/client@10.45.4(@trpc/server@11.11.0(typescript@5.9.3)))(@trpc/server@11.11.0(typescript@5.9.3))(ws@8.19.0)
       zod:
         specifier: ^3.23.8
         version: 3.25.76
@@ -275,6 +275,9 @@ importers:
       '@elevenlabs/elevenlabs-js':
         specifier: ^2.33.0
         version: 2.33.0
+      '@rive-app/canvas':
+        specifier: ^2.35.0
+        version: 2.35.0
       idb:
         specifier: ^8.0.0
         version: 8.0.3
@@ -300,6 +303,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.12
         version: 4.1.18(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))
+      dotenv-cli:
+        specifier: ^7.4.4
+        version: 7.4.4
       svelte:
         specifier: ^5.0.0
         version: 5.48.3
@@ -309,6 +315,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.12
         version: 4.1.18
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -333,6 +342,9 @@ importers:
       '@trpc/client':
         specifier: ^10.45.0
         version: 10.45.4(@trpc/server@10.45.4)
+      '@trpc/server':
+        specifier: ^10.45.4
+        version: 10.45.4
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
@@ -345,6 +357,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
+      lucide-svelte:
+        specifier: ^0.400.0
+        version: 0.400.0(svelte@5.48.3)
       sveltekit-superforms:
         specifier: ^2.27.1
         version: 2.29.1(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(@types/json-schema@7.0.15)(svelte@5.48.3)(typescript@5.9.3)
@@ -1590,6 +1605,9 @@ packages:
   '@prisma/get-platform@6.19.2':
     resolution: {integrity: sha512-PGLr06JUSTqIvztJtAzIxOwtWKtJm5WwOG6xpsgD37Rc84FpfUBGLKz65YpJBGtkRQGXTYEFie7pYALocC3MtA==}
 
+  '@rive-app/canvas@2.35.0':
+    resolution: {integrity: sha512-aBFgoM11X/YgpSKZDxOvt3P9EZz8siJ+AZ5aevwaiLwu9K1nHSumXDCdmJPp+9FWhW9Ssk9Le14BptnlCR1m7w==}
+
   '@rollup/plugin-commonjs@28.0.9':
     resolution: {integrity: sha512-PIR4/OHZ79romx0BVVll/PkwWpJ7e5lsqFa3gFfcrFPWwLXLV39JVUzQV9RKjWerE7B845Hqjj9VYlQeieZ2dA==}
     engines: {node: '>=16.0.0 || 14 >= 14.17'}
@@ -1932,6 +1950,11 @@ packages:
 
   '@trpc/server@10.45.4':
     resolution: {integrity: sha512-5MuyK5sDuFVGHOT9EMVHgRjP5I5j3RqGymcb5D47UOp8tzn6LH0g1lEgYrAsOZ12vmk1gpxMw/v/y4xHHK/Qdg==}
+
+  '@trpc/server@11.11.0':
+    resolution: {integrity: sha512-5CBK5Oit8qv2k2zgIHrUsa12tnCIVpZIJLvMa4n2tejuWz/d7Qb1B1v9zZioapr7y8sEvnk8zPcNnxcT2LlQxg==}
+    peerDependencies:
+      typescript: '>=5.7.2'
 
   '@types/bcryptjs@2.4.6':
     resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
@@ -2512,6 +2535,14 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
+
+  dotenv-cli@7.4.4:
+    resolution: {integrity: sha512-XkBYCG0tPIes+YZr4SpfFv76SQrV/LeCE8CI7JSEMi3VR9MvTihCGTOtbIexD6i2mXF+6px7trb1imVCXSNMDw==}
+    hasBin: true
+
+  dotenv-expand@10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
 
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
@@ -5110,6 +5141,8 @@ snapshots:
     dependencies:
       '@prisma/debug': 6.19.2
 
+  '@rive-app/canvas@2.35.0': {}
+
   '@rollup/plugin-commonjs@28.0.9(rollup@4.56.0)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.56.0)
@@ -5476,7 +5509,15 @@ snapshots:
     dependencies:
       '@trpc/server': 10.45.4
 
+  '@trpc/client@10.45.4(@trpc/server@11.11.0(typescript@5.9.3))':
+    dependencies:
+      '@trpc/server': 11.11.0(typescript@5.9.3)
+
   '@trpc/server@10.45.4': {}
+
+  '@trpc/server@11.11.0(typescript@5.9.3)':
+    dependencies:
+      typescript: 5.9.3
 
   '@types/bcryptjs@2.4.6': {}
 
@@ -6112,6 +6153,15 @@ snapshots:
   dot-prop@5.3.0:
     dependencies:
       is-obj: 2.0.0
+
+  dotenv-cli@7.4.4:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 16.6.1
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+
+  dotenv-expand@10.0.0: {}
 
   dotenv@16.6.1: {}
 
@@ -7714,6 +7764,13 @@ snapshots:
       '@sveltejs/adapter-node': 5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))
       '@trpc/client': 10.45.4(@trpc/server@10.45.4)
       '@trpc/server': 10.45.4
+      ws: 8.19.0
+
+  trpc-sveltekit@3.6.3(@sveltejs/adapter-node@5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))))(@trpc/client@10.45.4(@trpc/server@11.11.0(typescript@5.9.3)))(@trpc/server@11.11.0(typescript@5.9.3))(ws@8.19.0):
+    dependencies:
+      '@sveltejs/adapter-node': 5.5.2(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.48.3)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)))
+      '@trpc/client': 10.45.4(@trpc/server@11.11.0(typescript@5.9.3))
+      '@trpc/server': 11.11.0(typescript@5.9.3)
       ws: 8.19.0
 
   ts-algebra@2.0.0: {}
